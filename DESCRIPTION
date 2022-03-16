@@ -1,0 +1,55 @@
+Package: PatternMatchR
+Type: Package
+Title: A Tool for Visualization of Different Traits in Heatmaps
+Version: 0.1.0
+Authors@R: 
+    person(given = "Stefan",
+           family = "Röder",
+           role = c("aut", "cre"),
+           email = "stefan.roeder@ufz.de",
+           comment = c(ORCID = "0000-0001-9367-663X"))
+Description: Visualizes different traits with different color codes in a single heatmap.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Depends: R (>= 4.1.0)
+Remotes:
+    github::rstudio/httpuv,
+    github::perishky/meffil,
+    github::jokergoo/ComplexHeatmap,
+    github::jokergoo/InteractiveComplexHeatmap (>= 1.1.3)
+Imports:
+    shiny (>= 1.7.0),
+    shinyBS,
+    compiler,
+    DT (>= 0.18),
+    data.table (>= 1.14.0),
+    magrittr,
+    foreach,
+    psych,
+    RColorBrewer,
+    magick,
+    dendextend,
+    fastcluster,
+    cluster,
+    parallelDist,
+    config,
+    dplyr,
+    ggplot2,
+    matrixStats,
+    plotly,
+    stringr,
+    circlize,
+    devtools,
+    meffil,
+    ComplexHeatmap,
+    InteractiveComplexHeatmap,
+    reshape2
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
