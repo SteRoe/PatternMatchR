@@ -15,13 +15,19 @@ install_github('SteRoe/PatternMatchR')
 
 ## Usage
 
-Point your working directory to the location with your files to visualize. This folder should also contain a valid yml-file with all necessary settings for
-  dataDir1: a list containg Omics results for a first matching scenario
-  dataDir2: a list containg Omics results for a second matching scenario
-  dataDir3: a list containg Omics results for a third matching scenario
-  workDir: working directory
-  P_VALWarningThreshold: unusual low p-value for which a warning should be generated (5e-50)
-  debugMode: TRUE
+Point your working directory to the location with your files to analyze. This folder should also contain a valid yml-file with all necessary settings for
+
+dataDir1: a list containg Omics results for a first matching scenario
+
+dataDir2: a list containg Omics results for a second matching scenario
+
+dataDir3: a list containg Omics results for a third matching scenario
+
+workDir: working directory
+
+P_VALWarningThreshold: unusual low p-value for which a warning should be generated (5e-50)
+
+debugMode: TRUE
 
 
 An example is given in the ./inst/extdata/ folder.

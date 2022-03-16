@@ -46,8 +46,5 @@ default:
              "Y:/Home/roeder/daten/Forschungsplanung/EWAS_IgE/all/",
              "Z:/EWAS_Stress/all/"]
   workDir: "./workdir/"
-  betaFileName: "f:/roeder/methylation_transposed2.csv"
-  annotationRDSFileName: "f:/roeder/annotation.rds"
-  multiModCpGFileName: "y:/Gruppen/immu/Epigenetik/450k/MultiModalCpG.csv"
   P_VALWarningThreshold: 5e-50
   debugMode: TRUE
