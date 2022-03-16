@@ -81,7 +81,6 @@ getlistOfResultsDF <- function(folder) {
   }
 }
 
-#Weiter: check duplicated of loadFolderDFList() with getlistOfResultsDF()
 #' loadFolderDFList
 #' loads list of data.frame from folder
 #' @param folder folder containing all files to read to list
@@ -181,8 +180,6 @@ loadResultDF  <- function(folder) {
   }
 }
 
-#
-#Weiter: check, whether furthermore in use and where
 #' getAvailNForP_VALBorder
 #' counts traits with at least 2 elements > P_VAL_BORDER
 #' @param DF data.frame with P_Val

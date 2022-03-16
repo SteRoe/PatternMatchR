@@ -90,7 +90,6 @@ server <- function(input, output, session) {
     print(paste0(Sys.time(), " start counting probes."))
     minN = as.integer(input$txtCases)
     combinedDFP_Val_Labels = getCombinedDFP_Val_Labels(sessionVariables, minN)
-#    P_VALNTable = getAvailNForP_VALBorder(combinedDFP_Val_Labels[[1]]) #, 50)
     P_VALNTable = getAvailNForP_VALBorder(combinedDFP_Val_Labels$dfP_Val)
     output$DTP_VALborder = DT::renderDataTable(P_VALNTable)
     print(paste0(Sys.time(), " finished counting probes."))
@@ -99,8 +98,7 @@ server <- function(input, output, session) {
   output$txtMinP_Val = shiny::reactive({
     a = sessionVariables$numberVariables
     combinedDFP_Val_Labels = getCombinedDFP_Val_Labels(sessionVariables, minN)
-    dfP_Val = combinedDFP_Val_Labels$dfP_Val #as.matrix(combinedDFP_Val_Labels$dfP_Val)
-#    minP_Val = min(dfP_Val) #[myvector > 0]
+    dfP_Val = combinedDFP_Val_Labels$dfP_Val
     minP_Val = min(dfP_Val[which(dfP_Val>0, arr.ind = TRUE)])
     exponent = extractMantissaExponent(minP_Val)$exponent
     if (exponent<0) {exponent = exponent * -1}
@@ -115,13 +113,10 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$plotCombinedHM, ignoreInit = TRUE, {
 
     sessionVariables$gMaxProbes = input$txtMaxProbes
-#    sessionVariables$gP_ValMaxBorder = input$txtP_VALborder
-
     print(paste0(Sys.time(), " start plotting heatmap."))
     output$txtHMDescription = shiny::renderText(paste0("calculating heatmap..., current plot is not valid"))
     while (!is.null(grDevices::dev.list())) grDevices::dev.off()
     print(paste0(Sys.time(), " creating empty heatmap."))
-#browser()
     combinedHMP_VAL = emptyHM()
     InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
     minN = as.integer(input$txtCases)
@@ -133,16 +128,16 @@ server <- function(input, output, session) {
       clustResProbes = result$clustResProbes
       distMatTraits = result$distMatTraits
       clustResTraits = result$clustResTraits
-      dfP_Val = combinedDFP_Val_Labels$dfP_Val #as.matrix(combinedDFP_Val_Labels$dfP_Val) #combinedDFP_Val_Labels[[1]]
-      dfDM = combinedDFP_Val_Labels$dfDM #as.matrix(combinedDFP_Val_Labels$dfDM)
-      dfN = combinedDFP_Val_Labels$dfN #as.matrix(combinedDFP_Val_Labels$dfN)
+      dfP_Val = combinedDFP_Val_Labels$dfP_Val
+      dfDM = combinedDFP_Val_Labels$dfDM
+      dfN = combinedDFP_Val_Labels$dfN
     }
     else {
       print(paste0(Sys.time(), " calculating combined heatmap."))
       combinedDFP_Val_Labels = getCombinedDFP_Val_Labels(sessionVariables, minN)
-      dfP_Val = combinedDFP_Val_Labels$dfP_Val #as.matrix(combinedDFP_Val_Labels$dfP_Val)
-      dfDM = combinedDFP_Val_Labels$dfDM #as.matrix(combinedDFP_Val_Labels$dfDM)
-      dfN = combinedDFP_Val_Labels$dfN #as.matrix(combinedDFP_Val_Labels$dfN)
+      dfP_Val = combinedDFP_Val_Labels$dfP_Val
+      dfDM = combinedDFP_Val_Labels$dfDM
+      dfN = combinedDFP_Val_Labels$dfN
 print(class(dfP_Val))
       print(paste0(Sys.time()," nrow before reduce ",nrow(dfP_Val)))
 #check numRows...
@@ -150,7 +145,6 @@ print(class(dfP_Val))
         #in theory, ComplexHeatmap is limited to sqrt(2^31) = 46340 by 46340 items;
         #in reality, limitation is around 30000 items (sometimes more, unfortunately no constant value; checked this in August 2021); with matrices larger than that,
         #Error in Cairo: Failed to create Cairo backend!
-        #occurs
         message(paste0("probelist for heatmap has ", sessionVariables$gMaxProbes, " probes. This is more than 32000 probes, which is due to the sqr(2^31) limit for ComplexHeatmap."))
         sessionVariables$gMaxProbes=32000
       }
@@ -169,11 +163,9 @@ print(class(dfP_Val))
           print(paste0(Sys.time(), " debug mode n probes=1000."))
           dfP_Val = dfP_Val[1:1000,]
         }
-  #mat = log10(mat) * -1
-  #message(which(is.na(mat), arr.ind = TRUE)) #identify NA if given
+
         print(paste0(Sys.time(), " set infinite p-values to .Machine$integer.max."))
         indexdfP_Val_infinite = is.infinite(as.matrix(dfP_Val))
-#        dfP_Val[which(is.infinite(dfP_Val), arr.ind = TRUE)]=.Machine$integer.max
         dfP_Val[indexdfP_Val_infinite] = .Machine$integer.max
         if (!is.data.frame(dfDM)) {
           dfDM = as.data.frame(dfDM)
@@ -233,7 +225,7 @@ print(class(dfP_Val))
       print(paste0(Sys.time()," gc()"))
       gc()
       print(paste0(Sys.time()," before making dendrogram for probes"))
-#browser()
+
 #check clustResProbes > 8
 length(clustResProbes)
   #even with:
@@ -242,11 +234,11 @@ length(clustResProbes)
       options(expression = 500000)
       dendProbes = stats::as.dendrogram(clustResProbes)
       dendProbes = dendextend::color_branches(dendProbes, input$txtMaxClassesProbes)
-      listProbes = labels(dendProbes) #unlist(dendProbes)
+      listProbes = labels(dendProbes)
       print(paste0(Sys.time()," before making dendrogram for traits"))
       dendTraits = stats::as.dendrogram(clustResTraits)
       dendTraits = dendextend::color_branches(dendTraits, input$txtMaxClassesTraits)
-      listTraits = labels(dendTraits) #unlist(dendTraits)
+      listTraits = labels(dendTraits)
       print(paste0(Sys.time()," before reordering matrices"))
       # reorder matrices
       dfP_Val = dfP_Val[listProbes,listTraits]
@@ -259,9 +251,9 @@ length(clustResProbes)
       output$plotDendrogramTraits <- plotly::renderPlotly(plotTraits)
       #build annotated tables for probes in order of dendrogram
       print(paste0(Sys.time()," before rendering dendrogram tables probes"))
-      DTProbes = data.frame(row.names = 1:length(listProbes)) #clustResProbes$labels))
-      DTProbes$probeID = listProbes #rownames(mat[listProbes,]) #DTProbes$probeID = clustResProbes$labels
-      DTProbes$order = seq(nrow(DTProbes)) #clustResProbes$order
+      DTProbes = data.frame(row.names = 1:length(listProbes))
+      DTProbes$probeID = listProbes
+      DTProbes$order = seq(nrow(DTProbes))
       rownames(DTProbes) = DTProbes$probeID
       #add annotation
       DTProbes = base::merge(x = DTProbes, y = globalVariables$annotation, by.x = "probeID", by.y = "name", all.x = TRUE, all.y = FALSE)
@@ -270,9 +262,9 @@ length(clustResProbes)
       rownames(DTProbes) = DTProbes$probeID
       output$DTProbes <- DT::renderDataTable(DTProbes)
       print(paste0(Sys.time()," before rendering dendrogram tables traits"))
-      DTTraits = data.frame(row.names = 1:length(listTraits)) #(clustResTraits$labels))
-      DTTraits$Name = listTraits #colnames(mat[,listTraits]) #clustResTraits$labels
-      DTTraits$order = seq(nrow(DTTraits)) #clustResTraits$order
+      DTTraits = data.frame(row.names = 1:length(listTraits))
+      DTTraits$Name = listTraits
+      DTTraits$order = seq(nrow(DTTraits))
       rownames(DTTraits) = DTTraits$Name
       DTTraits = DTTraits[order(DTTraits$order),]
       output$DTTraits <- DT::renderDataTable(DTTraits)
@@ -287,7 +279,6 @@ length(clustResProbes)
 
       print(paste0(Sys.time()," before calculating heatmap"))
       #check dimensions of combinedDFP_Val_Labels, dendProbes, dendTraits
-      #combinedHMP_VAL = combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits)
       l = combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits)
       print(paste0(Sys.time()," before plotting heatmap"))
 
@@ -306,7 +297,6 @@ length(clustResProbes)
       diag(orderedDistMatTraits) <- NA
       orderedDistMatTraits <- reshape2::melt(orderedDistMatTraits)
       #sort by distance, closest first
-browser()
       orderedDistMatTraits <- orderedDistMatTraits[order(orderedDistMatTraits$value),]
       colnames(orderedDistMatTraits) <- c("Var1", "Var2", "distance")
       orderedDistMatTraits<-stats::na.omit(orderedDistMatTraits)
@@ -337,7 +327,7 @@ browser()
       DifferentOrderedDistMatTraits<- orderedDistMatTraits[which((orderedDistMatTraits$Var1Source != orderedDistMatTraits$Var2Source)),]
 
       output$DTDifferentOrderedDistMatTraits <- DT::renderDataTable(DifferentOrderedDistMatTraits)
-browser()
+
       orderedDistMatProbes <- as.matrix(result$distMatProbes)
       orderedDistMatProbes[upper.tri(orderedDistMatProbes)] <- NA
       diag(orderedDistMatProbes) <- NA
@@ -374,21 +364,8 @@ browser()
 
   }, ignoreNULL = FALSE)
 
-  # shiny::observeEvent(input$txtP_VALborder, ignoreInit = TRUE, {
-  #   if (!is.na(as.integer(input$txtP_VALborder))) {
-  #     sessionVariables$gP_ValMaxBorder = 5*10^-as.integer(input$txtP_VALborder)
-  #     shiny::updateSliderInput(session, "sldMaxP_Val", value = as.integer(input$txtP_VALborder))
-  #     output$txtDebugOut = shiny::renderText(sessionVariables$gP_ValMaxBorder);
-  #   }
-  #   else{
-  #     sessionVariables$gP_ValMaxBorder = 5*10^-18
-  #   }
-  #
-  # }, ignoreNULL = FALSE)
-  #
   shiny::observeEvent(input$txtMaxProbes, ignoreInit = TRUE, {
     sessionVariables$gMaxProbes = input$txtMaxProbes
   }, ignoreNULL = FALSE)
-#  plotHM_SERVER("HeatMap", sessionVariables)
 }
 
