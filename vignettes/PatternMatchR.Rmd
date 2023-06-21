@@ -1,0 +1,114 @@
+---
+title: "PatternMatchR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PatternMatchR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+author:
+abstract: "This document provides a short introduction on how to use PatternMatchR software"
+keywords: "Pattern matching, Visualization"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(PatternMatchR)
+```
+
+# PatternMatchR Introduction
+
+PatternMatchR is a tool for finding and visualizing of matching patterns in Omics.  
+
+The PatternMatchR package is designed to find and visualize matching patterns in Omics analyses. Examples are for epigenetics.  
+
+It supports the user by providing the following tools:  
+- select and merge data out of various data sources;  
+- reduce number of results by defining limits for p-values;  
+- reduce number of traits by clustering similar traits together;  
+- plotting a heatmap which shows similarities between traits. Data from up to three different topics are marked with red/green/blue colors inside the heatmap in order to easily visualize data source of a certain trait;  
+- plotting a scatter plot matrix (SPLOM), which shows the relationship between similar traits and methylation.
+
+# Installing PatternMatchR
+
+PatternMatchR can be installed from Github using <remotes> or <devtools>;
+library('remotes')  
+install_github('SteRoe/PatternMatchR')
+
+# Data Structure & Configuration
+
+Data for use with PatternMatchR is organized in several folders, which are described in a central configuration file (config.yml in main working directory of PatternMatchR).
+
+The structure of this configuration file is as follows:
+
+dataDir1: a list containg Omics results for a first matching scenario (red folder);
+dataDir2: a list containg Omics results for a second matching scenario (green folder);
+dataDir3: a list containg Omics results for a third matching scenario (blue folder);
+betaFileName: file with the methylation measurements;
+probeAttribut: column inside betaFileName which holds the probeIDs;
+workDir: working directory;
+keyAttributes: possible primary keys used inside the original data files to use for merging them;
+P_VALWarningThreshold: unusual low p-value for which a warning should be generated (5e-50);
+debugMode: TRUE/FALSE; load only a fraction of data, for debugging purposes.
+
+An example is given in the ./inst/extdata/ folder.
+Detailed explanations of data structures are in the vignette.
+
+
+# Application Start
+
+setwd("your.working.directory")  
+Start the App using: PatternMatchR::PatternMatchRApp()
+
+PatternMatchR is based in R shiny library and uses reactive paradigm where appropriate. Some steps (filterng, clustering and plotting) are computational intensive and work therefore outside the reactive design: they have to be started using buttons.
+
+The application workflow is organized in steps:
+Step 1: Load all trait dirs
+Step 2: Merge data from all folders
+Step 3: Reduce data (omit CpGs) by p-value
+Step 4: Cluster & reduce trait data
+Step 5: Plot Heatmap
+
+# Selection of Data
+During the first step data from several predefined folders (see <config.yml>) becomes loaded. Data source for traits is subdivided into three sections, which are color coded (red/ green/ blue). These colors will later be used while plotting the heatmap.
+
+Data to analyze with PatternMatchR comes in the following structure:
+
+a) regression result data:
+tables with the column structure:
+
+probeID	BETA	SE	P_VAL	FDR	DeltaMeth	N
+
+for each trait. Columns should be separated by tab (\t), decimal separator should be ".".
+
+b) original data:
+a table with traits as columns and individual ID's as rows (see traits_short.csv in ./inst/extdata folder)
+a table with methylation measurements (see methylation_example_short.csv in ./inst/extdata folder)
+
+# Merging of Data
+After selecting and loading data, data becomes merged by a common probeID (definded in <config.yml>) into a common data structure for subsequent use.
+
+# Reducing Results by Selecting a Range for p-values
+Many results inside the result files do not provide information, because, they lack a certain p-value threshold. Therefore, PatternMatchR allows to define a range of p-values, which should be used for further analyses. As a (very welcome) side effect, the number of CpG to process in subsequent steps becomes smaller: As a rule of thumb, you can use ~ 40.000 CpG in further steps with acceptable response times. CpG become visualized as rows in PatternMatchR heatmap.
+
+# Reducing Results by Clustering Traits
+On the other hand side (as columns in PatternMatchR heatmap) we have traits, which sometimes are very similar to eachother (i.e. lifetime prevalences in terms of health research). Therefore it is a good idea to also reduce the number of traits prior to final processing: PatternMatchR is able to cluster traits by similarity. Maximum number of clusters is equal to the number of traits. In this case, each cluster consists of one trait. Clustering is visually supported by a dendrogram and a clustergram. Clustering results are also provided as a table with all cluster medoids. These serve as proxies for the traits contained within the respective cluster.
+
+# Clustering of Results and Visualize it by Heatmap
+After the two dimensionality reduction steps, PatternMatchR holds a data structure with p-values, delta methylations of the selected CpGs and traits. Now, the core processing step of PatternMatchR is ready to run.  
+While clicking on "Step 5: Plot Heatmap", PatternMatchR starts a clustering procedure (fastcluster, ward.D2 method) for both traits and CpGs in order to produce a heatmap, which shows similarities between them. To speed up calculation time, distance matrices and clustering itself become calulated in parallel using 
+
+- 1/2 number of CPU cores, if more than 64 cores are available,  
+- number of CPU cores - 4, if less than 64 and more than 8 cores are available,  
+- number of CPU cores - 1, if less than 8 cores are available.
+
+After finishing distance matrix calculation, clustering and heatmap plotting, the heatmap will be provided below the "Step 5: Plot Heatmap" button. It uses the same colors (red, green, blue) for different trait groups as defined in the data selection step. Traits from different groups, that became clustered nearby have similar patterns in terms of methylation.
+
+# Visualization and Verification of Results by Scatter Plot Matrix (SPLOM)
+To further investigate the found patterns, PatternMatchR provides the possibility to go back to the original data and plot this original data belonging to a selected range inside the heatmap. This an be done by brushing the heatmap using the mouse cursor: all traits and CpGs inside the brushed area become plotted into a scatter plot matrix inside the tab "SPLOM".

@@ -1,0 +1,2 @@
+default:
+ PHENOFileName: "../traits_short.csv" #file containing the variables with traits under investigation

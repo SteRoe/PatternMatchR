@@ -1,0 +1,10 @@
+default:
+  dataDir1: ["./inst/extdata/data1/","./inst/extdata/data11/","./inst/extdata/data12/"]
+  dataDir2: ["./inst/extdata/data2/","./inst/extdata/data21/","./inst/extdata/data22/"]
+  dataDir3: "./inst/extdata/data3/"
+  betaFileName: "./inst/extdata/methylation_example_short.csv"
+  probeAttribut: "probeID"
+  workDir: "./inst/extdata/mergedFolder/"
+  keyAttributes: ["LINA_ID", "ID_Mutter", "ID_Kind", "MutterID", "KindID"]
+  P_VALWarningThreshold: 5e-50
+  debugMode: TRUE
