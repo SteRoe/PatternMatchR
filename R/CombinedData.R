@@ -468,6 +468,7 @@ loadDir <- function(session, traitDirList) {
   tryCatch(
     {
       #load all trait folders
+      base::print(base::paste0(Sys.time(), " before loading '", traitDirList, "'."))
       traitDFs <-
         base::lapply(traitDirList,
                      FUN = loadResultDF,
