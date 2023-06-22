@@ -6,6 +6,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 author:
+- Stefan R&ouml;der, Helmholtz Centre for Environmental Research - UFZ
+- Gunda Herberth, Helmholtz Centre for Environmental Research - UFZ
+- Ana C. Zenclussen, Helmholtz Centre for Environmental Research - UFZ and Perinatal Research Group, Saxonian Incubator for Clinical Translation (SIKT), Medical Faculty, Leipzig University
+- Mario Bauer, Helmholtz Centre for Environmental Research - UFZ  
+
 abstract: "This document provides a short introduction on how to use PatternMatchR software"
 keywords: "Pattern matching, Visualization"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
