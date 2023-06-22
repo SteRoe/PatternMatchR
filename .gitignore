@@ -1,7 +1,10 @@
 .gitignore
+.Rproj
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 .RDS
+.Rbuildignore
+.lintr
 inst/doc
