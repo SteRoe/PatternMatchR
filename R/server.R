@@ -505,9 +505,7 @@ server <- function(input, output, session) {
 #          combinedHMP_VAL <- emptyHM()
 #          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           base::print(base::paste0(Sys.time(), " before is.numeric()."))
-browser()
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
-            base::print(base::paste0(Sys.time(), " input$trait1DirList_rows_selected: ", as.text(input$trait1DirList_rows_selected)))
             traitDirList <-
               base::as.list(dfdD1[input$trait1DirList_rows_selected, ]) #base::as.list(dfdD1[input$trait1DirList_rows_selected, ][[1]])
             base::print(base::paste0(Sys.time(), " selected folders: ", as.character(traitDirList)))
@@ -542,8 +540,8 @@ browser()
           session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap during load process."))
-          combinedHMP_VAL <- emptyHM()
-          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          # combinedHMP_VAL <- emptyHM()
+          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait2DirList_rows_selected)) {
             traitDirList <-
               base::as.list(dfdD2[input$trait2DirList_rows_selected, ]) #base::as.list(dfdD2[input$trait2DirList_rows_selected, ][[1]])
@@ -578,8 +576,8 @@ browser()
           session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap during load process."))
-          combinedHMP_VAL <- emptyHM()
-          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          # combinedHMP_VAL <- emptyHM()
+          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait3DirList_rows_selected)) {
             traitDirList <-
               base::as.list(dfdD3[input$trait3DirList_rows_selected, ]) #base::as.list(dfdD3[input$trait3DirList_rows_selected, ][[1]])
@@ -615,8 +613,8 @@ browser()
           session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-          combinedHMP_VAL <- emptyHM()
-          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          # combinedHMP_VAL <- emptyHM()
+          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
             traitDirList <-
               base::as.list(dfdD1[input$trait1DirList_rows_selected, ])
