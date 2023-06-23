@@ -414,7 +414,7 @@ loadFolderDFList <- function(session, folder) {
         #        listOfResultDF = getlistOfResultsDF(dataDir())
         base::print(base::paste0(Sys.time(), " before getlistOfResultsDF()"))
         listOfResultDF <- getlistOfResultsDF(session = session, folder = folder) #listOfResultDF <- getlistOfResultsDF(folder, globalVariables)
-        if (listOfResultDF != FALSE) {
+        if (is.list(listOfResultDF)) { #if (listOfResultDF != FALSE) {
           base::print(base::paste0(Sys.time(), " saveRDS getlistOfResultsDF()", fileNameLR))
           base::saveRDS(listOfResultDF, file = fileNameLR)
         }

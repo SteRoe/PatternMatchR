@@ -1,7 +1,6 @@
 server <- function(input, output, session) {
   #define sessionVariables here
   reactlog::reactlog_enable()
-  base::print(paste0(Sys.time(), " Ver: 0.1.25"))
   packageWd <<- getwd()
   base::print(paste0(Sys.time(), " getwd: ", packageWd))
   base::print(paste0(Sys.time(), " loading configuration."))
