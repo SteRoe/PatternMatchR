@@ -1,6 +1,5 @@
 ui <- shiny::shinyUI(
   shiny::fluidPage(
-    waiter::use_waiter(),
     shinyjs::useShinyjs(),
 
     shinyjs::inlineCSS(list(.red = "background: lightcoral",

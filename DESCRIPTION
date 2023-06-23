@@ -16,7 +16,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Depends: R (>= 4.2)
 Remotes:
-    github::rstudio/httpuv,
     github::perishky/meffil,
     github::jokergoo/ComplexHeatmap,
     github::jokergoo/InteractiveComplexHeatmap
