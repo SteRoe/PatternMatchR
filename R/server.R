@@ -685,8 +685,8 @@ server <- function(input, output, session) {
           session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-          combinedHMP_VAL <- emptyHM()
-          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          # combinedHMP_VAL <- emptyHM()
+          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           minN <- base::as.integer(input$txtCases)
           combinedDFP_Val_Labels <- mergeDFP_Val_Labels(session$userData$sessionVariables$resultDFListTrait1(),
                                                         session$userData$sessionVariables$resultDFListTrait2(),
@@ -1008,10 +1008,10 @@ server <- function(input, output, session) {
             grDevices::dev.off()
           }
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-          combinedHMP_VAL <- emptyHM()
-          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input = input, output = output,
-                                                                   session = session, ht_list = combinedHMP_VAL,
-                                                                   heatmap_id = "heatmap_1")
+          # combinedHMP_VAL <- emptyHM()
+          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input = input, output = output,
+          #                                                          session = session, ht_list = combinedHMP_VAL,
+          #                                                          heatmap_id = "heatmap_1")
 #          combinedDFP_Val_Labels <- session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()
           combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()
 
