@@ -124,6 +124,7 @@ emptyHM <- function() {
   grDevices::pdf(NULL)
   grDevices::dev.off()
   ht <- ComplexHeatmap::draw(ht)
+  return(ht)
 }
 
 # emptyHM <- compiler::cmpfun(emptyHM)
@@ -434,5 +435,5 @@ brush_action_HM <- function(df, input, output, session) {
 #' @return nothing; function info label for click action in HM
 # examples click_action_HM(df, input, output, session)
 hover_action_HM <- function(df, input, output, session) {
-  # browser()
+  base::print(base::paste0(Sys.time(), " hover_action_HM.", as.character(head(df))))
 }

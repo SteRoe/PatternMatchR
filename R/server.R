@@ -508,10 +508,10 @@ server <- function(input, output, session) {
             session = session,
             ht_list = combinedHMP_VAL,
             heatmap_id = "heatmap_1",
-            show_layer_fun = TRUE,
-            click_action = click_action_HM,
-            brush_action = brush_action_HM,
-            hover_action = hover_action_HM
+            show_layer_fun = FALSE,
+            click_action = NULL,
+            brush_action = NULL,
+            hover_action = NULL
             )
           base::print(base::paste0(Sys.time(), " before is.numeric()."))
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
@@ -556,10 +556,10 @@ server <- function(input, output, session) {
             session = session,
             ht_list = combinedHMP_VAL,
             heatmap_id = "heatmap_1",
-            show_layer_fun = TRUE,
-            click_action = click_action_HM,
-            brush_action = brush_action_HM,
-            hover_action = hover_action_HM
+            show_layer_fun = FALSE,
+            click_action = NULL,
+            brush_action = NULL,
+            hover_action = NULL
             )
           if (base::is.numeric(input$trait2DirList_rows_selected)) {
             traitDirList <-
@@ -602,10 +602,10 @@ server <- function(input, output, session) {
             session = session,
             ht_list = combinedHMP_VAL,
             heatmap_id = "heatmap_1",
-            show_layer_fun = TRUE,
-            click_action = click_action_HM,
-            brush_action = brush_action_HM,
-            hover_action = hover_action_HM
+            show_layer_fun = FALSE,
+            click_action = NULL,
+            brush_action = NULL,
+            hover_action = NULL
             )
           if (base::is.numeric(input$trait3DirList_rows_selected)) {
             traitDirList <-
@@ -649,10 +649,10 @@ server <- function(input, output, session) {
             session = session,
             ht_list = combinedHMP_VAL,
             heatmap_id = "heatmap_1",
-            show_layer_fun = TRUE,
-            click_action = click_action_HM,
-            brush_action = brush_action_HM,
-            hover_action = hover_action_HM
+            show_layer_fun = FALSE,
+            click_action = NULL,
+            brush_action = NULL,
+            hover_action = NULL
             )
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
             traitDirList <-
@@ -1108,7 +1108,7 @@ server <- function(input, output, session) {
               show_layer_fun = TRUE,
               click_action = click_action_HM,
               brush_action = brush_action_HM,
-              hover_action = NULL
+              hover_action = hover_action_HM
             )
             output$txtHMDescription <-
               shiny::renderText(
