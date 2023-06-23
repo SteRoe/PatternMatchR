@@ -425,3 +425,14 @@ brush_action_HM <- function(df, input, output, session) {
     }
   )
 }
+
+#' hover_action_HM
+#' @param df data.frame containing data which is enclosed by brush action
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#' @return nothing; function info label for click action in HM
+# examples click_action_HM(df, input, output, session)
+hover_action_HM <- function(df, input, output, session) {
+  # browser()
+}
