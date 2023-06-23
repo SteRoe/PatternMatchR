@@ -1,7 +1,7 @@
 server <- function(input, output, session) {
   #define sessionVariables here
   reactlog::reactlog_enable()
-  base::print(paste0(Sys.time(), " Ver: 0.1.22"))
+  base::print(paste0(Sys.time(), " Ver: 0.1.23"))
   packageWd <<- getwd()
   base::print(paste0(Sys.time(), " getwd: ", packageWd))
   base::print(paste0(Sys.time(), " loading configuration."))
@@ -504,7 +504,9 @@ server <- function(input, output, session) {
           base::print(base::paste0(Sys.time(), " creating empty heatmap during load process."))
           combinedHMP_VAL <- emptyHM()
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          base::print(base::paste0(Sys.time(), " before is.numeric()."))
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
+            base::print(base::paste0(Sys.time(), " input$trait1DirList_rows_selected: ", input$trait1DirList_rows_selected))
             traitDirList <-
               base::as.list(dfdD1[input$trait1DirList_rows_selected, ]) #base::as.list(dfdD1[input$trait1DirList_rows_selected, ][[1]])
             base::print(base::paste0(Sys.time(), " selected folders: ", as.character(traitDirList)))
