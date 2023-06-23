@@ -501,8 +501,18 @@ server <- function(input, output, session) {
           session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap during load process."))
-#          combinedHMP_VAL <- emptyHM()
-#          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          combinedHMP_VAL <- emptyHM()
+          InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+          input = input,
+          output = output,
+          session = session,
+          ht_list = combinedHMP_VAL,
+          heatmap_id = "heatmap_1",
+          show_layer_fun = TRUE,
+          click_action = click_action_HM,
+          brush_action = brush_action_HM,
+          hover_action = NULL
+          )
           base::print(base::paste0(Sys.time(), " before is.numeric()."))
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
             traitDirList <-
@@ -1067,7 +1077,8 @@ server <- function(input, output, session) {
               heatmap_id = "heatmap_1",
               show_layer_fun = TRUE,
               click_action = click_action_HM,
-              brush_action = brush_action_HM
+              brush_action = brush_action_HM,
+              hover_action = NULL
             )
             output$txtHMDescription <-
               shiny::renderText(
