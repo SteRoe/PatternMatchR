@@ -5,10 +5,12 @@
 \title{loadDNAm
 loads measured beta values from file config$betaFileName which was defined in configuration}
 \usage{
-loadDNAm(config)
+loadDNAm(betaFileName, config)
 }
 \arguments{
-\item{config}{configuration}
+\item{betaFileName}{location of beta file}
+
+\item{config}{config structure}
 }
 \value{
 data frame with measured beta values

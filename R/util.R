@@ -24,12 +24,28 @@
 #' @return nothing
 #' @keywords internal
 ###' ##@noRd noRd
+
+originalWd <- NULL
+
 #' .onAttach()
 .onAttach <- function(libname, pkgname) {
   #  globalVariables <- base::list()
-  base::packageStartupMessage("start loading package PatternMatchR")
+  base::packageStartupMessage(base::paste0("start loading package "), pkgname)
   base::loadNamespace("PatternMatchR")
-  base::packageStartupMessage("finished loading package PatternMatchR")
+  base::packageStartupMessage(base::paste0("finished start loading package "), pkgname)
+}
+
+.onLoad <- function(libname, pkgname) {
+  base::print(base::paste0(Sys.time(), "set package wd"))
+  originalWd <<- getwd()
+  packageWd <- paste0(libname, "/", pkgname)
+  setwd(packageWd)
+  base::print(base::paste0(Sys.time(), " setwd():", packageWd))
+}
+
+.onUnload <- function(libpath) {
+  o <<- originalWd
+  setwd(o)
 }
 
 #' starts the app
@@ -48,8 +64,7 @@ loadObjects <- function(session) {
   base::print(base::paste0(Sys.time(), " loading annotation."))
   annotation <- meffil::meffil.get.features("450k")
   session$userData$annotation <- annotation
-
-  base::print(base::paste0(Sys.time(), " finished loading objects."))
+  base::print(base::paste0(Sys.time(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation),"."))
   base::print(base::paste0(Sys.time(), " detecting cores."))
   numCores <- parallelly::availableCores() # parallel::detectCores()
   if (!is.null(numCores)) {
@@ -71,10 +86,36 @@ loadObjects <- function(session) {
   session$userData$numCores <- numCores
   base::print(base::paste0(Sys.time(), " finished detecting cores."))
 
+  #check config file for "/inst"
+  betaFileName <- session$userData$config$betaFileName
+  #check for existence of betaFileName
+  if (!file.exists(betaFileName)) {
+    base::message(base::paste0(Sys.time(), " beta file not found: ", betaFileName, ". Is your config.yml correct?"))
+    #add /inst to betafilename and try again
+    betaFileName <- addInstToPath(betaFileName)
+    if (file.exists(betaFileName)) {
+      base::message(base::paste0(Sys.time(), " beta file now found: ", betaFileName, "."))
+    }
+  }
+  dataDirList <- as.list(session$userData$config$dataDir1)
+  DirFound <- lapply(dataDirList, FUN = file.exists)
+  dataDirList <- lapply(dataDirList, FUN = addInstToPath)
+  session$userData$config$dataDir1 <- unlist(dataDirList)
+
+  dataDirList <- as.list(session$userData$config$dataDir2)
+  DirFound <- lapply(dataDirList, FUN = file.exists)
+  dataDirList <- lapply(dataDirList, FUN = addInstToPath)
+  session$userData$config$dataDir2 <- unlist(dataDirList)
+
+  dataDirList <- as.list(session$userData$config$dataDir3)
+  DirFound <- lapply(dataDirList, FUN = file.exists)
+  dataDirList <- lapply(dataDirList, FUN = addInstToPath)
+  session$userData$config$dataDir3 <- unlist(dataDirList)
+
   # read methylation data
-  session$userData$BetaDF <- loadDNAm(config = session$userData$config)
+  session$userData$BetaDF <- loadDNAm(betaFileName = betaFileName, config = session$userData$config)
   session$userData$Beta_tDF <- as.data.frame(t(session$userData$BetaDF))
-  base::print(base::paste0(Sys.time(), " finished read methylation data."))
+  base::print(base::paste0(Sys.time(), " finished read methylation data with nrow = ", nrow(session$userData$BetaDF), " and ncol = ", ncol(session$userData$BetaDF), "."))
   #return(globalVariables)
   return(session)
 }
@@ -167,16 +208,31 @@ extractMantissaExponent <-
     list(mantissa = m, exponent = e)
   }
 
+addInstToPath <- function (fileName) {
+  if(!file.exists(fileName)) {
+    base::message(base::paste0(Sys.time(), " file not found: ", fileName, ". Is your config.yml correct?"))
+    fileName <- stringr::str_sub(fileName, start = 2, end = stringr::str_length(fileName))
+    fileName <- paste0("./inst", fileName)
+    if(file.exists(fileName)) {
+      base::message(base::paste0(Sys.time(), " file now found: ", fileName, "."))
+    }
+    else {
+      base::message(base::paste0(Sys.time(), " file furthermore not found: ", fileName, ". Is your config.yml correct?"))
+    }
+  }
+  return(fileName)
+}
+
 #' loadDNAm
 #' loads measured beta values from file config$betaFileName which was defined in configuration
-#' @param config configuration
+#' @param betaFileName location of beta file
+#' @param config config structure
 #' @return data frame with measured beta values
-# examples loadDNAm(config)
-loadDNAm <- function(config) {
+# examples loadDNAm(betaFileName)
+loadDNAm <- function(betaFileName, config) {
   base::print(base::paste0(Sys.time(), " loading configuration."))
 #  config <- session$userData$config #config::get(file = "config.yml")
   base::print(base::paste0(Sys.time(), " load beta."))
-  betaFileName <- config$betaFileName
   #if (TRUE) {
   if (config$debugMode == FALSE) {
     beta <-

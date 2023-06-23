@@ -2,31 +2,10 @@
 % Please edit documentation in R/util.R
 \name{.onAttach}
 \alias{.onAttach}
-\title{structure of sessionVariables:}
+\title{.onAttach()}
 \usage{
 .onAttach(libname, pkgname)
 }
-\arguments{
-\item{libname}{library name}
-
-\item{pkgname}{package name}
-}
-\value{
-nothing
-}
 \description{
-very first function during package load
+.onAttach()
 }
-\details{
-general settings
-session$userData$sessionVariables$MaxProbes - maximum number of probes to use in clustering
-session$userData$sessionVariables$P_ValMinBorder - minimum p-value to consider in clustering and to visualize
-session$userData$sessionVariables$P_ValMaxBorder - maximum p-value to consider in clustering and to visualize
-general data
-session$userData$globalVariables$Beta_tDF - general beta values from Illumina 450k array
-very first function
-}
-\keyword{##@noRd}
-\keyword{.onAttach()}
-\keyword{internal}
-\keyword{noRd}

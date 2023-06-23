@@ -1,6 +1,9 @@
 server <- function(input, output, session) {
   #define sessionVariables here
   reactlog::reactlog_enable()
+  base::print(paste0(Sys.time(), " Ver: 0.1.22"))
+  packageWd <<- getwd()
+  base::print(paste0(Sys.time(), " getwd: ", packageWd))
   base::print(paste0(Sys.time(), " loading configuration."))
   configFileLocation <- system.file("config.yml", package = "PatternMatchR", mustWork = TRUE)
   session$userData$config <- config::get(file = configFileLocation)
@@ -66,16 +69,20 @@ server <- function(input, output, session) {
   shinyjs::toggleClass("colRed", "red")
   shinyjs::toggleClass("colGreen", "green")
   shinyjs::toggleClass("colBlue", "blue")
-  dfdD1 <-
-    data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
-  dfdD2 <-
-    data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
-  dfdD3 <-
-    data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
 
-    output$trait1DirList <- DT::renderDataTable(dfdD1)
-  output$trait2DirList <- DT::renderDataTable(dfdD2)
-  output$trait3DirList <- DT::renderDataTable(dfdD3)
+  dfdD1 <- NULL
+  dfdD2 <- NULL
+  dfdD3 <- NULL
+  # dfdD1 <-
+  #   data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
+  # dfdD2 <-
+  #   data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
+  # dfdD3 <-
+  #   data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
+  #
+  #   output$trait1DirList <- DT::renderDataTable(dfdD1)
+  # output$trait2DirList <- DT::renderDataTable(dfdD2)
+  # output$trait3DirList <- DT::renderDataTable(dfdD3)
 
   shiny::observe({
     shiny::invalidateLater(10000, session)
@@ -499,7 +506,8 @@ server <- function(input, output, session) {
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
             traitDirList <-
-              base::as.list(dfdD1[input$trait1DirList_rows_selected, ][[1]])
+              base::as.list(dfdD1[input$trait1DirList_rows_selected, ]) #base::as.list(dfdD1[input$trait1DirList_rows_selected, ][[1]])
+            base::print(base::paste0(Sys.time(), " selected folders: ", as.character(traitDirList)))
             session$userData$sessionVariables$resultDFListTrait1(loadDir(session = session, traitDirList = traitDirList))
           }
           else {
@@ -535,7 +543,7 @@ server <- function(input, output, session) {
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait2DirList_rows_selected)) {
             traitDirList <-
-              base::as.list(dfdD2[input$trait2DirList_rows_selected, ][[1]])
+              base::as.list(dfdD2[input$trait2DirList_rows_selected, ]) #base::as.list(dfdD2[input$trait2DirList_rows_selected, ][[1]])
             session$userData$sessionVariables$resultDFListTrait2(loadDir(session = session, traitDirList = traitDirList))
           }
           else {
@@ -571,7 +579,7 @@ server <- function(input, output, session) {
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait3DirList_rows_selected)) {
             traitDirList <-
-              base::as.list(dfdD3[input$trait3DirList_rows_selected, ][[1]])
+              base::as.list(dfdD3[input$trait3DirList_rows_selected, ]) #base::as.list(dfdD3[input$trait3DirList_rows_selected, ][[1]])
             session$userData$sessionVariables$resultDFListTrait3(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait3(NULL)
@@ -608,7 +616,7 @@ server <- function(input, output, session) {
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
             traitDirList <-
-              base::as.list(dfdD1[input$trait1DirList_rows_selected, ][[1]])
+              base::as.list(dfdD1[input$trait1DirList_rows_selected, ])
             session$userData$sessionVariables$resultDFListTrait1(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait1(NULL)
@@ -616,7 +624,7 @@ server <- function(input, output, session) {
           }
           if (base::is.numeric(input$trait2DirList_rows_selected)) {
             traitDirList <-
-              base::as.list(dfdD2[input$trait2DirList_rows_selected, ][[1]])
+              base::as.list(dfdD2[input$trait2DirList_rows_selected, ])
             session$userData$sessionVariables$resultDFListTrait2(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait2(NULL)
@@ -624,7 +632,7 @@ server <- function(input, output, session) {
           }
           if (base::is.numeric(input$trait3DirList_rows_selected)) {
             traitDirList <-
-              base::as.list(dfdD3[input$trait3DirList_rows_selected, ][[1]])
+              base::as.list(dfdD3[input$trait3DirList_rows_selected, ])
             session$userData$sessionVariables$resultDFListTrait3(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait3(NULL)
@@ -1142,6 +1150,17 @@ server <- function(input, output, session) {
             base::print(base::paste0(Sys.time(), " set debugMode = FALSE."))
           }
           loadObjects(session)
+          dfdD1 <<-
+            data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
+          dfdD2 <<-
+            data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
+          dfdD3 <<-
+            data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
+
+          output$trait1DirList <- DT::renderDataTable(dfdD1)
+          output$trait2DirList <- DT::renderDataTable(dfdD2)
+          output$trait3DirList <- DT::renderDataTable(dfdD3)
+
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$chkDebug):\n", e)
