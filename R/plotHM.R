@@ -124,7 +124,7 @@ emptyHM <- function() {
   grDevices::pdf(NULL)
   grDevices::dev.off()
   ht <- ComplexHeatmap::draw(ht)
-  return(ht)
+  #return(ht)
 }
 
 # emptyHM <- compiler::cmpfun(emptyHM)
