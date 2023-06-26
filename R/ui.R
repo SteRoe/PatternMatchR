@@ -273,7 +273,15 @@ ui <- shiny::shinyUI(
                 shiny::tags$html("n"),
                 shiny::verbatimTextOutput("txtResultingN", placeholder = TRUE),
                 shiny::tags$html("minimum p-value"),
-                shiny::verbatimTextOutput("txtMinP_Val", placeholder = TRUE)
+                shiny::verbatimTextOutput("txtMinP_Val", placeholder = TRUE),
+                InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                  "heatmap_2",
+                  height1 = 10,
+                  width1 = 10,
+                  height2 = 10,
+                  width2 = 10,
+                  inline = FALSE
+                )
               )
             )
           )

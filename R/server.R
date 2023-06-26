@@ -5,7 +5,7 @@ server <- function(input, output, session) {
     output = output,
     session = session,
     ht_list = emptyHM(),
-    heatmap_id = "heatmap_1",
+    heatmap_id = "heatmap_2",
     show_layer_fun = FALSE,
     click_action = NULL,
     brush_action = NULL,
