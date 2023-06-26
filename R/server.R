@@ -1,4 +1,17 @@
 server <- function(input, output, session) {
+  #draw empty HM, without the github version won't work. Why?
+  InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+    input = input,
+    output = output,
+    session = session,
+    ht_list = emptyHM(),
+    heatmap_id = "heatmap_1",
+    show_layer_fun = FALSE,
+    click_action = NULL,
+    brush_action = NULL,
+    hover_action = NULL
+  )
+
   #define sessionVariables here
   reactlog::reactlog_enable()
   packageWd <<- getwd()
@@ -657,6 +670,7 @@ server <- function(input, output, session) {
           if (base::is.numeric(input$trait1DirList_rows_selected)) {
             traitDirList <-
               base::as.list(dfdD1[input$trait1DirList_rows_selected, ])
+            base::print(base::paste0(Sys.time(), " traitDirList1: ", as.character(traitDirList)))
             session$userData$sessionVariables$resultDFListTrait1(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait1(NULL)
@@ -665,6 +679,7 @@ server <- function(input, output, session) {
           if (base::is.numeric(input$trait2DirList_rows_selected)) {
             traitDirList <-
               base::as.list(dfdD2[input$trait2DirList_rows_selected, ])
+            base::print(base::paste0(Sys.time(), " traitDirList2: ", as.character(traitDirList)))
             session$userData$sessionVariables$resultDFListTrait2(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait2(NULL)
@@ -673,6 +688,7 @@ server <- function(input, output, session) {
           if (base::is.numeric(input$trait3DirList_rows_selected)) {
             traitDirList <-
               base::as.list(dfdD3[input$trait3DirList_rows_selected, ])
+            base::print(base::paste0(Sys.time(), " traitDirList3: ", as.character(traitDirList)))
             session$userData$sessionVariables$resultDFListTrait3(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait3(NULL)
