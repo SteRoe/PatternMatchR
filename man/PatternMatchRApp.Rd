@@ -2,10 +2,14 @@
 % Please edit documentation in R/util.R
 \name{PatternMatchRApp}
 \alias{PatternMatchRApp}
-\title{starts the app}
+\title{structure of sessionVariables:}
 \usage{
 PatternMatchRApp()
 }
 \description{
 function to start the app
 }
+\section{globalVariables <- base::list()}{
+
+}
+
