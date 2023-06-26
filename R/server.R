@@ -1,4 +1,5 @@
 server <- function(input, output, session) {
+  base::print(paste0(Sys.time(), " ver: 0.2.3."))
   #draw empty HM, without the github version won't work. Why?
   InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
     input = input,
