@@ -1,15 +1,15 @@
 ui <- shiny::shinyUI(
   shiny::fluidPage(
-    shinyjs::useShinyjs(),
-
-    shinyjs::inlineCSS(list(.red = "background: lightcoral",
-                   .green = "background: lightgreen",
-                   .blue = "background: lightblue")),
-
-    #smaller font for preformatted text
-    shiny::tags$head(shiny::tags$style(
-      shiny::HTML("      pre, table.table {        font-size: smaller;      }    ")
-    )),
+    # shinyjs::useShinyjs(),
+    #
+    # shinyjs::inlineCSS(list(.red = "background: lightcoral",
+    #                .green = "background: lightgreen",
+    #                .blue = "background: lightblue")),
+    #
+    # #smaller font for preformatted text
+    # shiny::tags$head(shiny::tags$style(
+    #   shiny::HTML("      pre, table.table {        font-size: smaller;      }    ")
+    # )),
 
     InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
       "heatmap_2",
