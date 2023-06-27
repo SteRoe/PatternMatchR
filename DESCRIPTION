@@ -1,7 +1,7 @@
-Package: PatternMatchR
+Package: HeatMapExample
 Type: Package
-Title: A Tool for Visualization of Different Traits in Heatmaps
-Version: 0.2.1
+Title: test_package
+Version: 0.1.1
 Authors@R: 
     person(given = "Stefan",
            family = "Röder",
@@ -16,43 +16,14 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Depends: R (>= 4.2)
 Remotes:
-    github::perishky/meffil,
     github::jokergoo/ComplexHeatmap,
     github::jokergoo/InteractiveComplexHeatmap
 Imports:
     shiny (>= 1.7.2),
-    shinyjs,
-    shinyFiles,
-    reactlog,
-    DT (>= 0.18),
-    data.table (>= 1.14.2),
-    tibble,
-    magrittr,
-    foreach,
-    doParallel,
-    RColorBrewer,
-    dendextend,
-    fastcluster,
-    parallelDist,
-    config,
-    ggplot2,
-    matrixStats,
-    plotly,
     ComplexHeatmap,
-    InteractiveComplexHeatmap,
-    GetoptLong,
-    htmltools,
-    usedist,
-    ggdendro,
-    collapse,
-    parallelly
+    InteractiveComplexHeatmap
 Suggests: 
     rmarkdown,
-    knitr,
-    factoextra,
-    car,
-    stringr,
-    circlize,
-    meffil
+    knitr
 VignetteBuilder: knitr
 ByteCompile: TRUE
