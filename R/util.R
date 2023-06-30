@@ -52,7 +52,8 @@ originalWd <- NULL
 #' @description function to start the app
 #' @export
 PatternMatchRApp <- function() {
-  shiny::shinyApp(ui, server)
+  #shiny::shinyApp(ui, server)
+  shiny::shinyApp(generate_ui(), server)
 }
 
 #' loadObjects
