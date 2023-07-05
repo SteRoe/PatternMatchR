@@ -45,7 +45,6 @@ generate_ui <- function() {
             ),
             shinyBS::bsCollapsePanel(
               "folders",
-              # label = "P_VAL border vs. # of probes",
               shiny::fluidRow(
                 shiny::column(
                   id = "colRed",
@@ -77,30 +76,77 @@ generate_ui <- function() {
               shiny::verbatimTextOutput("txtMergeOut", placeholder = TRUE)
             ),
             shinyBS::bsCollapsePanel(
-              "#probes at certain p-val",
-              # label = "P_VAL border vs. # of probes",
-              shiny::fluidRow(
-                shiny::actionButton("btnCountProbes", label = "Count Probes (may take a long time)"),
-                shiny::actionButton("btnCountProbesParallel", label = "Count Probes Parallel (may take less time)")
-              ),
-              shiny::fluidRow(shiny::column(
-                width = 5,
-                DT::dataTableOutput("DTP_VALborder")
-              ))
+              "count borders",
+              shiny::tabsetPanel(
+                shiny::tabPanel("P_VAL border vs. # of probes",
+                  shiny::fluidRow(
+                    shiny::actionButton("btnCountP_ValProbes", label = "Count Probes for p-values (may take a long time)"),
+                    shiny::actionButton("btnCountProbesP_ValParallel", label = "Count Probes for p-values parallel (may take less time)")
+                  ),
+                  shiny::fluidRow(shiny::column(
+                    width = 5,
+                    DT::dataTableOutput("DTP_VALborder")
+                    )
+                  )
+                ),
+                shiny::tabPanel("Delta Methylation border vs. # of probes",
+                  shiny::fluidRow(
+                    shiny::actionButton("btnCountProbesDeltaMethParallel", label = "Count Probes for delta methylation parallel")
+                  ),
+                  shiny::fluidRow(shiny::column(
+                    width = 5,
+                    DT::dataTableOutput("DTDMborder")
+                  ))
+                ),
+                shiny::tabPanel("n border vs. # of probes",
+                  shiny::fluidRow(
+                    shiny::actionButton("btnCountProbesNParallel", label = "Count Probes for n parallel")
+                  ),
+                  shiny::fluidRow(shiny::column(
+                    width = 5,
+                    DT::dataTableOutput("DTNborder")
+                  ))
+                )
+              )
             ),
 
             shinyBS::bsCollapsePanel(
               "merge",
-  #            shiny::fluidRow(
-              shiny::sliderInput(
-                "sldP_Val",
-                "maximum (left slider) and minimum (right slider) p-val, 5e-x",
-                min = 0,
-                max = 200,
-                step = -1,
-                value = c(3, 199)
+              shiny::fluidRow(
+                shiny::column(
+                  width = 4,
+                  shiny::sliderInput(
+                    "sldP_Val",
+                    "maximum (left slider) and minimum (right slider) p-val, 5e-x",
+                    min = 0,
+                    max = 200,
+                    step = -1,
+                    value = c(3, 199)
+                  )
+                ),
+                shiny::column(
+                  width = 4,
+                  shiny::sliderInput(
+                    "sldDM",
+                    "maximum (left slider) and minimum (right slider) delta methylation",
+                    min = 0,
+                    max = 200,
+                    step = -1,
+                    value = c(3, 199)
+                  )
+                ),
+                shiny::column(
+                  width = 4,
+                  shiny::sliderInput(
+                    "sldN",
+                    "maximum (left slider) and minimum (right slider) n",
+                    min = 0,
+                    max = 200,
+                    step = -1,
+                    value = c(3, 199)
+                  )
+                )
               ),
-  #            ),
               shiny::actionButton("btnReduce", label = "Step 3: Reduce data (omit CpGs) by p-value"),
               shiny::verbatimTextOutput("txtPReduceOut", placeholder = TRUE)
             ),

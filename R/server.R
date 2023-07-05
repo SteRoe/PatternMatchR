@@ -835,25 +835,25 @@ server <- function(input, output, session) {
   )
 
 
-  shiny::observeEvent(input$btnCountProbesParallel,
+  shiny::observeEvent(input$btnCountProbesP_ValParallel,
     ignoreInit = TRUE,
     {
       tryCatch(
         {
-          base::print(base::paste0(Sys.time(), " start counting probes."))
+          base::print(base::paste0(Sys.time(), " start counting probes p-value."))
           minN <- base::as.integer(input$txtCases)
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           P_VALNTable <-
             getAvailNForP_VALBorderParallel(numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
           output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
-          base::print(base::paste0(Sys.time(), " finished counting probes."))
+          base::print(base::paste0(Sys.time(), " finished counting probes p-value."))
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCountProbesParallel):\n", e)
+          message("An error occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCountProbesParallel):\n", w)
+          message("A warning occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", w)
         },
         finally = {
           base::print(base::paste0(Sys.time(), " count probes."))
@@ -863,7 +863,61 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  shiny::observeEvent(input$btnCountProbes,
+  shiny::observeEvent(input$btnCountProbesDeltaMethParallel,
+    ignoreInit = TRUE,
+    {
+      tryCatch(
+        {
+          base::print(base::paste0(Sys.time(), " start counting probes delta methylation."))
+          minN <- base::as.integer(input$txtCases)
+          if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          }
+          DMNTable <-
+            getAvailNForDMBorderParallel(numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
+          output$DTDMborder <- DT::renderDataTable(DMNTable)
+        },
+        error = function(e) {
+          message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
+        },
+        warning = function(w) {
+          message("A warning occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(Sys.time(), " finished counting probes delta methylation."))
+        }
+      )
+    },
+    ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnCountProbesNParallel,
+    ignoreInit = TRUE,
+    {
+      tryCatch(
+        {
+          base::print(base::paste0(Sys.time(), " start counting probes n."))
+          minN <- base::as.integer(input$txtCases)
+          if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          }
+          NNTable <-
+            getAvailNForNBorderParallel(numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
+          output$DTNborder <- DT::renderDataTable(NNTable)
+        },
+        error = function(e) {
+          message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)
+        },
+        warning = function(w) {
+          message("A warning occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(Sys.time(), " finished counting probes n."))
+        }
+      )
+    },
+    ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnCountP_ValProbes,
     ignoreInit = TRUE,
     {
       tryCatch(
@@ -879,10 +933,10 @@ server <- function(input, output, session) {
           base::print(base::paste0(Sys.time(), " finished counting probes."))
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCountProbes):\n", e)
+          message("An error occurred in shiny::observeEvent(input$btnCountP_ValProbes):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCountProbes):\n", w)
+          message("A warning occurred in shiny::observeEvent(input$btnCountP_ValProbes):\n", w)
         },
         finally = {
           base::print(base::paste0(Sys.time(), " count probes."))

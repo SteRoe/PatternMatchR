@@ -195,19 +195,19 @@ loadtraitDFs <- function(traitDFs) {
           resultDFP_Val <- traitDFs[[i]]$P_Val # [[1]]
           resultDFDM <- traitDFs[[i]]$DM # [[2]]
           resultDFN <- traitDFs[[i]]$N # [[3]]
+          resultColnames <- base::colnames(traitDFs[[i]]$P_Val)
+          resultOriginDF <- base::rep(i, length(resultColnames))
           resultDFP_Val$Row.names <- rownames(traitDFs[[i]]$P_Val)
           resultDFDM$Row.names <- rownames(traitDFs[[i]]$DM)
           resultDFN$Row.names <- rownames(traitDFs[[i]]$N)
-          resultColnames <- base::colnames(traitDFs[[i]]$P_Val)
-          resultOriginDF <- base::rep(i, length(resultColnames))
         } else {
           base::print(base::paste0(Sys.time(), " merge trait ", i, "."))
+          OriginColnames <- base::colnames(traitDFs[[i]]$P_Val)
+          OriginDF <- base::rep(i, length(OriginColnames))
           traitDFs[[i]]$P_Val$Row.names <-
             base::rownames(traitDFs[[i]]$P_Val)
           traitDFs[[i]]$DM$Row.names <- base::rownames(traitDFs[[i]]$DM)
           traitDFs[[i]]$N$Row.names <- base::rownames(traitDFs[[i]]$N)
-          OriginColnames <- base::colnames(traitDFs[[i]]$P_Val)
-          OriginDF <- base::rep(i, length(OriginColnames))
 
           # Cannot merge with rownames due to:
           # A non-empty vector of column names is required for `by.x` and `by.y`.
@@ -569,15 +569,6 @@ getNForP_ValBorder <- function(mat, n) {
     mat <-
       delete.na(mat, ncol(mat) - 1) # -1, because we need at least 2 traits to associate
     nrow <- base::nrow(mat)
-    # base::print(
-    #   base::paste0(
-    #     Sys.time(),
-    #     " counting remaining probes at p = ",
-    #     P_VAL_BORDER,
-    #     " remaining n = ",
-    #     nrow
-    #   )
-    # )
     if (base::is.numeric(nrow)) {
       result[1, 1] <- P_VAL_BORDER
       result[1, 2] <- nrow
@@ -600,6 +591,70 @@ getNForP_ValBorder <- function(mat, n) {
   )
 }
 
+getNForDMBorder <- function(mat, DMBorder) {
+  tryCatch({
+    result <- base::matrix(nrow = 1, ncol = 2)
+    if (DMBorder > 0) {
+      mat[mat < DMBorder] <- NA #mat[mat > DMBorder] <- NA
+    }
+    else if (DMBorder < 0) {
+      mat[mat > DMBorder] <- NA
+    }
+    mat <-
+      delete.na(mat, ncol(mat) - 1) # -1, because we need at least 2 traits to associate
+    nrow <- base::nrow(mat)
+    if (base::is.numeric(nrow)) {
+      result[1, 1] <- DMBorder
+      result[1, 2] <- nrow
+    }
+    else {
+      result[1, 1] <- DMBorder
+      result[1, 2] <- 0
+    }
+  },
+  error = function(e) {
+    message("An error occurred in getNForDMBorder():\n", e)
+  },
+  warning = function(w) {
+    message("A warning occurred in getNForDMBorder():\n", w)
+  },
+  finally = {
+    base::print(base::paste0(Sys.time(), " end getNForDMBorder()."))
+    return(result)
+  }
+  )
+}
+
+getNForNBorder <- function(mat, NBorder) {
+  tryCatch({
+    result <- base::matrix(nrow = 1, ncol = 2)
+    mat[mat > NBorder] <- NA
+    mat <-
+      delete.na(mat, ncol(mat) - 1) # -1, because we need at least 2 traits to associate
+    nrow <- base::nrow(mat)
+    if (base::is.numeric(nrow)) {
+      result[1, 1] <- NBorder
+      result[1, 2] <- nrow
+    }
+    else {
+      result[1, 1] <- NBorder
+      result[1, 2] <- 0
+    }
+  },
+  error = function(e) {
+    message("An error occurred in getNForNBorder():\n", e)
+  },
+  warning = function(w) {
+    message("A warning occurred in getNForNBorder():\n", w)
+  },
+  finally = {
+    base::print(base::paste0(Sys.time(), " end getNForNBorder()."))
+    return(result)
+  }
+  )
+}
+
+
 #' getAvailNForP_VALBorderParallel
 #' counts number of remaining models below a defined n; uses parallel processing for faster results
 #' @param numCores number of CPU cores to use
@@ -618,14 +673,14 @@ getAvailNForP_VALBorderParallel <- function(numCores, DF) {
       parallel::clusterExport(cl, varlist = c("DF", "result", "numRows"), envir = environment())
       #browser() #check, if result is NA, then data or exported function is not known in the compute nodes
       result <- foreach::foreach(i = 1:numRows, .combine = rbind, .packages = c("base"),
-                                 .export = c("getNForP_ValBorder", "delete.na"),
+                                 .export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
                                  .verbose = TRUE) %dopar% {
         base::source(paste0(getwd(), "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
         result <- getNForP_ValBorder(mat = DF, n = i)
         return(result)
       }
       parallel::stopCluster(cl)
-      colnames(result) <- base::c("P_VAL_BORDER", "Available n")
+      colnames(result) <- base::c("P_VAL_BORDER", "Available CpG")
       result <- base::as.data.frame((result))
       result <- result[base::order(result[[1]], decreasing = TRUE), ]
     },
@@ -637,6 +692,88 @@ getAvailNForP_VALBorderParallel <- function(numCores, DF) {
     },
     finally = {
       base::print(base::paste0(Sys.time(), " end getAvailNForP_VALBorderParallel()."))
+      return(result)
+    }
+  )
+}
+
+getAvailNForDMBorderParallel <- function(numCores, DF) {
+  tryCatch(
+    {
+      result <- NULL
+      base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+      i <- NULL
+#check min DM and max DM
+      minDM <- base::min(DF, na.rm = TRUE)
+      maxDM <- base::max(DF, na.rm = TRUE)
+      #maxDM <- base::max(base::abs(minDM), base::abs(maxDM))
+      minDM <- as.integer(minDM * 100) #0
+      maxDM <- as.integer(maxDM * 100)
+      numRows <- maxDM - minDM
+      result <- base::matrix(nrow = numRows, ncol = 2)
+#      cl <- parallel::makeCluster(numCores)
+#      doParallel::registerDoParallel(cl)
+#      parallel::clusterExport(cl, varlist = c("DF", "result", "numRows", "minDM", "maxDM"), envir = environment())
+#browser()
+      result <- foreach::foreach(i = minDM:maxDM, .combine = rbind, .packages = c("base"),
+                                 .export = c("getNForDMBorder", "delete.na", "is.numeric", "nrow"),
+                                 .verbose = TRUE) %do% { #%dopar% {
+        base::source(paste0(getwd(), "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+        result <- getNForDMBorder(mat = DF, DMBorder = i/100)
+        return(result)
+      }
+#      parallel::stopCluster(cl)
+      colnames(result) <- base::c("DM_BORDER", "Available CpG")
+      result <- base::as.data.frame((result))
+      result <- result[base::order(result[[1]], decreasing = TRUE), ]
+    },
+    error = function(e) {
+      message("An error occurred in getAvailNForDMBorderParallel():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getAvailNForDMBorderParallel():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(Sys.time(), " end getAvailNForDMBorderParallel()."))
+      return(result)
+    }
+  )
+}
+
+getAvailNForNBorderParallel <- function(numCores, DF) {
+  tryCatch(
+    {
+      result <- NULL
+      base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+      i <- NULL
+      minN <- base::min(DF, na.rm = TRUE)
+      maxN <- base::max(DF, na.rm = TRUE)
+      numRows <- maxN - minN
+      result <- base::matrix(nrow = numRows, ncol = 2)
+#      cl <- parallel::makeCluster(numCores)
+#      doParallel::registerDoParallel(cl)
+#      parallel::clusterExport(cl, varlist = c("DF", "result", "numRows"), envir = environment())
+#browser() #TBC()
+      result <- foreach::foreach(i = minN:maxN, .combine = rbind, .packages = c("base"),
+                                 .export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
+                                 .verbose = TRUE) %do% { #%dopar% {
+        base::source(paste0(getwd(), "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+        result <- getNForNBorder(mat = DF, NBorder = i)
+        return(result)
+      }
+#      parallel::stopCluster(cl)
+      colnames(result) <- base::c("N_BORDER", "Available CpG")
+      result <- base::as.data.frame((result))
+      result <- result[base::order(result[[1]], decreasing = TRUE), ]
+    },
+    error = function(e) {
+      message("An error occurred in getAvailNForNBorderParallel():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getAvailNForNBorderParallel():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(Sys.time(), " end getAvailNForNBorderParallel()."))
       return(result)
     }
   )

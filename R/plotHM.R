@@ -29,6 +29,15 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       selectedColnamesTrait1 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait1()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait1)
       selectedColnamesTrait2 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait2()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait2)
       selectedColnamesTrait3 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait3()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait3)
+      if (!is.valid(selectedColnamesTrait1)) {
+        base::message(base::paste0(Sys.time(), " file names in trait 1 folder do not match colnames in pheno file! SPLOM will not work."))
+      }
+      if (!is.valid(selectedColnamesTrait2)) {
+        base::message(base::paste0(Sys.time(), " file names in trait 2 folder do not match colnames in pheno file! SPLOM will not work."))
+      }
+      if (!is.valid(selectedColnamesTrait3)) {
+        base::message(base::paste0(Sys.time(), " file names in trait 3 folder do not match colnames in pheno file! SPLOM will not work."))
+      }
       # get selected original data from trait data
       selectedDFTrait1 <- session$userData$sessionVariables$resultDFListTrait1()$listPHENOdata[[1]]$PHENODF[selectedColnamesTrait1]
       selectedDFTrait2 <- session$userData$sessionVariables$resultDFListTrait2()$listPHENOdata[[1]]$PHENODF[selectedColnamesTrait2]

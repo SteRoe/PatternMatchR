@@ -264,18 +264,31 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
 #' examples getplotClustergramTraitsLong(matP_Val.t, clustResTraits, traitClusters)
 getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitClusters) {
   base::print(base::paste0(Sys.time(), " start plotting clustergram."))
-  if (traitClusters > 1) {
-    Clusters <- dendextend::cutree(clustResTraits, k = traitClusters) # Clusters <- cutree(clustResTraits, k = traitClusters)
-    p <- factoextra::fviz_cluster(list(data = matP_Val.t, cluster = Clusters),
-                                palette = "jco",
-                                ggtheme = ggplot2::theme_classic())
-    # p <- factoextra::fviz_mclust(list(data = matP_Val.t, cluster = Clusters),
-    #                               palette = "jco",
-    #                               ggtheme = ggplot2::theme_classic())
-  }
-  else {
-    p <- getEmptyPlot()
-  }
-  base::print(base::paste0(Sys.time(), " end plotting clustergram."))
-  return(p)
+  tryCatch(
+    {
+      if (traitClusters > 1) {
+        Clusters <- dendextend::cutree(clustResTraits, k = traitClusters) # Clusters <- cutree(clustResTraits, k = traitClusters)
+        mycolors <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(traitClusters)
+        p <- factoextra::fviz_cluster(list(data = matP_Val.t, cluster = Clusters),
+                                      palette = mycolors, #palette = "jco",
+                                    ggtheme = ggplot2::theme_classic())
+        # p <- factoextra::fviz_mclust(list(data = matP_Val.t, cluster = Clusters),
+        #                               palette = "jco",
+        #                               ggtheme = ggplot2::theme_classic())
+      }
+      else {
+        p <- getEmptyPlot()
+      }
+    },
+    error = function(e) {
+      message("An error occurred in getplotClustergramTraitsLong():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getplotClustergramTraitsLong():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(Sys.time(), " end plotting clustergram."))
+      return(p)
+    }
+  )
 }
