@@ -2,8 +2,7 @@
 % Please edit documentation in R/ResultData.R
 \name{getNForP_ValBorder}
 \alias{getNForP_ValBorder}
-\title{getNForP_ValBorder
-counts number of remaining models below a defined n}
+\title{getNForP_ValBorder}
 \usage{
 getNForP_ValBorder(mat, n)
 }
@@ -16,6 +15,5 @@ getNForP_ValBorder(mat, n)
 data.frame with results
 }
 \description{
-getNForP_ValBorder
-counts number of remaining models below a defined n
+counts number of remaining models below a defined n based on p-value
 }

@@ -556,7 +556,8 @@ delete.na <- function(df, n = 0) {
 }
 
 #' getNForP_ValBorder
-#' counts number of remaining models below a defined n
+#' @description counts number of remaining models below a defined n based on p-value
+#' @export
 #' @param mat matrix for which to calculate results
 #' @param n minimum n for which to calculate results
 #' @return data.frame with results
@@ -591,6 +592,12 @@ getNForP_ValBorder <- function(mat, n) {
   )
 }
 
+#' @description counts number of remaining models below a defined n based on delta methylation
+#' @export
+#' @param mat matrix for which to calculate results
+#' @param n minimum n for which to calculate results
+#' @return data.frame with results
+# examples getNForDMBorder(mat, n)
 getNForDMBorder <- function(mat, DMBorder) {
   tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
@@ -624,7 +631,12 @@ getNForDMBorder <- function(mat, DMBorder) {
   }
   )
 }
-
+#' @description counts number of remaining models below a defined n based on n
+#' @export
+#' @param mat matrix for which to calculate results
+#' @param n minimum n for which to calculate results
+#' @return data.frame with results
+# examples getNForNBorder(mat, n)
 getNForNBorder <- function(mat, NBorder) {
   tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
@@ -661,25 +673,22 @@ getNForNBorder <- function(mat, NBorder) {
 #' @param DF data frame for which to calculate results
 #' @return data.frame with results
 # examples getAvailNForP_VALBorderParallel(numCores, DF)
-getAvailNForP_VALBorderParallel <- function(numCores, DF) {
+getAvailNForP_VALBorderParallel <- function(wd, numCores, DF) {
   tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
       numRows <- 300
       result <- base::matrix(nrow = numRows, ncol = 2)
-      cl <- parallel::makeCluster(numCores) #makeCluster(no_cores)
-      doParallel::registerDoParallel(cl)
-      parallel::clusterExport(cl, varlist = c("DF", "result", "numRows"), envir = environment())
-      #browser() #check, if result is NA, then data or exported function is not known in the compute nodes
-      result <- foreach::foreach(i = 1:numRows, .combine = rbind, .packages = c("base"),
-                                 .export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
-                                 .verbose = TRUE) %dopar% {
-        base::source(paste0(getwd(), "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+      plan(multisession, workers = numCores)
+      result <- foreach::foreach(i = 1:numRows, .combine = rbind, #.packages = c("base"),
+                                 #.export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
+                                 .verbose = TRUE) %dofuture% {
+        #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
+        base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
         result <- getNForP_ValBorder(mat = DF, n = i)
         return(result)
       }
-      parallel::stopCluster(cl)
       colnames(result) <- base::c("P_VAL_BORDER", "Available CpG")
       result <- base::as.data.frame((result))
       result <- result[base::order(result[[1]], decreasing = TRUE), ]
@@ -697,32 +706,27 @@ getAvailNForP_VALBorderParallel <- function(numCores, DF) {
   )
 }
 
-getAvailNForDMBorderParallel <- function(numCores, DF) {
+getAvailNForDMBorderParallel <- function(wd, numCores, DF) {
   tryCatch(
     {
       result <- NULL
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
-#check min DM and max DM
+      #check min DM and max DM
       minDM <- base::min(DF, na.rm = TRUE)
       maxDM <- base::max(DF, na.rm = TRUE)
-      #maxDM <- base::max(base::abs(minDM), base::abs(maxDM))
       minDM <- as.integer(minDM * 100) #0
       maxDM <- as.integer(maxDM * 100)
       numRows <- maxDM - minDM
       result <- base::matrix(nrow = numRows, ncol = 2)
-#      cl <- parallel::makeCluster(numCores)
-#      doParallel::registerDoParallel(cl)
-#      parallel::clusterExport(cl, varlist = c("DF", "result", "numRows", "minDM", "maxDM"), envir = environment())
-#browser()
-      result <- foreach::foreach(i = minDM:maxDM, .combine = rbind, .packages = c("base"),
-                                 .export = c("getNForDMBorder", "delete.na", "is.numeric", "nrow"),
-                                 .verbose = TRUE) %do% { #%dopar% {
-        base::source(paste0(getwd(), "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+      plan(multisession, workers = numCores)
+      result <- foreach::foreach(i = minDM:maxDM, .combine = rbind,
+                                   .verbose = TRUE) %dofuture% {
+        #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
+        base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
         result <- getNForDMBorder(mat = DF, DMBorder = i/100)
         return(result)
       }
-#      parallel::stopCluster(cl)
       colnames(result) <- base::c("DM_BORDER", "Available CpG")
       result <- base::as.data.frame((result))
       result <- result[base::order(result[[1]], decreasing = TRUE), ]
@@ -740,7 +744,7 @@ getAvailNForDMBorderParallel <- function(numCores, DF) {
   )
 }
 
-getAvailNForNBorderParallel <- function(numCores, DF) {
+getAvailNForNBorderParallel <- function(wd, numCores, DF) {
   tryCatch(
     {
       result <- NULL
@@ -750,18 +754,16 @@ getAvailNForNBorderParallel <- function(numCores, DF) {
       maxN <- base::max(DF, na.rm = TRUE)
       numRows <- maxN - minN
       result <- base::matrix(nrow = numRows, ncol = 2)
-#      cl <- parallel::makeCluster(numCores)
-#      doParallel::registerDoParallel(cl)
-#      parallel::clusterExport(cl, varlist = c("DF", "result", "numRows"), envir = environment())
-#browser() #TBC()
-      result <- foreach::foreach(i = minN:maxN, .combine = rbind, .packages = c("base"),
-                                 .export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
-                                 .verbose = TRUE) %do% { #%dopar% {
-        base::source(paste0(getwd(), "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+      plan(multisession, workers = numCores)
+browser() #TBC()
+      result <- foreach::foreach(i = minN:maxN, .combine = rbind, #.packages = c("base"),
+                                 #.export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
+                                 .verbose = TRUE) %do% { #%dofuture% {
+        #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
+        base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
         result <- getNForNBorder(mat = DF, NBorder = i)
         return(result)
       }
-#      parallel::stopCluster(cl)
       colnames(result) <- base::c("N_BORDER", "Available CpG")
       result <- base::as.data.frame((result))
       result <- result[base::order(result[[1]], decreasing = TRUE), ]

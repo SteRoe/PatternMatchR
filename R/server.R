@@ -14,7 +14,9 @@ server <- function(input, output, session) {
 
   #define sessionVariables here
   reactlog::reactlog_enable()
+
   packageWd <<- getwd()
+  session$userData$packageWd <- getwd()
   base::print(paste0(Sys.time(), " getwd: ", packageWd))
   base::print(paste0(Sys.time(), " loading configuration."))
   configFileLocation <- system.file("config.yml", package = "PatternMatchR", mustWork = TRUE)
@@ -845,7 +847,7 @@ server <- function(input, output, session) {
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           P_VALNTable <-
-            getAvailNForP_VALBorderParallel(numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
+            getAvailNForP_VALBorderParallel(wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
           output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
           base::print(base::paste0(Sys.time(), " finished counting probes p-value."))
         },
@@ -873,7 +875,7 @@ server <- function(input, output, session) {
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           DMNTable <-
-            getAvailNForDMBorderParallel(numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
+            getAvailNForDMBorderParallel(wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
           output$DTDMborder <- DT::renderDataTable(DMNTable)
         },
         error = function(e) {
@@ -900,7 +902,7 @@ server <- function(input, output, session) {
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           NNTable <-
-            getAvailNForNBorderParallel(numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
+            getAvailNForNBorderParallel(wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
           output$DTNborder <- DT::renderDataTable(NNTable)
         },
         error = function(e) {
