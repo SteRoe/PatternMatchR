@@ -6,7 +6,7 @@
 #' @param minN minimum n for model in regression result
 #' @param debugMode return smaller data structure (only 1000 records) for faster debugging
 #' @return result list()
-getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, minN, debugMode) {
+getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
   tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start pReduceTraitData()."))
@@ -28,25 +28,56 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         mergedOriginTrait <- result$mergedOriginTrait
         mergedDFList <- result$mergedDFList
         # omit p_values from dfs - max PVal
-        cgsToRetainMax <- dfP_Val < maxP_Val
-        cgsToRetainMax <- rownames(which(cgsToRetainMax == TRUE, arr.ind = TRUE))
+        cgsToRetainMaxP <- dfP_Val < maxP_Val
+        cgsToRetainMaxP <- unique(rownames(which(cgsToRetainMaxP == TRUE, arr.ind = TRUE)))
 
-        cgsToRetainMin <- dfP_Val > minP_Val
-        cgsToRetainMin <- rownames(which(cgsToRetainMin == TRUE, arr.ind = TRUE))
+        cgsToRetainMinP <- dfP_Val > minP_Val
+        cgsToRetainMinP <- unique(rownames(which(cgsToRetainMinP == TRUE, arr.ind = TRUE)))
 
-        if (base::exists("cgsToRetainMax") && base::exists("cgsToRetainMin")) {
-          cgsToRetain <- intersect(cgsToRetainMax, cgsToRetainMin)
+        if (base::exists("cgsToRetainMaxP") && base::exists("cgsToRetainMinP")) {
+          cgsToRetainP <- base::intersect(cgsToRetainMaxP, cgsToRetainMinP)
         }
-        else if (base::exists("cgsToRetainMax")) {
-          cgsToRetain <- cgsToRetainMax
+        else if (base::exists("cgsToRetainMaxP")) {
+          cgsToRetainP <- cgsToRetainMaxP
         }
-        else if (base::exists("cgsToRetainMin")) {
-          cgsToRetain <- cgsToRetainMin
+        else if (base::exists("cgsToRetainMinP")) {
+          cgsToRetainP <- cgsToRetainMinP
         }
+        #take only DM outside slider defined range in cgsToRetainDM
+        cgsToRetainMaxDM <- dfDM > maxDM #dfDM < maxDM
+        cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
+        cgsToRetainMinDM <- dfDM < minDM #dfDM > minDM
+        cgsToRetainMinDM <- unique(rownames(which(cgsToRetainMinDM == TRUE, arr.ind = TRUE)))
+        cgsToRetainDM <- unique(c(cgsToRetainMaxDM, cgsToRetainMinDM))
+        if (base::exists("cgsToRetainMaxDM") && base::exists("cgsToRetainMinDM")) {
+          cgsToRetainDM <- base::intersect(cgsToRetainMaxDM, cgsToRetainMinDM)
+        }
+        else if (base::exists("cgsToRetainMaxDM")) {
+          cgsToRetainDM <- cgsToRetainMaxDM
+        }
+        else if (base::exists("cgsToRetainMinDM")) {
+          cgsToRetainDM <- cgsToRetainMinDM
+        }
+
+        cgsToRetainMaxN <- dfN < maxN
+        cgsToRetainMaxN <- unique(rownames(which(cgsToRetainMaxN == TRUE, arr.ind = TRUE)))
+        cgsToRetainMinN <- dfN > minN
+        cgsToRetainMinN <- unique(rownames(which(cgsToRetainMinN == TRUE, arr.ind = TRUE)))
+        if (base::exists("cgsToRetainMaxN") && base::exists("cgsToRetainMinN")) {
+          cgsToRetainN <- base::intersect(cgsToRetainMaxN, cgsToRetainMinN)
+        }
+        else if (base::exists("cgsToRetainMaxN")) {
+          cgsToRetainN <- cgsToRetainMaxN
+        }
+        else if (base::exists("cgsToRetainMinN")) {
+          cgsToRetainN <- cgsToRetainMinN
+        }
+        #intersect of all three cgsToRetain here:
+        cgsToRetain <- intersect(cgsToRetainP, cgsToRetainDM)
+        cgsToRetain <- intersect(cgsToRetain, cgsToRetainN)
         if (!base::exists("cgsToRetain") || length(cgsToRetain) == 0) {
           base::print(base::paste0(Sys.time(), " max p-val border too low: ",
                                    maxP_Val, "; no remaining CpG."))
-          #browser()
         }
         dfP_Val <- dfP_Val[cgsToRetain, ]
         dfDM <- dfDM[cgsToRetain, ]
@@ -57,7 +88,6 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
                                  " and n(col) traits=", base::ncol(dfP_Val),
                                  "."))
         #        dfP_Val[dfP_Val > 0.05] <- NA # 1
-
         base::print(base::class(dfP_Val))
         base::print(Cstack_info())
         if (base::nrow(dfP_Val) >= 5) {

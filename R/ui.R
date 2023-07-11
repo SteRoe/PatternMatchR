@@ -83,29 +83,37 @@ generate_ui <- function() {
                     shiny::actionButton("btnCountP_ValProbes", label = "Count Probes for p-values (may take a long time)"),
                     shiny::actionButton("btnCountProbesP_ValParallel", label = "Count Probes for p-values parallel (may take less time)")
                   ),
-                  shiny::fluidRow(shiny::column(
-                    width = 5,
-                    DT::dataTableOutput("DTP_VALborder")
-                    )
+                  shiny::fluidRow(
+                    #shiny::column(
+                    #width = 5,
+                    DT::dataTableOutput("DTP_VALborder"),
+                    plotly::plotlyOutput("plotDendrogramP_VALborder", height = "80%")
+                    #)
                   )
                 ),
                 shiny::tabPanel("Delta Methylation border vs. # of probes",
                   shiny::fluidRow(
                     shiny::actionButton("btnCountProbesDeltaMethParallel", label = "Count Probes for delta methylation parallel")
                   ),
-                  shiny::fluidRow(shiny::column(
-                    width = 5,
-                    DT::dataTableOutput("DTDMborder")
-                  ))
+                  shiny::fluidRow(
+                    #shiny::column(
+                    #width = 5,
+                    DT::dataTableOutput("DTDMborder"),
+                    plotly::plotlyOutput("plotDendrogramDMborder", height = "80%")
+                    #)
+                  )
                 ),
                 shiny::tabPanel("n border vs. # of probes",
                   shiny::fluidRow(
                     shiny::actionButton("btnCountProbesNParallel", label = "Count Probes for n parallel")
                   ),
-                  shiny::fluidRow(shiny::column(
-                    width = 5,
-                    DT::dataTableOutput("DTNborder")
-                  ))
+                  shiny::fluidRow(
+                    #shiny::column(
+                    #width = 5,
+                    DT::dataTableOutput("DTNborder"),
+                    plotly::plotlyOutput("plotDendrogramNborder", height = "80%")
+                    #)
+                  )
                 )
               )
             ),
@@ -118,7 +126,7 @@ generate_ui <- function() {
                   shiny::sliderInput(
                     "sldP_Val",
                     "maximum (left slider) and minimum (right slider) p-val, 5e-x",
-                    min = 0,
+                    min = 3,
                     max = 200,
                     step = -1,
                     value = c(3, 199)
@@ -131,7 +139,7 @@ generate_ui <- function() {
                     "maximum (left slider) and minimum (right slider) delta methylation",
                     min = 0,
                     max = 200,
-                    step = -1,
+                    step = .01,
                     value = c(3, 199)
                   )
                 ),
@@ -142,7 +150,7 @@ generate_ui <- function() {
                     "maximum (left slider) and minimum (right slider) n",
                     min = 0,
                     max = 200,
-                    step = -1,
+                    step = 1,
                     value = c(3, 199)
                   )
                 )

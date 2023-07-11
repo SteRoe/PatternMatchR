@@ -751,6 +751,7 @@ server <- function(input, output, session) {
                                                         session$userData$sessionVariables$resultDFListTrait3(),
                                                         minN)
           session$userData$sessionVariables$combinedDFP_Val_Labels(combinedDFP_Val_Labels)
+          updateSliders(session, session$userData$sessionVariables$combinedDFP_Val_Labels())
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnMerge):\n", e)
@@ -776,13 +777,20 @@ server <- function(input, output, session) {
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
           maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
           minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
-          minN <- base::as.integer(input$txtCases)
+          minDM <- input$sldDM[1]
+          maxDM <- input$sldDM[2]
+          minN <- base::as.integer(input$sldN[1])
+          maxN <- base::as.integer(input$sldN[2])
+          #minN <- base::as.integer(input$txtCases)
           combinedDFP_Val_Labels <- session$userData$sessionVariables$combinedDFP_Val_Labels()
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(getPReducedTraitData(combinedDFP_Val_Labels =
                                                                                                   combinedDFP_Val_Labels,
                                                                                                 minP_Val = minP_Val,
                                                                                                 maxP_Val = maxP_Val,
+                                                                                                minDM = minDM,
+                                                                                                maxDM = maxDM,
                                                                                                 minN = minN,
+                                                                                                maxN = maxN,
                                                                                                 debugMode = session$userData$config$debugMode))
         },
         error = function(e) {
@@ -847,8 +855,14 @@ server <- function(input, output, session) {
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           P_VALNTable <-
-            getAvailNForP_VALBorderParallel(wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
+            getAvailNForP_VALBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
           output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
+          #insert scatterplot with table results
+          #output$plotDendrogramP_VALborder <- plotly::renderPlotly(plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_ValBorder"))
+          plot <- plotly::plot_ly(x = P_VALNTable$P_VAL_BORDER, y = P_VALNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterP_ValBorder") %>%
+            plotly::layout(xaxis = list(title = 'p-val', type = "log")) %>%
+            plotly::layout(yaxis = list(title = 'n' ))
+          output$plotDendrogramP_VALborder <- plotly::renderPlotly(plot)
           base::print(base::paste0(Sys.time(), " finished counting probes p-value."))
         },
         error = function(e) {
@@ -875,8 +889,12 @@ server <- function(input, output, session) {
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           DMNTable <-
-            getAvailNForDMBorderParallel(wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
+            getAvailNForDMBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
           output$DTDMborder <- DT::renderDataTable(DMNTable)
+          plot <- plotly::plot_ly(x = DMNTable$DM_BORDER, y = DMNTable$'Available CpG', type = "scatter", mode = "lines+markers", name = "scatterDeltaMethylationBorder") %>%
+            plotly::layout(xaxis = list(title = 'DeltaMethylation', type = "linear")) %>%
+            plotly::layout(yaxis = list(title = 'n' ))
+          output$plotDendrogramDMborder <- plotly::renderPlotly(plot)
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
@@ -902,8 +920,12 @@ server <- function(input, output, session) {
           if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
           }
           NNTable <-
-            getAvailNForNBorderParallel(wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
+            getAvailNForNBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
           output$DTNborder <- DT::renderDataTable(NNTable)
+          plot <- plotly::plot_ly(x = NNTable$N_BORDER, y = NNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterNBorder") %>%
+            plotly::layout(xaxis = list(title = 'n', type = "linear")) %>%
+            plotly::layout(yaxis = list(title = 'n' ))
+          output$plotDendrogramNborder <- plotly::renderPlotly(plot)
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)

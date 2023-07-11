@@ -571,4 +571,24 @@ updateTxtMergeOut <- function(combinedDFP_Val_Labels) {
   )
 }
 
+updateSliders <- function(session, combinedDFP_Val_Labels) {
+#browser()
+  DF <- combinedDFP_Val_Labels$dfP_Val
+  minP <- base::min(DF, na.rm = TRUE)
+  minP <- extractMantissaExponent(minP)$exponent #base::round(extractMantissaExponent(minP)$exponent, 5)
+  maxP <- base::max(DF, na.rm = TRUE)
+  maxP <- extractMantissaExponent(maxP)$exponent #base::round(extractMantissaExponent(maxP)$exponent, 5)
+#  maxP <- -1
+#  minP <- -8
+  shiny::updateSliderInput(session = session, "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
+  DF <- combinedDFP_Val_Labels$dfDM
+  minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
+  maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
+  shiny::updateSliderInput(session = session, "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
+  DF <- combinedDFP_Val_Labels$dfN
+  minN <- base::min(DF, na.rm = TRUE)
+  maxN <- base::max(DF, na.rm = TRUE)
+  shiny::updateSliderInput(session = session, "sldN", min = minN, max = maxN, value = c(minN, maxN))
+}
+
 # mergeDFP_Val_Labels <- compiler::cmpfun(mergeDFP_Val_Labels)

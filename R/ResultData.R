@@ -673,14 +673,23 @@ getNForNBorder <- function(mat, NBorder) {
 #' @param DF data frame for which to calculate results
 #' @return data.frame with results
 # examples getAvailNForP_VALBorderParallel(numCores, DF)
-getAvailNForP_VALBorderParallel <- function(wd, numCores, DF) {
+getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
   tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
-      numRows <- 300
+      minP <- base::min(DF, na.rm = TRUE)
+      minP <- extractMantissaExponent(minP)$exponent
+      maxP <- base::max(DF, na.rm = TRUE)
+      maxP <- extractMantissaExponent(maxP)$exponent
+      numRows <- maxP - minP
+      # minP <- minP * -1
+      # maxP <- maxP * -1
+      shiny::updateSliderInput(session = session, "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
+      # numRows <- 300
       result <- base::matrix(nrow = numRows, ncol = 2)
-      plan(multisession, workers = numCores)
+      future::plan(strategy = future::multisession, workers = numCores)
+      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
       result <- foreach::foreach(i = 1:numRows, .combine = rbind, #.packages = c("base"),
                                  #.export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
                                  .verbose = TRUE) %dofuture% {
@@ -706,20 +715,22 @@ getAvailNForP_VALBorderParallel <- function(wd, numCores, DF) {
   )
 }
 
-getAvailNForDMBorderParallel <- function(wd, numCores, DF) {
+getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
   tryCatch(
     {
       result <- NULL
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
       #check min DM and max DM
-      minDM <- base::min(DF, na.rm = TRUE)
-      maxDM <- base::max(DF, na.rm = TRUE)
+      minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
+      maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
+      shiny::updateSliderInput(session = session, "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
       minDM <- as.integer(minDM * 100) #0
       maxDM <- as.integer(maxDM * 100)
       numRows <- maxDM - minDM
       result <- base::matrix(nrow = numRows, ncol = 2)
-      plan(multisession, workers = numCores)
+      future::plan(strategy = future::multisession, workers = numCores)
+      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
       result <- foreach::foreach(i = minDM:maxDM, .combine = rbind,
                                    .verbose = TRUE) %dofuture% {
         #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
@@ -744,7 +755,7 @@ getAvailNForDMBorderParallel <- function(wd, numCores, DF) {
   )
 }
 
-getAvailNForNBorderParallel <- function(wd, numCores, DF) {
+getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
   tryCatch(
     {
       result <- NULL
@@ -753,12 +764,13 @@ getAvailNForNBorderParallel <- function(wd, numCores, DF) {
       minN <- base::min(DF, na.rm = TRUE)
       maxN <- base::max(DF, na.rm = TRUE)
       numRows <- maxN - minN
+      shiny::updateSliderInput(session = session, "sldN", min = minN, max = maxN, value = c(minN, maxN))
       result <- base::matrix(nrow = numRows, ncol = 2)
-      plan(multisession, workers = numCores)
-browser() #TBC()
+      future::plan(strategy = future::multisession, workers = numCores)
+      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
       result <- foreach::foreach(i = minN:maxN, .combine = rbind, #.packages = c("base"),
                                  #.export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
-                                 .verbose = TRUE) %do% { #%dofuture% {
+                                 .verbose = TRUE) %dofuture% {
         #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
         base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
         result <- getNForNBorder(mat = DF, NBorder = i)
