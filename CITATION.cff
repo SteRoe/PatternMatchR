@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Roeder
+    given-names: Stefan
+    orcid: https://orcid.org/0000-0001-9367-663X
+title: PatternMatchR: A Tool for Matching and Visualiszation of Omics Patterns
+version: v0.2.3
+doi: 10.5281/zenodo.8138916 
+date-released: 2023-07-12
