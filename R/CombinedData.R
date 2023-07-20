@@ -153,11 +153,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         if (!((base::nrow(dfP_Val2) > 0) && (base::ncol(dfP_Val2) > 0))) {
           base::message(base::paste0(Sys.time(), "nrow(DF2) or ncol(DF2) == 0"))
         }
-        else {
-          base::message(base::paste0(Sys.time(), "DF2 is not valid"))
-        }
+      } else {
+        base::message(base::paste0(Sys.time(), "DF2 is not valid"))
       }
-
       if (!base::is.null(resultDFListTrait3$resultDFP_Val)) {
         dfList <- base::list()
         dfList$dfP_Val <- resultDFListTrait3$resultDFP_Val

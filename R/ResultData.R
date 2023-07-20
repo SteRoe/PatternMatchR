@@ -79,11 +79,13 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
           else {
             PHENOFileName <-
               stringr::str_match(PHENOFileNameLine, "\"(.*?)\"")[2]
-            PHENOFileName <- paste0(folder, PHENOFileName)
             if (base::length(PHENOFileName) == 0) {
               base::message(base::paste0(Sys.time(), " PHENOFileName in PHENOFileNameLine not found."))
             }
             else {
+              if (!file.exists(PHENOFileName)) {
+                PHENOFileName <- paste0(folder, PHENOFileName)
+              }
               listPrimaryKeys <- as.list(session$userData$config$keyAttributes)
               PHENOdata <- list(PHENODF = getPHENODF(PHENOFileName, listPrimaryKeys), PHENOFileName = PHENOFileName)
               listResultP_Val <- getResultDfP_D_N(listOfResultDF, "P")
@@ -358,7 +360,7 @@ getlistOfResultsDF <- function(session, folder) {
               }
             }
             else {
-              result <- FALSE
+              #result <- FALSE
               base::message(
                 base::paste0(
                   Sys.time(),
@@ -690,6 +692,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
       result <- base::matrix(nrow = numRows, ncol = 2)
       future::plan(strategy = future::multisession, workers = numCores)
       library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+      library(doFuture)
       result <- foreach::foreach(i = 1:numRows, .combine = rbind, #.packages = c("base"),
                                  #.export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
                                  .verbose = TRUE) %dofuture% {
@@ -731,6 +734,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
       result <- base::matrix(nrow = numRows, ncol = 2)
       future::plan(strategy = future::multisession, workers = numCores)
       library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+      library(doFuture)
       result <- foreach::foreach(i = minDM:maxDM, .combine = rbind,
                                    .verbose = TRUE) %dofuture% {
         #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
@@ -768,6 +772,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
       result <- base::matrix(nrow = numRows, ncol = 2)
       future::plan(strategy = future::multisession, workers = numCores)
       library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+      library(doFuture)
       result <- foreach::foreach(i = minN:maxN, .combine = rbind, #.packages = c("base"),
                                  #.export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
                                  .verbose = TRUE) %dofuture% {
@@ -890,7 +895,7 @@ removeTraitsMinN <- function(dfList, minN) {
         dfN <-
           base::as.data.frame(dfN[, traitNames])
         rownames(dfN) <- rn
-        colnames(dfN) <- cn
+        cn <- colnames(dfN)
 
         # select the same content than in dfN
         dfP_Val <- as.data.frame(dfP_Val[base::rownames(dfN), base::colnames(dfN)]) # does not work with data.table
