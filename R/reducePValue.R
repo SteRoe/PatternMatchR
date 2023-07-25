@@ -28,12 +28,13 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         mergedOriginTrait <- result$mergedOriginTrait
         mergedDFList <- result$mergedDFList
         # omit p_values from dfs - max PVal
+#tbc() check maxP_Val and minP_Val, because we obtain 0 hits later; minP_Val = 50, that seems to be wrong
         cgsToRetainMaxP <- dfP_Val < maxP_Val
         cgsToRetainMaxP <- unique(rownames(which(cgsToRetainMaxP == TRUE, arr.ind = TRUE)))
 
         cgsToRetainMinP <- dfP_Val > minP_Val
         cgsToRetainMinP <- unique(rownames(which(cgsToRetainMinP == TRUE, arr.ind = TRUE)))
-
+#TBC() #here we obtain 0 hits
         if (base::exists("cgsToRetainMaxP") && base::exists("cgsToRetainMinP")) {
           cgsToRetainP <- base::intersect(cgsToRetainMaxP, cgsToRetainMinP)
         }
@@ -44,9 +45,9 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
           cgsToRetainP <- cgsToRetainMinP
         }
         #take only DM outside slider defined range in cgsToRetainDM
-        cgsToRetainMaxDM <- dfDM > maxDM #dfDM < maxDM
+        cgsToRetainMaxDM <- dfDM < maxDM #dfDM > maxDM
         cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
-        cgsToRetainMinDM <- dfDM < minDM #dfDM > minDM
+        cgsToRetainMinDM <- dfDM > minDM #dfDM < minDM
         cgsToRetainMinDM <- unique(rownames(which(cgsToRetainMinDM == TRUE, arr.ind = TRUE)))
         cgsToRetainDM <- unique(c(cgsToRetainMaxDM, cgsToRetainMinDM))
         if (base::exists("cgsToRetainMaxDM") && base::exists("cgsToRetainMinDM")) {

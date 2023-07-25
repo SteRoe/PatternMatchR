@@ -775,8 +775,15 @@ server <- function(input, output, session) {
           base::print(base::paste0(Sys.time(), " start reducing data by p-value."))
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-          maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
-          minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+#tbc() check the following assignment
+          maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+          minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
+          if (maxP_Val < minP_Val) { #exchange, if in wrong order
+            t <- minP_Val
+            minP_Val <- maxP_Val
+            maxP_Val <- t
+            browser()
+          }
           minDM <- input$sldDM[1]
           maxDM <- input$sldDM[2]
           minN <- base::as.integer(input$sldN[1])

@@ -680,13 +680,19 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     {
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
-      minP <- base::min(DF, na.rm = TRUE)
+      DF <- as.matrix(DF)
+      #minP <- base::min(DF, na.rm = TRUE)
+      minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+      minP <- base::min(minP)
       minP <- extractMantissaExponent(minP)$exponent
-      maxP <- base::max(DF, na.rm = TRUE)
+      #maxP <- base::max(DF, na.rm = TRUE)
+      maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+      maxP <- base::min(maxP)
       maxP <- extractMantissaExponent(maxP)$exponent
       numRows <- maxP - minP
       # minP <- minP * -1
       # maxP <- maxP * -1
+browser()
       shiny::updateSliderInput(session = session, "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
       # numRows <- 300
       result <- base::matrix(nrow = numRows, ncol = 2)
@@ -725,8 +731,13 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
       #check min DM and max DM
-      minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
-      maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
+      #minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
+      DF <- as.matrix(DF)
+      minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+      minDM <- base::min(minDM)
+      #maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
+      maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+      maxDM <- base::min(maxDM)
       shiny::updateSliderInput(session = session, "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
       minDM <- as.integer(minDM * 100) #0
       maxDM <- as.integer(maxDM * 100)
@@ -765,8 +776,13 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
       result <- NULL
       base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
       i <- NULL
-      minN <- base::min(DF, na.rm = TRUE)
-      maxN <- base::max(DF, na.rm = TRUE)
+      DF <- as.matrix(DF)
+      #minN <- base::min(DF, na.rm = TRUE)
+      minN <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+      minN <- base::min(minN)
+      #maxN <- base::max(DF, na.rm = TRUE)
+      maxN <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+      maxN <- base::min(maxN)
       numRows <- maxN - minN
       shiny::updateSliderInput(session = session, "sldN", min = minN, max = maxN, value = c(minN, maxN))
       result <- base::matrix(nrow = numRows, ncol = 2)
