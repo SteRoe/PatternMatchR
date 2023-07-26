@@ -492,11 +492,65 @@ server <- function(input, output, session) {
     {
       session$userData$sessionVariables$markingVar <- input$markingVar
       # redraw SPLOM
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar)
+browser()
+      height <- input$numSPLOMVSize
+      width <- input$numSPLOMHSize
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
       output$SPLOM <- plotly::renderPlotly(fig)
       session$userData$sessionVariables$SPLOM <- TRUE
     },
     ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$numSPLOMHSize,
+                      ignoreInit = TRUE,
+                      {
+                        session$userData$sessionVariables$markingVar <- input$markingVar
+                        # redraw SPLOM
+                        height <- input$numSPLOMVSize
+                        width <- input$numSPLOMHSize
+                        fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
+                        output$SPLOM <- plotly::renderPlotly(fig)
+                        session$userData$sessionVariables$SPLOM <- TRUE
+                      },
+                      ignoreNULL = FALSE
+  )
+  shiny::observeEvent(input$numSPLOMVSize,
+                      ignoreInit = TRUE,
+                      {
+                        session$userData$sessionVariables$markingVar <- input$markingVar
+                        # redraw SPLOM
+                        height <- input$numSPLOMVSize
+                        width <- input$numSPLOMHSize
+                        fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
+                        output$SPLOM <- plotly::renderPlotly(fig)
+                        session$userData$sessionVariables$SPLOM <- TRUE
+                      },
+                      ignoreNULL = FALSE
+  )
+  shiny::observeEvent(input$numHMHSize,
+                      ignoreInit = TRUE,
+                      {
+                        session$userData$sessionVariables$markingVar <- input$markingVar
+                        # redraw HM
+browser()
+                        height <- input$numHMVSize
+                        width <- input$numHMHSize
+                        plotCombinedHM(input = input, output = output, session = session)
+                      },
+                      ignoreNULL = FALSE
+  )
+  shiny::observeEvent(input$numHMVSize,
+                      ignoreInit = TRUE,
+                      {
+                        session$userData$sessionVariables$markingVar <- input$markingVar
+                        # redraw HM
+browser()
+                        height <- input$numHMVSize
+                        width <- input$numHMHSize
+                        plotCombinedHM(input = input, output = output, session = session)
+                      },
+                      ignoreNULL = FALSE
   )
 
   shiny::observeEvent(input$btnBrowser,
@@ -775,9 +829,8 @@ server <- function(input, output, session) {
           base::print(base::paste0(Sys.time(), " start reducing data by p-value."))
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-#tbc() check the following assignment
-          maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
-          minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
+          maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
+          minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
           if (maxP_Val < minP_Val) { #exchange, if in wrong order
             t <- minP_Val
             minP_Val <- maxP_Val
@@ -1142,98 +1195,7 @@ server <- function(input, output, session) {
     {
       tryCatch(
         {
-          base::print(base::paste0(Sys.time(), " start plotting heatmap."))
-          output$txtHMDescription <-
-            shiny::renderText(base::paste0("calculating heatmap..., current plot is not valid"))
-          while (!is.null(grDevices::dev.list())) {
-            grDevices::dev.off()
-          }
-          base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-          # combinedHMP_VAL <- emptyHM()
-          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input = input, output = output,
-          #                                                          session = session, ht_list = combinedHMP_VAL,
-          #                                                          heatmap_id = "heatmap_1")
-#          combinedDFP_Val_Labels <- session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()
-          combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()
-
-          dfP_Val <- combinedDFP_Val_Labels$dfP_Val
-          #browser() #if step 3 was omitted, we see an error here...
-          dfP_Val[dfP_Val > 0.05] <- NA # 1
-          base::print(
-            base::paste0(
-              Sys.time(),
-              " calculating combined heatmap with rows= ",
-              nrow(dfP_Val),
-              " cols= ",
-              ncol(dfP_Val)
-            )
-          )
-          base::print(base::class(dfP_Val))
-          if (nrow(dfP_Val) > 5) {
-            startTime <- Sys.time()
-            output$txtResultingN <-
-              shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
-            base::print(base::paste0(Sys.time(), " gc()"))
-
-            # check clustResProbes > 8
-            base::length(session$userData$sessionVariables$clustResProbes())
-            base::options(expression = 500000)
-            dendProbes <- session$userData$sessionVariables$dendProbes()
-            dendProbes <-
-              dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
-            dendTraits <- session$userData$sessionVariables$traitReducedDendTraits()
-
-            base::print(base::paste0(Sys.time(), " before calculating heatmap"))
-
-            base::print(base::paste0(Sys.time(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
-            base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-            length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
-            length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
-            l <-
-              combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits)
-            combinedHMP_VAL <- l$combinedHMP_VAL
-
-            endTime <- Sys.time()
-            elapsedTime <- endTime - startTime
-            base::print(base::paste0(Sys.time(), " after calculating heatmap. Elapsed time: ", elapsedTime, "."))
-            base::print(base::paste0(Sys.time(), " before plotting heatmap."))
-            while (!base::is.null(grDevices::dev.list())) {
-              grDevices::dev.off()
-            }
-            InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
-              input = input,
-              output = output,
-              session = session,
-              ht_list = combinedHMP_VAL,
-              heatmap_id = "heatmap_1",
-              show_layer_fun = TRUE,
-              click_action = click_action_HM,
-              brush_action = brush_action_HM,
-              hover_action = hover_action_HM
-            )
-            output$txtHMDescription <-
-              shiny::renderText(
-                base::paste0(
-                  Sys.time(),
-                  " done calculating heatmap..., current plot is valid. n(probe) = ",
-                  base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-                  "; n(trait) = ",
-                  base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-                  "; elapsed time: ",
-                  elapsedTime
-                )
-              )
-            base::print(
-              base::paste0(
-                Sys.time(),
-                " finished plotting heatmap with n(probes)=",
-                base::nrow(dfP_Val),
-                " n(traits)=",
-                base::ncol(dfP_Val)
-              )
-            )
-            session$userData$sessionVariables$SPLOM <- FALSE
-          }
+          plotCombinedHM(input = input, output = output, session = session)
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$plotCombinedHM):\n", e)

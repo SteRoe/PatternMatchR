@@ -136,7 +136,7 @@ generate_ui <- function() {
                   width = 4,
                   shiny::sliderInput(
                     "sldDM",
-                    "maximum (left slider) and minimum (right slider) delta methylation",
+                    "minimum (left slider) and maximum (right slider) delta methylation",
                     min = 0,
                     max = 200,
                     step = .01,
@@ -147,7 +147,7 @@ generate_ui <- function() {
                   width = 4,
                   shiny::sliderInput(
                     "sldN",
-                    "maximum (left slider) and minimum (right slider) n",
+                    "minimum (left slider) and maximum (right slider) n",
                     min = 0,
                     max = 200,
                     step = 1,
@@ -214,6 +214,14 @@ generate_ui <- function() {
                         "HeatMap",
                         shiny::actionButton("plotCombinedHM", label = "Step 5: Plot Heatmap"),
                         shiny::verbatimTextOutput("txtHMDescription", placeholder = TRUE),
+                        shiny::column(
+                          width = 6,
+                          shiny::numericInput(inputId = "numHMHSize", label = "Width", value = 2000, min = 1000, max = 10000),
+                        ),
+                        shiny::column(
+                          width = 6,
+                          shiny::numericInput(inputId = "numHMVSize", label = "Height", value = 1500, min = 1000, max = 10000),
+                        ),
                         InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
                           "heatmap_1",
                           height1 = 2000,
@@ -230,6 +238,14 @@ generate_ui <- function() {
                           label = "select variable for color marking",
                           choices = NULL,
                           width = "100%"
+                        ),
+                        shiny::column(
+                          width = 6,
+                          shiny::numericInput(inputId = "numSPLOMHSize", label = "Width", value = 2000, min = 1000, max = 10000),
+                        ),
+                        shiny::column(
+                          width = 6,
+                          shiny::numericInput(inputId = "numSPLOMVSize", label = "Height", value = 1500, min = 1000, max = 10000),
                         ),
                         "SPLOM from selected area in heatmap",
                         plotly::plotlyOutput("SPLOM",

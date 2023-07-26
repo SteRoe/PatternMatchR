@@ -353,6 +353,102 @@ combinedDFInteractiveHeatMapP_Val <-
     return(l)
   }
 
+
+plotCombinedHM <- function(input, output, session) {
+  base::print(base::paste0(Sys.time(), " start plotting heatmap."))
+  output$txtHMDescription <-
+    shiny::renderText(base::paste0("calculating heatmap..., current plot is not valid"))
+  while (!is.null(grDevices::dev.list())) {
+    grDevices::dev.off()
+  }
+  base::print(base::paste0(Sys.time(), " creating empty heatmap."))
+  # combinedHMP_VAL <- emptyHM()
+  # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input = input, output = output,
+  #                                                          session = session, ht_list = combinedHMP_VAL,
+  #                                                          heatmap_id = "heatmap_1")
+  #          combinedDFP_Val_Labels <- session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()
+  combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()
+
+  dfP_Val <- combinedDFP_Val_Labels$dfP_Val
+  #browser() #if step 3 was omitted, we see an error here...
+  dfP_Val[dfP_Val > 0.05] <- NA # 1
+  base::print(
+    base::paste0(
+      Sys.time(),
+      " calculating combined heatmap with rows= ",
+      nrow(dfP_Val),
+      " cols= ",
+      ncol(dfP_Val)
+    )
+  )
+  base::print(base::class(dfP_Val))
+  if (nrow(dfP_Val) > 5) {
+    startTime <- Sys.time()
+    output$txtResultingN <-
+      shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
+    base::print(base::paste0(Sys.time(), " gc()"))
+
+    # check clustResProbes > 8
+    base::length(session$userData$sessionVariables$clustResProbes())
+    base::options(expression = 500000)
+    dendProbes <- session$userData$sessionVariables$dendProbes()
+    dendProbes <-
+      dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+    dendTraits <- session$userData$sessionVariables$traitReducedDendTraits()
+
+    base::print(base::paste0(Sys.time(), " before calculating heatmap"))
+
+    base::print(base::paste0(Sys.time(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+    base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+    length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
+    length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
+    l <-
+      combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits)
+    combinedHMP_VAL <- l$combinedHMP_VAL
+
+    endTime <- Sys.time()
+    elapsedTime <- endTime - startTime
+    base::print(base::paste0(Sys.time(), " after calculating heatmap. Elapsed time: ", elapsedTime, "."))
+    base::print(base::paste0(Sys.time(), " before plotting heatmap."))
+    while (!base::is.null(grDevices::dev.list())) {
+      grDevices::dev.off()
+    }
+    InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+      input = input,
+      output = output,
+      session = session,
+      ht_list = combinedHMP_VAL,
+      heatmap_id = "heatmap_1",
+      show_layer_fun = TRUE,
+      click_action = click_action_HM,
+      brush_action = brush_action_HM,
+      hover_action = hover_action_HM
+    )
+    output$txtHMDescription <-
+      shiny::renderText(
+        base::paste0(
+          Sys.time(),
+          " done calculating heatmap..., current plot is valid. n(probe) = ",
+          base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+          "; n(trait) = ",
+          base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+          "; elapsed time: ",
+          elapsedTime
+        )
+      )
+    base::print(
+      base::paste0(
+        Sys.time(),
+        " finished plotting heatmap with n(probes)=",
+        base::nrow(dfP_Val),
+        " n(traits)=",
+        base::ncol(dfP_Val)
+      )
+    )
+    session$userData$sessionVariables$SPLOM <- FALSE
+  }
+}
+
 #' click_action_HM
 #' @param df data.frame containing data which is enclosed by brush action
 #' @param input shiny input object
@@ -388,10 +484,6 @@ brush_action_HM <- function(df, input, output, session) {
       session$userData$sessionVariables$SPLOM <- FALSE
       row_index <- collapse::funique(unlist(df$row_index)) #row_index <- unique(unlist(df$row_index))
       column_index <- collapse::funique(unlist(df$column_index))
-      # session$userData$sessionVariables$selected_row_index <-
-      #   row_index
-      # session$userData$sessionVariables$selected_column_index <-
-      #   column_index
       session$userData$sessionVariables$selectedOriginalData <-
         getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session)
       if (!is.null(session$userData$sessionVariables$selectedOriginalData)) {
@@ -420,7 +512,10 @@ brush_action_HM <- function(df, input, output, session) {
         )
       }
       if (session$userData$sessionVariables$SPLOM == FALSE) { # SPLOM empty
-        fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar)
+browser()
+        height <- input$numSPLOMVSize
+        width <- input$numSPLOMHSize
+        fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
         output$SPLOM <- plotly::renderPlotly(fig)
         session$userData$sessionVariables$SPLOM <- TRUE
       }

@@ -9,7 +9,10 @@ getPReducedTraitData(
   combinedDFP_Val_Labels,
   minP_Val,
   maxP_Val,
+  minDM,
+  maxDM,
   minN,
+  maxN,
   debugMode
 )
 }

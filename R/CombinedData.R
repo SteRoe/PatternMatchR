@@ -17,7 +17,7 @@
 getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
   tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start getResultDfP_D_N()"))
+      base::print(base::paste0(Sys.time(), " start getResultDfP_D_N(): ", P_D_N, "."))
       i <- NULL
       if (base::length(listOfResultDF) != 0) {
         #foreach::foreach(i = 1:length(listOfResultDF)) %do% {
@@ -68,7 +68,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
       message("A warning occurred in getResultDfP_D_N():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getResultDfP_D_N()."))
+      base::print(base::paste0(Sys.time(), " end getResultDfP_D_N(): ", P_D_N, "."))
       return(merged)
     }
   )

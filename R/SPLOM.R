@@ -51,7 +51,7 @@ getBinaryFactorialVars <- function(df) {
 #' @param markingVar variable inside the data frame, which will be not drawn in SPLOM, instead it will be used for visual stratification
 #' @return a plotly figure, which can be drawn using renderPlotly
 # examples getSPLOM(df, markingVar)
-getSPLOM <- function(df, markingVar) {
+getSPLOM <- function(df, markingVar, height, width) {
   if (!is.null(df)) {
     dimensions <- getDimensionsForPlotlySPLOM(df, markingVar)
     pl_colorscale <- list(
@@ -67,9 +67,15 @@ getSPLOM <- function(df, markingVar) {
     #   ticklen = 4,
     #   titlefont = list(size = 13)
     # )
-
+    #25900x3200 is possible for dimensions
+    if (is.numeric(height)) {
+      h <- base::paste0(height, "px")
+    }
+    if (is.numeric(width)) {
+      w <- base::paste0(width, "px")
+    }
     fig <- df %>%
-      plotly::plot_ly()
+      plotly::plot_ly(height = height, width = width) # plotly::plot_ly()
     if (!any(nzchar(markingVar))) {
       #    if (is.null(markingVar)) {
       fig <- fig %>%

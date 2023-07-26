@@ -28,13 +28,13 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         mergedOriginTrait <- result$mergedOriginTrait
         mergedDFList <- result$mergedDFList
         # omit p_values from dfs - max PVal
-#tbc() check maxP_Val and minP_Val, because we obtain 0 hits later; minP_Val = 50, that seems to be wrong
+        #if we obtain 0 hits later, check maxP_Val and minP_Val
         cgsToRetainMaxP <- dfP_Val < maxP_Val
         cgsToRetainMaxP <- unique(rownames(which(cgsToRetainMaxP == TRUE, arr.ind = TRUE)))
 
         cgsToRetainMinP <- dfP_Val > minP_Val
         cgsToRetainMinP <- unique(rownames(which(cgsToRetainMinP == TRUE, arr.ind = TRUE)))
-#TBC() #here we obtain 0 hits
+        #here we obtain 0 hits
         if (base::exists("cgsToRetainMaxP") && base::exists("cgsToRetainMinP")) {
           cgsToRetainP <- base::intersect(cgsToRetainMaxP, cgsToRetainMinP)
         }
@@ -135,7 +135,7 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
           combinedDFP_Val_Labels$mergedDFList <- mergedDFList #(consists of mergedDFList$PHENODF and mergedDFList$PHENOFileName for each source file)
         }
         else {
-          base::message(base::paste0(Sys.time(), " less than 5 probes remained."))
+          base::message(base::paste0(Sys.time(), " less than 5 probes remained. Please check your maximum and minimum p-val settings."))
           #browser()
         }
       }

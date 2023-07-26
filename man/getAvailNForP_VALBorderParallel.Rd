@@ -5,7 +5,7 @@
 \title{getAvailNForP_VALBorderParallel
 counts number of remaining models below a defined n; uses parallel processing for faster results}
 \usage{
-getAvailNForP_VALBorderParallel(wd, numCores, DF)
+getAvailNForP_VALBorderParallel(session, wd, numCores, DF)
 }
 \arguments{
 \item{numCores}{number of CPU cores to use}
