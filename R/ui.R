@@ -128,7 +128,7 @@ generate_ui <- function() {
                     "maximum (left slider) and minimum (right slider) p-val, 5e-x",
                     min = 3,
                     max = 200,
-                    step = -1,
+                    step = -1, #1
                     value = c(3, 199)
                   )
                 ),

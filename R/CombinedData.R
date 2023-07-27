@@ -110,9 +110,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$resultOriginDF <- resultDFListTrait1$resultOriginDF
         dfList$resultColnames <- resultDFListTrait1$resultColnames
         dfList$listPHENOdata <- resultDFListTrait1$listPHENOdata
-        if (is.valid(minN)) {
-          dfList <- removeTraitsMinN(dfList, minN) # remove unused traits
-        }
+        # if (is.valid(minN)) {
+        #   dfList <- removeTraitsMinN(dfList, minN) # remove unused traits
+        # }
         dfP_Val1 <- dfList$dfP_Val
         if (base::exists("dfP_Val1")) {
           checkResultP_Val_cg(dfP_Val1)
@@ -137,9 +137,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$resultOriginDF <- resultDFListTrait2$resultOriginDF
         dfList$resultColnames <- resultDFListTrait2$resultColnames
         dfList$listPHENOdata <- resultDFListTrait2$listPHENOdata
-        #if (is.valid(minN)) {
-          dfList <- removeTraitsMinN(dfList, minN)
-        #}
+        # if (is.valid(minN)) {
+        #   dfList <- removeTraitsMinN(dfList, minN)
+        # }
         dfP_Val2 <- dfList$dfP_Val
         if (base::exists("dfP_Val2")) {
           checkResultP_Val_cg(dfP_Val2)
@@ -164,9 +164,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$resultOriginDF <- resultDFListTrait3$resultOriginDF
         dfList$resultColnames <- resultDFListTrait3$resultColnames
         dfList$listPHENOdata <- resultDFListTrait3$listPHENOdata
-        if (is.valid(minN)) {
-          dfList <- removeTraitsMinN(dfList, minN)
-        }
+        # if (is.valid(minN)) {
+        #   dfList <- removeTraitsMinN(dfList, minN)
+        # }
         dfP_Val3 <- dfList$dfP_Val
         if (base::exists("dfP_Val3")) {
           checkResultP_Val_cg(dfP_Val3)
@@ -580,9 +580,6 @@ updateSliders <- function(session, combinedDFP_Val_Labels) {
   maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
   maxP <- base::min(maxP)
   maxP <- extractMantissaExponent(maxP)$exponent #base::round(extractMantissaExponent(maxP)$exponent, 5)
-#  maxP <- -1
-#  minP <- -8
-#browser()
   shiny::updateSliderInput(session = session, "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
   DF <- combinedDFP_Val_Labels$dfDM
   DF <- as.matrix(DF)

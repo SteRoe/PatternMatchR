@@ -399,27 +399,6 @@ server <- function(input, output, session) {
 
   output$txtMergeOut <- shiny::reactive({
     if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
-    dfP_Val <-
-      session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val
-      minP_Val <-
-        base::min(dfP_Val[which(dfP_Val > 0, arr.ind = TRUE)])
-      exponent <- extractMantissaExponent(minP_Val)$exponent
-      if (exponent < 0) {
-        exponent <- exponent * -1
-      }
-      if (base::is.finite(exponent)) {
-        if (exponent == 0) {
-          exponent <- 200
-        }
-        exponent <- exponent + 1
-        shiny::updateSliderInput(session = session,
-                                 inputId = "sldP_Val",
-                                 min = 1,
-                                 max = exponent,
-                                 value = c(2, exponent),
-                                 step = 1
-        )
-      }
       result <- updateTxtMergeOut(session$userData$sessionVariables$combinedDFP_Val_Labels())
     }
     else {
@@ -429,10 +408,7 @@ server <- function(input, output, session) {
   })
 
   output$txtPReduceOut <- shiny::reactive({
-#browser()
-    #if(is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
     if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels())) {
-      #maxTraits <- ncol(session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
       maxTraits <- ncol(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)
       if (is.valid(session$userData$sessionVariables$traitReducedmatP_Val())) {
         value <- ncol(session$userData$sessionVariables$traitReducedmatP_Val())
@@ -450,8 +426,8 @@ server <- function(input, output, session) {
   })
 
   output$txtClusterOut <- shiny::reactive({
-    maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
-    minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+    minP_Val <- 5 * 10^base::as.integer(input$sldP_Val[1]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+    maxP_Val <- 5 * 10^base::as.integer(input$sldP_Val[2]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
     minN <- base::as.integer(input$txtCases)
 
     sldNumClasses <- input$sldNumClusters
@@ -492,7 +468,6 @@ server <- function(input, output, session) {
     {
       session$userData$sessionVariables$markingVar <- input$markingVar
       # redraw SPLOM
-browser()
       height <- input$numSPLOMVSize
       width <- input$numSPLOMHSize
       fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
@@ -829,8 +804,8 @@ browser()
           base::print(base::paste0(Sys.time(), " start reducing data by p-value."))
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(Sys.time(), " creating empty heatmap."))
-          maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
-          minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+          minP_Val <- 5 * 10^base::as.integer(input$sldP_Val[1]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+          maxP_Val <- 5 * 10^base::as.integer(input$sldP_Val[2]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
           if (maxP_Val < minP_Val) { #exchange, if in wrong order
             t <- minP_Val
             minP_Val <- maxP_Val
@@ -1211,34 +1186,34 @@ browser()
     ignoreNULL = FALSE
   )
 
-  shiny::observeEvent(input$sldP_Val,
-    ignoreInit = FALSE,
-    {
-      tryCatch(
-        {
-          if (!base::is.na(base::as.integer(input$sldP_Val[1]))) {
-            session$userData$sessionVariables$P_ValMinBorder <-
-              5 * 10^-base::as.integer(input$sldP_Val[2])
-            session$userData$sessionVariables$P_ValMaxBorder <-
-              5 * 10^-base::as.integer(input$sldP_Val[1])
-          } else {
-            session$userData$sessionVariables$P_ValMinBorder <- 5 * 10^-200
-            session$userData$sessionVariables$P_ValMaxBorder <- 5 * 10^-18
-          }
-        },
-        error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$sldP_Val):\n", e)
-        },
-        warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$sldP_Val):\n", w)
-        },
-        finally = {
-          base::print(base::paste0(Sys.time(), " end adaptation p-values."))
-        }
-      )
-    },
-    ignoreNULL = FALSE
-  )
+  # shiny::observeEvent(input$sldP_Val,
+  #   ignoreInit = FALSE,
+  #   {
+  #     tryCatch(
+  #       {
+  #         if (!base::is.na(base::as.integer(input$sldP_Val[1]))) {
+  #           session$userData$sessionVariables$P_ValMinBorder <-
+  #             5 * 10^-base::as.integer(input$sldP_Val[2])
+  #           session$userData$sessionVariables$P_ValMaxBorder <-
+  #             5 * 10^-base::as.integer(input$sldP_Val[1])
+  #         } else {
+  #           session$userData$sessionVariables$P_ValMinBorder <- 5 * 10^-200
+  #           session$userData$sessionVariables$P_ValMaxBorder <- 5 * 10^-18
+  #         }
+  #       },
+  #       error = function(e) {
+  #         message("An error occurred in shiny::observeEvent(input$sldP_Val):\n", e)
+  #       },
+  #       warning = function(w) {
+  #         message("A warning occurred in shiny::observeEvent(input$sldP_Val):\n", w)
+  #       },
+  #       finally = {
+  #         base::print(base::paste0(Sys.time(), " end adaptation p-values."))
+  #       }
+  #     )
+  #   },
+  #   ignoreNULL = FALSE
+  # )
 
   shiny::observeEvent(input$chkDebug,
     ignoreInit = FALSE,
