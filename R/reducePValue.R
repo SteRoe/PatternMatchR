@@ -7,6 +7,10 @@
 #' @param debugMode return smaller data structure (only 1000 records) for faster debugging
 #' @return result list()
 getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
+  if (maxN < 1) {
+    base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+    browser()
+  }
   tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start pReduceTraitData()."))
@@ -44,7 +48,12 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         else if (base::exists("cgsToRetainMinP")) {
           cgsToRetainP <- cgsToRetainMinP
         }
+        if (length(cgsToRetainP) == 0) {
+          base::print(base::paste0(Sys.time(), "Warning: length(cgsToRetainP) == 0. Please check your data.")) #that should not be the case, please check data!
+          browser()
+        }
         #take only DM outside slider defined range in cgsToRetainDM
+#tbc() think on outside definition of DM range
         cgsToRetainMaxDM <- dfDM < maxDM #dfDM > maxDM
         cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
         cgsToRetainMinDM <- dfDM > minDM #dfDM < minDM
@@ -59,7 +68,10 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         else if (base::exists("cgsToRetainMinDM")) {
           cgsToRetainDM <- cgsToRetainMinDM
         }
-
+        if (length(cgsToRetainDM) == 0) {
+          base::print(base::paste0(Sys.time(), "Warning: length(cgsToRetainDM) == 0. Please check your data.")) #that should not be the case, please check data!
+          browser()
+        }
         cgsToRetainMaxN <- dfN < maxN
         cgsToRetainMaxN <- unique(rownames(which(cgsToRetainMaxN == TRUE, arr.ind = TRUE)))
         cgsToRetainMinN <- dfN > minN
@@ -77,6 +89,8 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         cgsToRetain <- intersect(cgsToRetainP, cgsToRetainDM)
         cgsToRetain <- intersect(cgsToRetain, cgsToRetainN)
         if (!base::exists("cgsToRetain") || length(cgsToRetain) == 0) {
+          base::print(base::paste0(Sys.time(), "Warning: length(cgsToRetain) == 0. Please check your data.")) #that should not be the case, please check data!
+          browser()
           base::print(base::paste0(Sys.time(), " max p-val border too low: ",
                                    maxP_Val, "; no remaining CpG."))
         }
@@ -92,9 +106,6 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         base::print(base::class(dfP_Val))
         base::print(Cstack_info())
         if (base::nrow(dfP_Val) >= 5) {
-          # browser()
-          # Opportunity to change globalVariables$config$debugMode = FALSE
-          #if (session$userData$globalVariables$config$debugMode == TRUE && base::nrow(dfP_Val) > 10000) {
           if (debugMode == TRUE && base::nrow(dfP_Val) > 1000) {
             base::print(base::paste0(Sys.time(), " debug mode n probes=1000."))
             dfP_Val <- dfP_Val[1:1000, ]
@@ -136,7 +147,6 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         }
         else {
           base::message(base::paste0(Sys.time(), " less than 5 probes remained. Please check your maximum and minimum p-val settings."))
-          #browser()
         }
       }
     },
@@ -170,6 +180,9 @@ updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
         result <- base::paste0("p reduce successful. result table is: nrow (CpG): ",
                                nrow(pReducedcombinedDFP_Val_Labels$dfP_Val),
                                "; ncol (trait): ", ncol(pReducedcombinedDFP_Val_Labels$dfP_Val))
+      }
+      else {
+        base::message(base::paste0(Sys.time(), " is.valid(pReducedcombinedDFP_Val_Labels) == FALSE."))
       }
     },
     error = function(e) {

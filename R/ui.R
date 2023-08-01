@@ -126,10 +126,10 @@ generate_ui <- function() {
                   shiny::sliderInput(
                     "sldP_Val",
                     "maximum (left slider) and minimum (right slider) p-val, 5e-x",
-                    min = 3,
-                    max = 200,
-                    step = -1, #1
-                    value = c(3, 199)
+                    min = 0,
+                    max = 0,
+                    step = 0, #-1, #1
+                    value = c(0, 0)
                   )
                 ),
                 shiny::column(
@@ -138,9 +138,9 @@ generate_ui <- function() {
                     "sldDM",
                     "minimum (left slider) and maximum (right slider) delta methylation",
                     min = 0,
-                    max = 200,
-                    step = .01,
-                    value = c(3, 199)
+                    max = 0,
+                    step = 0, #.01,
+                    value = c(0, 0)
                   )
                 ),
                 shiny::column(
@@ -149,9 +149,9 @@ generate_ui <- function() {
                     "sldN",
                     "minimum (left slider) and maximum (right slider) n",
                     min = 0,
-                    max = 200,
-                    step = 1,
-                    value = c(3, 199)
+                    max = 0,
+                    step = 0,
+                    value = c(0, 0)
                   )
                 )
               ),
@@ -165,10 +165,10 @@ generate_ui <- function() {
                 shiny::sliderInput(
                   "sldNumClusters",
                   "number of clusters (omit traits)",
-                  min = 1,
-                  max = 1,
-                  step = 1,
-                  value = 1 # value = c(1, 10)
+                  min = 0,
+                  max = 0,
+                  step = 0,
+                  value = 0 # value = c(1, 10)
                 ),
                 shiny::tabsetPanel(
                   shiny::tabPanel(

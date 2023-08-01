@@ -44,6 +44,12 @@ server <- function(input, output, session) {
       selected_row_labels = list(),
       selected_column_labels = list()
     )
+  session <- loadObjects(session)
+  result <- loadDirLists(session = session, input = input, output = output)
+  dfdD1 <- result$dfdD1
+  dfdD2 <- result$dfdD2
+  dfdD3 <- result$dfdD3
+
   session$userData$sessionVariables$reactiveTestVal <- shiny::reactiveVal(value = NULL, label = "reactiveTestVal")
 
   session$userData$sessionVariables$resultDFListTrait1 <- shiny::reactiveVal(value = NULL, label = "resultDFListTrait1")
@@ -72,31 +78,18 @@ server <- function(input, output, session) {
   session$userData$sessionVariables$dendProbes <- shiny::reactiveVal(value = NULL, label = "dendProbes")
 
   session$userData$sessionVariables$SPLOM <- FALSE
+
+  shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = 0, max = 0, value = c(0, 0))
+  shiny::updateSliderInput(session = session, inputId = "sldDM", min = 0, max = 0, value = c(0, 0))
+  shiny::updateSliderInput(session = session, inputId = "sldN", min = 0, max = 0, value = c(0, 0))
+
   base::print(paste0(Sys.time(), " starting application."))
 
-  # if (session$userData$config$debugMode == TRUE) {
-  #   shiny::updateCheckboxInput(session, "chkDebug", value = TRUE)
-  # }
-  # else {
-  #   shiny::updateCheckboxInput(session, "chkDebug", value = FALSE)
-  # }
   shinyjs::toggleClass("colRed", "red")
   shinyjs::toggleClass("colGreen", "green")
   shinyjs::toggleClass("colBlue", "blue")
 
-  dfdD1 <- NULL
-  dfdD2 <- NULL
-  dfdD3 <- NULL
-  # dfdD1 <-
-  #   data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
-  # dfdD2 <-
-  #   data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
-  # dfdD3 <-
-  #   data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
-  #
-  #   output$trait1DirList <- DT::renderDataTable(dfdD1)
-  # output$trait2DirList <- DT::renderDataTable(dfdD2)
-  # output$trait3DirList <- DT::renderDataTable(dfdD3)
+################################################################################
 
   shiny::observe({
     shiny::invalidateLater(10000, session)
@@ -126,9 +119,19 @@ server <- function(input, output, session) {
           Sys.time(),
           " before transposing matrix for traits."
         ))
-        dfP_Val <- session$userData$sessionVariables$matP_Val()
-        dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
-        result <- t(dfP_Val)
+        #do this only, if session$userData$sessionVariables$matP_Val() is.valid
+        if (is.valid(session$userData$sessionVariables$matP_Val())) {
+          dfP_Val <- session$userData$sessionVariables$matP_Val()
+          dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
+          result <- t(dfP_Val)
+        }
+        else {
+          base::print(paste0(
+            Sys.time(),
+            " is.valid(session$userData$sessionVariables$matP_Val()) == FALSE."
+          ))
+          result <- FALSE
+        }
       },
       error = function(e) {
         message("An error occurred in session$userData$sessionVariables$matP_Val.t():\n", e)
@@ -302,6 +305,12 @@ server <- function(input, output, session) {
       result <- getClustResFast(distMat)
     }
     else {
+      base::print(
+        base::paste0(
+          Sys.time(),
+          " is.valid(distMat) == FALSE."
+        )
+      )
       result <- NULL
     }
     base::print(
@@ -320,13 +329,25 @@ server <- function(input, output, session) {
         " before making traitDendrogram."
       )
     )
-    result <- getDendTraits(clustResTraits = session$userData$sessionVariables$clustResTraits(), traitClusters = input$sldNumClusters)
-    base::print(
-      base::paste0(
-        Sys.time(),
-        " after making traitDendrogram."
+    #do this only, if a dataset is already loaded
+    if (is.valid(session$userData$sessionVariables$clustResTraits())) {
+      result <- getDendTraits(clustResTraits = session$userData$sessionVariables$clustResTraits(), traitClusters = input$sldNumClusters)
+      base::print(
+        base::paste0(
+          Sys.time(),
+          " after making traitDendrogram."
+        )
       )
-    )
+    }
+    else {
+      base::print(
+        base::paste0(
+          Sys.time(),
+          " is.valid(session$userData$sessionVariables$clustResTraits() == FALSE."
+        )
+      )
+      result <- FALSE
+    }
     return(result)
   })
 
@@ -392,7 +413,7 @@ server <- function(input, output, session) {
   })
 
   output$txtLoadOut <- shiny::reactive({
-    return(updateTxtLoadOut(session$userData$sessionVariables$resultDFListTrait1(),
+    return(updateTxtLoadOut(session, session$userData$sessionVariables$resultDFListTrait1(),
                             session$userData$sessionVariables$resultDFListTrait2(),
                             session$userData$sessionVariables$resultDFListTrait3()))
   })
@@ -451,7 +472,6 @@ server <- function(input, output, session) {
       if (is.integer(input$save)) {
         #                        cat("No file have been selected for save.")
       } else {
-        #browser()
         result <- shinyFiles::parseSavePath(volumes, input$save)
         filePath <- as.character(result$datapath)
         cat(paste0(filePath, " has been selected."))
@@ -508,7 +528,7 @@ server <- function(input, output, session) {
                       {
                         session$userData$sessionVariables$markingVar <- input$markingVar
                         # redraw HM
-browser()
+                        #browser()
                         height <- input$numHMVSize
                         width <- input$numHMHSize
                         plotCombinedHM(input = input, output = output, session = session)
@@ -520,7 +540,7 @@ browser()
                       {
                         session$userData$sessionVariables$markingVar <- input$markingVar
                         # redraw HM
-browser()
+                        #browser()
                         height <- input$numHMVSize
                         width <- input$numHMHSize
                         plotCombinedHM(input = input, output = output, session = session)
@@ -775,10 +795,17 @@ browser()
           # combinedHMP_VAL <- emptyHM()
           # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
           minN <- base::as.integer(input$txtCases)
-          combinedDFP_Val_Labels <- mergeDFP_Val_Labels(session$userData$sessionVariables$resultDFListTrait1(),
-                                                        session$userData$sessionVariables$resultDFListTrait2(),
-                                                        session$userData$sessionVariables$resultDFListTrait3(),
-                                                        minN)
+          #if (session$userData$sessionVariables$LoadInitialized == TRUE) {
+          if (is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3())) {
+            combinedDFP_Val_Labels <- mergeDFP_Val_Labels(session$userData$sessionVariables$resultDFListTrait1(),
+                                                          session$userData$sessionVariables$resultDFListTrait2(),
+                                                          session$userData$sessionVariables$resultDFListTrait3(),
+                                                          minN)
+          }
+          else {
+            base::print(base::paste0(Sys.time(), " is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3()) == FALSE."))
+            result <- NULL
+          }
           session$userData$sessionVariables$combinedDFP_Val_Labels(combinedDFP_Val_Labels)
           updateSliders(session, session$userData$sessionVariables$combinedDFP_Val_Labels())
         },
@@ -816,17 +843,26 @@ browser()
           maxDM <- input$sldDM[2]
           minN <- base::as.integer(input$sldN[1])
           maxN <- base::as.integer(input$sldN[2])
-          #minN <- base::as.integer(input$txtCases)
           combinedDFP_Val_Labels <- session$userData$sessionVariables$combinedDFP_Val_Labels()
-          session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(getPReducedTraitData(combinedDFP_Val_Labels =
-                                                                                                  combinedDFP_Val_Labels,
-                                                                                                minP_Val = minP_Val,
-                                                                                                maxP_Val = maxP_Val,
-                                                                                                minDM = minDM,
-                                                                                                maxDM = maxDM,
-                                                                                                minN = minN,
-                                                                                                maxN = maxN,
-                                                                                                debugMode = session$userData$config$debugMode))
+          if (is.valid(combinedDFP_Val_Labels)) {
+            if (minP_Val != maxP_Val && minDM != maxDM && minN != maxN) {
+              session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(getPReducedTraitData(combinedDFP_Val_Labels =
+                                                                                                    combinedDFP_Val_Labels,
+                                                                                                  minP_Val = minP_Val,
+                                                                                                  maxP_Val = maxP_Val,
+                                                                                                  minDM = minDM,
+                                                                                                  maxDM = maxDM,
+                                                                                                  minN = minN,
+                                                                                                  maxN = maxN,
+                                                                                                  debugMode = session$userData$config$debugMode))
+            }
+            else {
+              base::print(base::paste0(Sys.time(), " minP_Val == maxP_Val && minDM == maxDM && minN == maxN."))
+            }
+          }
+          else {
+            base::print(base::paste0(Sys.time(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
+          }
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnReduce):\n", e)
@@ -856,8 +892,13 @@ browser()
           if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) &&
               is.valid(session$userData$sessionVariables$traitClusterMedoids())) {
             keys <- session$userData$config$keyAttributes
-            result <- getTraitReducedcombinedDFP_Val_Labels(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(),
-                                                            session$userData$sessionVariables$traitClusterMedoids(), keys)
+            if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) && is.valid(session$userData$sessionVariables$traitClusterMedoids())) {
+              result <- getTraitReducedcombinedDFP_Val_Labels(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(),
+                                                              session$userData$sessionVariables$traitClusterMedoids(), keys)
+            }
+            else {
+              base::print(base::paste0(Sys.time(), " (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) && is.valid(session$userData$sessionVariables$traitClusterMedoids())) == FALSE."))
+            }
           }
           else {
             result <- NULL
@@ -865,7 +906,6 @@ browser()
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnCluster):\n", e)
-          #browser()
         },
         warning = function(w) {
           message("A warning occurred in shiny::observeEvent(input$btnCluster):\n", w)
@@ -887,18 +927,21 @@ browser()
         {
           base::print(base::paste0(Sys.time(), " start counting probes p-value."))
           minN <- base::as.integer(input$txtCases)
-          if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+            P_VALNTable <-
+              getAvailNForP_VALBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
+            output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
+            #insert scatterplot with table results
+            #output$plotDendrogramP_VALborder <- plotly::renderPlotly(plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_ValBorder"))
+            plot <- plotly::plot_ly(x = P_VALNTable$P_VAL_BORDER, y = P_VALNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterP_ValBorder") %>%
+              plotly::layout(xaxis = list(title = 'p-val', type = "log")) %>%
+              plotly::layout(yaxis = list(title = 'n' ))
+            output$plotDendrogramP_VALborder <- plotly::renderPlotly(plot)
+            base::print(base::paste0(Sys.time(), " finished counting probes p-value."))
           }
-          P_VALNTable <-
-            getAvailNForP_VALBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
-          output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
-          #insert scatterplot with table results
-          #output$plotDendrogramP_VALborder <- plotly::renderPlotly(plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_ValBorder"))
-          plot <- plotly::plot_ly(x = P_VALNTable$P_VAL_BORDER, y = P_VALNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterP_ValBorder") %>%
-            plotly::layout(xaxis = list(title = 'p-val', type = "log")) %>%
-            plotly::layout(yaxis = list(title = 'n' ))
-          output$plotDendrogramP_VALborder <- plotly::renderPlotly(plot)
-          base::print(base::paste0(Sys.time(), " finished counting probes p-value."))
+          else {
+            base::print(base::paste0(Sys.time(), " is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels()) == FALSE."))
+          }
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", e)
@@ -921,15 +964,18 @@ browser()
         {
           base::print(base::paste0(Sys.time(), " start counting probes delta methylation."))
           minN <- base::as.integer(input$txtCases)
-          if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+            DMNTable <-
+              getAvailNForDMBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
+            output$DTDMborder <- DT::renderDataTable(DMNTable)
+            plot <- plotly::plot_ly(x = DMNTable$DM_BORDER, y = DMNTable$'Available CpG', type = "scatter", mode = "lines+markers", name = "scatterDeltaMethylationBorder") %>%
+              plotly::layout(xaxis = list(title = 'DeltaMethylation', type = "linear")) %>%
+              plotly::layout(yaxis = list(title = 'n' ))
+            output$plotDendrogramDMborder <- plotly::renderPlotly(plot)
           }
-          DMNTable <-
-            getAvailNForDMBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
-          output$DTDMborder <- DT::renderDataTable(DMNTable)
-          plot <- plotly::plot_ly(x = DMNTable$DM_BORDER, y = DMNTable$'Available CpG', type = "scatter", mode = "lines+markers", name = "scatterDeltaMethylationBorder") %>%
-            plotly::layout(xaxis = list(title = 'DeltaMethylation', type = "linear")) %>%
-            plotly::layout(yaxis = list(title = 'n' ))
-          output$plotDendrogramDMborder <- plotly::renderPlotly(plot)
+          else {
+            base::print(base::paste0(Sys.time(), " is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels()) == FALSE."))
+          }
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
@@ -952,15 +998,18 @@ browser()
         {
           base::print(base::paste0(Sys.time(), " start counting probes n."))
           minN <- base::as.integer(input$txtCases)
-          if (!is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+            NNTable <-
+              getAvailNForNBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
+            output$DTNborder <- DT::renderDataTable(NNTable)
+            plot <- plotly::plot_ly(x = NNTable$N_BORDER, y = NNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterNBorder") %>%
+              plotly::layout(xaxis = list(title = 'n', type = "linear")) %>%
+              plotly::layout(yaxis = list(title = 'n' ))
+            output$plotDendrogramNborder <- plotly::renderPlotly(plot)
           }
-          NNTable <-
-            getAvailNForNBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
-          output$DTNborder <- DT::renderDataTable(NNTable)
-          plot <- plotly::plot_ly(x = NNTable$N_BORDER, y = NNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterNBorder") %>%
-            plotly::layout(xaxis = list(title = 'n', type = "linear")) %>%
-            plotly::layout(yaxis = list(title = 'n' ))
-          output$plotDendrogramNborder <- plotly::renderPlotly(plot)
+          else {
+            base::print(base::paste0(Sys.time(), " is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels()) == FALSE."))
+          }
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)
@@ -983,9 +1032,16 @@ browser()
         {
           base::print(base::paste0(Sys.time(), " start counting probes."))
           minN <- base::as.integer(input$txtCases)
-          combinedDFP_Val_Labels <- mergeDFP_Val_Labels(session$userData$sessionVariables$resultDFListTrait1(),
-                                                        session$userData$sessionVariables$resultDFListTrait2(),
-                                                        session$userData$sessionVariables$resultDFListTrait3(), minN)
+          #if (session$userData$sessionVariables$LoadInitialized == TRUE) {
+          if (is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3())) {
+            combinedDFP_Val_Labels <- mergeDFP_Val_Labels(session$userData$sessionVariables$resultDFListTrait1(),
+                                                          session$userData$sessionVariables$resultDFListTrait2(),
+                                                          session$userData$sessionVariables$resultDFListTrait3(), minN)
+          }
+          else {
+            base::print(base::paste0(Sys.time(), " is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3()) == FALSE."))
+            result <- NULL
+          }
           P_VALNTable <-
             getAvailNForP_VALBorder(combinedDFP_Val_Labels$dfP_Val)
           output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
@@ -1086,7 +1142,6 @@ browser()
 
   session$userData$sessionVariables$traitReducedDendTraits <- shiny::reactive({
     base::print(base::paste0(Sys.time(), " before making dendrogram for traits"))
-    #browser()
     #also re-read session$userData$sessionVariables$distMatProbes()
     #session$userData$sessionVariables$distMatProbes(...)
     return(stats::as.dendrogram(session$userData$sessionVariables$traitReducedclustResTraits()))
@@ -1094,7 +1149,6 @@ browser()
   })
 
   session$userData$sessionVariables$dendProbes <- shiny::reactive({
-    #browser() #check length of result
     base::print(base::paste0(Sys.time(), " before making dendrogram for probes"))
     result <- stats::as.dendrogram(session$userData$sessionVariables$clustResProbes())
     length(unlist(result))
@@ -1216,7 +1270,7 @@ browser()
   # )
 
   shiny::observeEvent(input$chkDebug,
-    ignoreInit = FALSE,
+    ignoreInit = TRUE, #FALSE,
     {
       tryCatch(
         {
@@ -1228,18 +1282,10 @@ browser()
             session$userData$config$debugMode <- FALSE
             base::print(base::paste0(Sys.time(), " set debugMode = FALSE."))
           }
-          loadObjects(session)
-          dfdD1 <<-
-            data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
-          dfdD2 <<-
-            data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
-          dfdD3 <<-
-            data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
-
-          output$trait1DirList <- DT::renderDataTable(dfdD1)
-          output$trait2DirList <- DT::renderDataTable(dfdD2)
-          output$trait3DirList <- DT::renderDataTable(dfdD3)
-
+          result <- loadDirLists(session = session, input = input, output = output)
+          dfdD1 <- result$dfdD1
+          dfdD2 <- result$dfdD2
+          dfdD3 <- result$dfdD3
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$chkDebug):\n", e)

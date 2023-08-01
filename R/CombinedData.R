@@ -93,7 +93,6 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
     {
       base::print(base::paste0(Sys.time(), " start mergeDFP_Val_Labels()."))
       # merge three df
-      #browser() #check CG names
       if (!base::is.null(resultDFListTrait1$resultDFP_Val)) {
         dfList <- base::list(
           dfP_Val = NULL,
@@ -103,16 +102,12 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           resultColnames = NULL,
           listPHENOdata = NULL
         )
-        # browser() # check whether DF or matrix
         dfList$dfP_Val <- resultDFListTrait1$resultDFP_Val
         dfList$dfDM <- resultDFListTrait1$resultDFDM
         dfList$dfN <- resultDFListTrait1$resultDFN
         dfList$resultOriginDF <- resultDFListTrait1$resultOriginDF
         dfList$resultColnames <- resultDFListTrait1$resultColnames
         dfList$listPHENOdata <- resultDFListTrait1$listPHENOdata
-        # if (is.valid(minN)) {
-        #   dfList <- removeTraitsMinN(dfList, minN) # remove unused traits
-        # }
         dfP_Val1 <- dfList$dfP_Val
         if (base::exists("dfP_Val1")) {
           checkResultP_Val_cg(dfP_Val1)
@@ -137,9 +132,6 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$resultOriginDF <- resultDFListTrait2$resultOriginDF
         dfList$resultColnames <- resultDFListTrait2$resultColnames
         dfList$listPHENOdata <- resultDFListTrait2$listPHENOdata
-        # if (is.valid(minN)) {
-        #   dfList <- removeTraitsMinN(dfList, minN)
-        # }
         dfP_Val2 <- dfList$dfP_Val
         if (base::exists("dfP_Val2")) {
           checkResultP_Val_cg(dfP_Val2)
@@ -164,9 +156,6 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$resultOriginDF <- resultDFListTrait3$resultOriginDF
         dfList$resultColnames <- resultDFListTrait3$resultColnames
         dfList$listPHENOdata <- resultDFListTrait3$listPHENOdata
-        # if (is.valid(minN)) {
-        #   dfList <- removeTraitsMinN(dfList, minN)
-        # }
         dfP_Val3 <- dfList$dfP_Val
         if (base::exists("dfP_Val3")) {
           checkResultP_Val_cg(dfP_Val3)
@@ -499,7 +488,7 @@ loadDir <- function(session, traitDirList) {
 #' @param resultDFListTrait3 data.frame containing results from trait3 (blue)
 #' @return HTML to show in result info line after data load section of PatternMatchR
 # examples updateTxtLoadOut(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3)
-updateTxtLoadOut <- function(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3) {
+updateTxtLoadOut <- function(session, resultDFListTrait1, resultDFListTrait2, resultDFListTrait3) {
   tryCatch(
     {
       i <- NULL
@@ -556,12 +545,15 @@ updateTxtMergeOut <- function(combinedDFP_Val_Labels) {
                                nrow(combinedDFP_Val_Labels$dfP_Val),
                                "; ncol: ", ncol(combinedDFP_Val_Labels$dfP_Val))
       }
+      else {
+        base::print(base::paste0(Sys.time(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
+      }
     },
     error = function(e) {
-      message("An error occurred in updateTxtMergeOut():\n", e)
+      base::message("An error occurred in updateTxtMergeOut():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in updateTxtMergeOut():\n", w)
+      base::message("A warning occurred in updateTxtMergeOut():\n", w)
     },
     finally = {
       return(shiny::HTML(result))
@@ -572,33 +564,51 @@ updateTxtMergeOut <- function(combinedDFP_Val_Labels) {
 updateSliders <- function(session, combinedDFP_Val_Labels) {
   DF <- combinedDFP_Val_Labels$dfP_Val
   DF <- as.matrix(DF)
-  #minP <- base::min(DF, na.rm = TRUE)
   minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
   minP <- base::min(minP)
   minP <- extractMantissaExponent(minP)$exponent #base::round(extractMantissaExponent(minP)$exponent, 5)
-  #maxP <- base::max(DF, na.rm = TRUE)
   maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-  maxP <- base::min(maxP)
+  maxP <- base::max(maxP)
   maxP <- extractMantissaExponent(maxP)$exponent #base::round(extractMantissaExponent(maxP)$exponent, 5)
-  shiny::updateSliderInput(session = session, "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
+  shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
   DF <- combinedDFP_Val_Labels$dfDM
   DF <- as.matrix(DF)
-  #minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
   minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
   minDM <- base::min(minDM)
-  #maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
+  if (minDM < 0) {
+    base::message(base::paste0(Sys.time(), " Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
+    minDM <- 0
+  }
   maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-  maxDM <- base::min(maxDM)
-  shiny::updateSliderInput(session = session, "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
+  maxDM <- base::max(maxDM)
+  if (maxDM > 1) {
+    base::print(base::paste0(Sys.time(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
+    maxDM <- 1
+  }
+  shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
   DF <- combinedDFP_Val_Labels$dfN
   DF <- as.matrix(DF)
-  #minN <- base::min(DF, na.rm = TRUE)
-  minN <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+  minN <- base::apply(DF, 2, FUN = function(x) {base::min(as.integer(x[x > 0]), na.rm = TRUE)})
   minN <- base::min(minN)
-  #maxN <- base::max(DF, na.rm = TRUE)
-  maxN <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-  maxN <- base::min(maxN)
-  shiny::updateSliderInput(session = session, "sldN", min = minN, max = maxN, value = c(minN, maxN))
+  if (minN < 1) {
+    base::print(base::paste0(Sys.time(), "Warning: minN < 1. Please check your data.")) #that should not be the case, please check data!
+    minN <- 1
+  }
+  if (minN != as.integer(minN)) {
+    base::print(base::paste0(Sys.time(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
+    minN <- as.integer(minN)
+  }
+  maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
+  maxN <- base::max(maxN)
+  if (maxN != as.integer(maxN)) {
+    base::print(base::paste0(Sys.time(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
+    maxN <- as.integer(maxN)
+  }
+  if (maxN < 1) {
+    base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+    browser()
+  }
+  shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))
 }
 
 # mergeDFP_Val_Labels <- compiler::cmpfun(mergeDFP_Val_Labels)

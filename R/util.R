@@ -56,6 +56,24 @@ PatternMatchRApp <- function() {
   shiny::shinyApp(generate_ui(), server)
 }
 
+loadDirLists <- function(session, input, output) {
+  dfdD1 <<-
+    data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
+  dfdD2 <<-
+    data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
+  dfdD3 <<-
+    data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
+
+  output$trait1DirList <- DT::renderDataTable(dfdD1)
+  output$trait2DirList <- DT::renderDataTable(dfdD2)
+  output$trait3DirList <- DT::renderDataTable(dfdD3)
+  result <- list()
+  result$dfdD1 <- dfdD1
+  result$dfdD2 <- dfdD2
+  result$dfdD3 <- dfdD3
+  return(result)
+}
+
 #' loadObjects
 #' loads globally needed objects (methylation matrix with beta values, annotation)
 #' @param session session object
@@ -117,7 +135,6 @@ loadObjects <- function(session) {
   session$userData$BetaDF <- loadDNAm(betaFileName = betaFileName, config = session$userData$config)
   session$userData$Beta_tDF <- as.data.frame(t(session$userData$BetaDF))
   base::print(base::paste0(Sys.time(), " finished read methylation data with nrow = ", nrow(session$userData$BetaDF), " and ncol = ", ncol(session$userData$BetaDF), "."))
-  #return(globalVariables)
   return(session)
 }
 
@@ -138,8 +155,7 @@ loadObjects <- function(session) {
 # examples loadResultFile(folder, fileName)
 #loadResultFile <- function(folder, fileName, globalVariables) {
 loadResultFile <- function(session, folder, fileName) {
-#browser()
-#TBC() insert tryCatch here or options(warn=2)
+#tbc() insert tryCatch here or options(warn=2)
 options(warn = 2)
   fileName <- base::paste0(folder, fileName, ".csv")
   base::print(base::paste0(Sys.time(), " before fread()."))
@@ -253,7 +269,7 @@ loadDNAm <- function(betaFileName, config) {
         header = TRUE,
         sep = "\t",
         dec = ".",
-#        nrows = 1000,
+        nrows = 1000,
         data.table = FALSE
       )
   }

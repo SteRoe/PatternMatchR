@@ -152,7 +152,6 @@ combinedDFInteractiveHeatMapP_Val <-
            dendTraits = NA) {
     tryCatch(
       {
-        #browser() #check for usage of already merged data
         base::print(base::paste0(Sys.time(), " start making HM"))
         mat <- base::as.matrix(combinedDF_Labels$dfP_Val)
         matDM <- base::as.matrix(combinedDF_Labels$dfDM)
@@ -214,7 +213,6 @@ combinedDFInteractiveHeatMapP_Val <-
           base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
           length(unlist(dendTraits)) == base::dim(mat)[2]
           length(unlist(dendProbes)) == base::dim(mat)[1]
-#browser()
           ht <-
             ComplexHeatmap::Heatmap(
               mat,
@@ -457,7 +455,6 @@ plotCombinedHM <- function(input, output, session) {
 #' @return nothing; function info label for click action in HM
 # examples click_action_HM(df, input, output, session)
 click_action_HM <- function(df, input, output, session) {
-  # browser()
   output[["info1"]] <- shiny::renderUI({
     if (!is.null(df)) {
       htmltools::HTML(

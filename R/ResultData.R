@@ -185,7 +185,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
 loadtraitDFs <- function(traitDFs) {
   tryCatch(
     {
-      # browser() #everything seems fine here (all DFs become loaded)
+      # browser() #everything seems fine until here (all DFs become loaded)
       #listPHENOdata <- base::list(1:base::length(traitDFs))
       listPHENOdata <- base::list(seq_along(traitDFs))
       i <- NULL
@@ -411,7 +411,6 @@ loadFolderDFList <- function(session, folder) {
         getList <- TRUE
       }
       #check for original data in RDS
-#browser()
       if (getList == TRUE) {
         #        listOfResultDF = getlistOfResultsDF(dataDir())
         base::print(base::paste0(Sys.time(), " before getlistOfResultsDF()"))
@@ -675,85 +674,89 @@ getNForNBorder <- function(mat, NBorder) {
 #' @return data.frame with results
 # examples getAvailNForP_VALBorderParallel(numCores, DF)
 getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
-  tryCatch(
-    {
-      base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
-      i <- NULL
-      DF <- as.matrix(DF)
-      #minP <- base::min(DF, na.rm = TRUE)
-      minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
-      minP <- base::min(minP)
-      minP <- extractMantissaExponent(minP)$exponent
-      #maxP <- base::max(DF, na.rm = TRUE)
-      maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-      maxP <- base::min(maxP)
-      maxP <- extractMantissaExponent(maxP)$exponent
-      numRows <- maxP - minP
-      # minP <- minP * -1
-      # maxP <- maxP * -1
-      shiny::updateSliderInput(session = session, "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
-      result <- base::matrix(nrow = numRows, ncol = 2)
-      #check size of exported global DF
-      lengthDF <- length(DF)
-      #limit <- 3000*1024^2 # for 3 GB
-      #limit <- lengthDF*1024^2 # for real DF
-      limit <- lengthDF
-      limit <- limit * 1.1
-      options(future.globals.maxSize = limit * 1024^2)
-      #check, whether limit * numores exceeds memory limit of compute nodes...
-      maxMemory <- limit * numCores
-      #memorySize <- 512 * (1024)^2 # 512MB, hard coded, because memory.size() and memory.limit() are no longer supported from R 4.2 on...
-      memorySize <- 5120 * (1024)^2 # 5120MB, hard coded
-      multiple <- base::as.integer(memorySize/limit)
-      if (multiple >= 1) {
-        numCoresMemSize <- multiple
-      }
-      else {
-        base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
-        browser()
-      }
-      numCores <- base::min(numCores, numCoresMemSize)
-      tryCatch(
-        {
+  tryCatch({
+    base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+    i <- NULL
+    DF <- as.matrix(DF)
+    #minP <- base::min(DF, na.rm = TRUE)
+    minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+    minP <- base::min(minP)
+    minP <- extractMantissaExponent(minP)$exponent
+    if (minP > -1) {
+      base::print(base::paste0(Sys.time(), "Warning: minP > -1. Please check your data.")) #that should not be the case, please check data!
+      browser()
+    }
+    maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+    maxP <- base::max(maxP)
+    maxP <- extractMantissaExponent(maxP)$exponent
+    # if (maxP < 1) {
+    #   base::print(base::paste0(Sys.time(), "Warning: maxP < 1. Please check your data.")) #that should not be the case, please check data!
+    #   browser()
+    # }
+    numRows <- maxP - minP
+    shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
+    result <- base::matrix(nrow = numRows, ncol = 2)
+    #check size of exported global DF
+    lengthDF <- length(DF)
+    #limit <- 3000*1024^2 # for 3 GB
+    #limit <- lengthDF*1024^2 # for real DF
+    limit <- lengthDF
+    limit <- limit * 1.1
+    options(future.globals.maxSize = limit * 1024^2)
+    #check, whether limit * numores exceeds memory limit of compute nodes...
+    maxMemory <- limit * numCores
+    #memorySize <- 512 * (1024)^2 # 512MB, hard coded, because memory.size() and memory.limit() are no longer supported from R 4.2 on...
+    memorySize <- 5120 * (1024)^2 # 5120MB, hard coded
+    multiple <- base::as.integer(memorySize/limit)
+    if (multiple >= 1) {
+      numCoresMemSize <- multiple
+    }
+    else {
+      base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      browser()
+    }
+    numCores <- base::min(numCores, numCoresMemSize)
+    tryCatch(
+      {
         future::plan(strategy = future::multisession, workers = numCores)
-        },
-        error = function(e) {
-          message("An error occurred in future::plan():\n", e)
-          ##extract # of available connections
-          e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
-          pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
-          # empty dataframe with columns to match after split
-          proto <- data.frame(a = character(), numWanted = integer(), c = character(),
-                              numLeft = integer(), e = character(), numMax = integer(), g = character())
-          # extract
-          numConnections <- utils::strcapture(pattern, e, proto)
-          numCores <- numConnections$numLeft / 2
-          if (numCores < 1) {
-            numCores <- 1
-          }
-          session$userData$numCores <- numCores
-          future::plan(strategy = future::multisession, workers = numCores)
-        },
-        warning = function(w) {
-          message("A warning occurred future::plan():\n", w)
-        },
-        finally = {
-          base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
+      },
+      error = function(e) {
+        message("An error occurred in future::plan():\n", e)
+        ##extract # of available connections
+        e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
+        pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
+        # empty dataframe with columns to match after split
+        proto <- data.frame(a = character(), numWanted = integer(), c = character(),
+                            numLeft = integer(), e = character(), numMax = integer(), g = character())
+        # extract
+        numConnections <- utils::strcapture(pattern, e, proto)
+        numCores <- numConnections$numLeft / 2
+        if (numCores < 1) {
+          numCores <- 1
         }
-      )
-      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
-      library(doFuture)
-      result <- foreach::foreach(i = 1:numRows, .combine = rbind, #.packages = c("base"),
-                                 #.export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
-                                 .verbose = TRUE) %dofuture% {
-        #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
-        base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
-        result <- getNForP_ValBorder(mat = DF, n = i)
-        return(result)
+        session$userData$numCores <- numCores
+        future::plan(strategy = future::multisession, workers = numCores)
+      },
+      warning = function(w) {
+        message("A warning occurred future::plan():\n", w)
+      },
+      finally = {
+        base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
       }
-      colnames(result) <- base::c("maximum P_VAL_BORDER", "Available CpG")
-      result <- base::as.data.frame((result))
-      result <- result[base::order(result[[1]], decreasing = TRUE), ]
+    )
+    library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+    library(doFuture)
+    result <- foreach::foreach(i = 1:numRows, .combine = rbind, #.packages = c("base"),
+                               #.export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
+                               .verbose = TRUE) %dofuture% {
+      #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
+      base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+      result <- getNForP_ValBorder(mat = DF, n = i)
+      return(result)
+    }
+    colnames(result) <- base::c("maximum P_VAL_BORDER", "Available CpG")
+    result <- base::as.data.frame((result))
+    result <- result[base::order(result[[1]], decreasing = TRUE), ]
     },
     error = function(e) {
       message("An error occurred in getAvailNForP_VALBorderParallel():\n", e)
@@ -769,189 +772,204 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
 }
 
 getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
-  tryCatch(
-    {
-      result <- NULL
-      base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
-      i <- NULL
-      #check min DM and max DM
-      #minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
-      DF <- as.matrix(DF)
-      minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
-      minDM <- base::min(minDM)
-      #maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
-      maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-      maxDM <- base::min(maxDM)
-      shiny::updateSliderInput(session = session, "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
-      minDM <- as.integer(minDM * 100) #0
-      maxDM <- as.integer(maxDM * 100)
-      numRows <- maxDM - minDM
-      result <- base::matrix(nrow = numRows, ncol = 2)
-      #check size of exported global DF
-      lengthDF <- length(DF)
-      #limit <- 3000*1024^2 # for 3 GB
-      #limit <- lengthDF*1024^2 # for real DF
-      limit <- lengthDF
-      limit <- limit * 1.1
-      options(future.globals.maxSize = limit * 1024^2)
-      #check, whether limit * numores exceeds memory limit of compute nodes...
-      maxMemory <- limit * numCores
-      #memorySize <- 512 * (1024)^2 # 512MB, hard coded, because memory.size() and memory.limit() are no longer supported from R 4.2 on...
-      memorySize <- 5120 * (1024)^2 # 5120MB, hard coded
-      multiple <- base::as.integer(memorySize/limit)
-      if (multiple >= 1) {
-        numCoresMemSize <- multiple
-      }
-      else {
-        base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+  tryCatch({
+    base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+    result <- NULL
+    i <- NULL
+    #check min DM and max DM
+    #minDM <- base::round(base::min(DF, na.rm = TRUE), 5)
+    DF <- as.matrix(DF)
+    minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+    minDM <- base::min(minDM)
+    if (minDM < 0) {
+      base::print(base::paste0(Sys.time(), "Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
+      browser() #that should not be the case, please check data!
+    }
+    #maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
+    maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+    maxDM <- base::max(maxDM)
+    if (maxDM > 1) {
+      base::print(base::paste0(Sys.time(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
+      browser() #that should not be the case, please check data!
+    }
+    shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
+    minDM <- as.integer(minDM * 100) #0
+    maxDM <- as.integer(maxDM * 100)
+    numRows <- maxDM - minDM
+    result <- base::matrix(nrow = numRows, ncol = 2)
+    #check size of exported global DF
+    lengthDF <- length(DF)
+    #limit <- 3000*1024^2 # for 3 GB
+    #limit <- lengthDF*1024^2 # for real DF
+    limit <- lengthDF
+    limit <- limit * 1.1
+    options(future.globals.maxSize = limit * 1024^2)
+    #check, whether limit * numores exceeds memory limit of compute nodes...
+    maxMemory <- limit * numCores
+    #memorySize <- 512 * (1024)^2 # 512MB, hard coded, because memory.size() and memory.limit() are no longer supported from R 4.2 on...
+    memorySize <- 5120 * (1024)^2 # 5120MB, hard coded
+    multiple <- base::as.integer(memorySize/limit)
+    if (multiple >= 1) {
+      numCoresMemSize <- multiple
+    }
+    else {
+      base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      browser()
+    }
+    numCores <- base::min(numCores, numCoresMemSize)
+    tryCatch(
+      {
+        future::plan(strategy = future::multisession, workers = numCores)
+      },
+      error = function(e) {
         browser()
-      }
-      numCores <- base::min(numCores, numCoresMemSize)
-      tryCatch(
-        {
-          future::plan(strategy = future::multisession, workers = numCores)
-        },
-        error = function(e) {
-          browser()
-          message("An error occurred in future::plan():\n", e)
-          ##extract # of available connections
-          e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
-          pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
-          # empty dataframe with columns to match after split
-          proto <- data.frame(a = character(), numWanted = integer(), c = character(),
-                              numLeft = integer(), e = character(), numMax = integer(), g = character())
-          # extract
-          numConnections <- utils::strcapture(pattern, e, proto)
-          numCores <- numConnections$numLeft / 2
-          if (numCores < 1) {
-            numCores <- 1
-          }
-          session$userData$numCores <- numCores
-          future::plan(strategy = future::multisession, workers = numCores)
-        },
-        warning = function(w) {
-          message("A warning occurred future::plan():\n", w)
-        },
-        finally = {
-          base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
+        message("An error occurred in future::plan():\n", e)
+        ##extract # of available connections
+        e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
+        pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
+        # empty dataframe with columns to match after split
+        proto <- data.frame(a = character(), numWanted = integer(), c = character(),
+                            numLeft = integer(), e = character(), numMax = integer(), g = character())
+        # extract
+        numConnections <- utils::strcapture(pattern, e, proto)
+        numCores <- numConnections$numLeft / 2
+        if (numCores < 1) {
+          numCores <- 1
         }
-      )
-      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
-      library(doFuture)
-      result <- foreach::foreach(i = minDM:maxDM, .combine = rbind,
-                                   .verbose = TRUE) %dofuture% {
-        #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
-        base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
-        result <- getNForDMBorder(mat = DF, DMBorder = i/100)
-        return(result)
+        session$userData$numCores <- numCores
+        future::plan(strategy = future::multisession, workers = numCores)
+      },
+      warning = function(w) {
+        message("A warning occurred future::plan():\n", w)
+      },
+      finally = {
+        base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
       }
-      colnames(result) <- base::c("DM_BORDER", "Available CpG")
-      result <- base::as.data.frame((result))
-      result <- result[base::order(result[[1]], decreasing = TRUE), ]
-    },
-    error = function(e) {
-      message("An error occurred in getAvailNForDMBorderParallel():\n", e)
-    },
-    warning = function(w) {
-      message("A warning occurred in getAvailNForDMBorderParallel():\n", w)
-    },
-    finally = {
-      base::print(base::paste0(Sys.time(), " end getAvailNForDMBorderParallel()."))
+    )
+    library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+    library(doFuture)
+    result <- foreach::foreach(i = minDM:maxDM, .combine = rbind,
+                                 .verbose = TRUE) %dofuture% {
+      #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
+      base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+      result <- getNForDMBorder(mat = DF, DMBorder = i/100)
       return(result)
     }
-  )
+    colnames(result) <- base::c("DM_BORDER", "Available CpG")
+    result <- base::as.data.frame((result))
+    result <- result[base::order(result[[1]], decreasing = TRUE), ]
+  },
+  error = function(e) {
+    message("An error occurred in getAvailNForDMBorderParallel():\n", e)
+  },
+  warning = function(w) {
+    message("A warning occurred in getAvailNForDMBorderParallel():\n", w)
+  },
+  finally = {
+    base::print(base::paste0(Sys.time(), " end getAvailNForDMBorderParallel()."))
+    return(result)
+  })
 }
 
 getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
-  tryCatch(
-    {
-      result <- NULL
-      base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
-      i <- NULL
-      DF <- as.matrix(DF)
-      #minN <- base::min(DF, na.rm = TRUE)
-      minN <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
-      minN <- base::min(minN)
-      #maxN <- base::max(DF, na.rm = TRUE)
-      maxN <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-      maxN <- base::min(maxN)
-      numRows <- maxN - minN
-      shiny::updateSliderInput(session = session, "sldN", min = minN, max = maxN, value = c(minN, maxN))
-      result <- base::matrix(nrow = numRows, ncol = 2)
-      #check size of exported global DF
-      lengthDF <- length(DF)
-      #limit <- 3000*1024^2 # for 3 GB
-      #limit <- lengthDF*1024^2 # for real DF
-      limit <- lengthDF
-      limit <- limit * 1.1
-      options(future.globals.maxSize = limit * 1024^2)
-      #check, whether limit * numores exceeds memory limit of compute nodes...
-      maxMemory <- limit * numCores
-      #memorySize <- 512 * (1024)^2 # 512MB, hard coded, because memory.size() and memory.limit() are no longer supported from R 4.2 on...
-      memorySize <- 5120 * (1024)^2 # 5120MB, hard coded
-      multiple <- base::as.integer(memorySize/limit)
-      if (multiple >= 1) {
-        numCoresMemSize <- multiple
-      }
-      else {
-        base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+  tryCatch({
+    base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+    result <- NULL
+    i <- NULL
+    DF <- as.matrix(DF)
+    minN <- base::apply(DF, 2, FUN = function(x) {base::min(as.integer(x[x > 0]), na.rm = TRUE)})
+    minN <- base::min(minN)
+    if (minN < 1) {minN <- 1}
+    if (minN != as.integer(minN)) {
+      base::print(base::paste0(Sys.time(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
+      browser()
+    }
+    maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
+    maxN <- base::max(maxN)
+    numRows <- maxN - minN
+    if (maxN != as.integer(maxN)) {
+      base::print(base::paste0(Sys.time(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
+      browser()
+    }
+    if (maxN < 1) {
+      base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+      browser()
+    }
+    shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))
+    result <- base::matrix(nrow = numRows, ncol = 2)
+    #check size of exported global DF
+    lengthDF <- length(DF)
+    #limit <- 3000*1024^2 # for 3 GB
+    #limit <- lengthDF*1024^2 # for real DF
+    limit <- lengthDF
+    limit <- limit * 1.1
+    options(future.globals.maxSize = limit * 1024^2)
+    #check, whether limit * numores exceeds memory limit of compute nodes...
+    maxMemory <- limit * numCores
+    #memorySize <- 512 * (1024)^2 # 512MB, hard coded, because memory.size() and memory.limit() are no longer supported from R 4.2 on...
+    memorySize <- 5120 * (1024)^2 # 5120MB, hard coded
+    multiple <- base::as.integer(memorySize/limit)
+    if (multiple >= 1) {
+      numCoresMemSize <- multiple
+    }
+    else {
+      base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      browser()
+    }
+    numCores <- base::min(numCores, numCoresMemSize)
+    tryCatch(
+      {
+        future::plan(strategy = future::multisession, workers = numCores)
+      },
+      error = function(e) {
         browser()
-      }
-      numCores <- base::min(numCores, numCoresMemSize)
-      tryCatch(
-        {
-          future::plan(strategy = future::multisession, workers = numCores)
-        },
-        error = function(e) {
-          browser()
-          message("An error occurred in future::plan():\n", e)
-          ##extract # of available connections
-          e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
-          pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
-          # empty dataframe with columns to match after split
-          proto <- data.frame(a = character(), numWanted = integer(), c = character(),
-                              numLeft = integer(), e = character(), numMax = integer(), g = character())
-          # extract
-          numConnections <- utils::strcapture(pattern, e, proto)
-          numCores <- numConnections$numLeft / 2
-          if (numCores < 1) {
-            numCores <- 1
-          }
-          session$userData$numCores <- numCores
-          future::plan(strategy = future::multisession, workers = numCores)
-        },
-        warning = function(w) {
-          message("A warning occurred future::plan():\n", w)
-        },
-        finally = {
-          base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
+        message("An error occurred in future::plan():\n", e)
+        ##extract # of available connections
+        e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
+        pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
+        # empty dataframe with columns to match after split
+        proto <- data.frame(a = character(), numWanted = integer(), c = character(),
+                            numLeft = integer(), e = character(), numMax = integer(), g = character())
+        # extract
+        numConnections <- utils::strcapture(pattern, e, proto)
+        numCores <- numConnections$numLeft / 2
+        if (numCores < 1) {
+          numCores <- 1
         }
-      )
-      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
-      library(doFuture)
-      result <- foreach::foreach(i = minN:maxN, .combine = rbind, #.packages = c("base"),
-                                 #.export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
-                                 .verbose = TRUE) %dofuture% {
-        #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
-        base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
-        result <- getNForNBorder(mat = DF, NBorder = i)
-        return(result)
+        session$userData$numCores <- numCores
+        future::plan(strategy = future::multisession, workers = numCores)
+      },
+      warning = function(w) {
+        message("A warning occurred future::plan():\n", w)
+      },
+      finally = {
+        base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
       }
-      colnames(result) <- base::c("N_BORDER", "Available CpG")
-      result <- base::as.data.frame((result))
-      result <- result[base::order(result[[1]], decreasing = TRUE), ]
-    },
-    error = function(e) {
-      message("An error occurred in getAvailNForNBorderParallel():\n", e)
-    },
-    warning = function(w) {
-      message("A warning occurred in getAvailNForNBorderParallel():\n", w)
-    },
-    finally = {
-      base::print(base::paste0(Sys.time(), " end getAvailNForNBorderParallel()."))
+    )
+    library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+    library(doFuture)
+    result <- foreach::foreach(i = minN:maxN, .combine = rbind, #.packages = c("base"),
+                               #.export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
+                               .verbose = TRUE) %dofuture% {
+      #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
+      base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
+      result <- getNForNBorder(mat = DF, NBorder = i)
       return(result)
     }
-  )
+    colnames(result) <- base::c("N_BORDER", "Available CpG")
+    result <- base::as.data.frame((result))
+    result <- result[base::order(result[[1]], decreasing = TRUE), ]
+    },
+  error = function(e) {
+    message("An error occurred in getAvailNForNBorderParallel():\n", e)
+  },
+  warning = function(w) {
+    message("A warning occurred in getAvailNForNBorderParallel():\n", w)
+  },
+  finally = {
+    base::print(base::paste0(Sys.time(), " end getAvailNForNBorderParallel()."))
+    return(result)
+  })
 }
 
 #' getReducedP_ValMatrix
@@ -989,7 +1007,6 @@ getReducedP_Valdf <-
         base::print(base::paste0("upperP_VALborder: ", upperP_VALborder))
         base::print(base::paste0("lowerP_VALborder: ", lowerP_VALborder))
         base::print(base::paste0("nrow result matrix: ", nrow(df)))
-        # browser()
         if (!base::missing(numRows)) {
           if (base::is.numeric(numRows)) {
             #      if (numRows < nrow(mat)) {
@@ -1089,7 +1106,6 @@ removeTraitsMinN <- function(dfList, minN) {
     },
     finally = {
       base::print(base::paste0(Sys.time(), " end removeTraitsMinN()."))
-      #browser() #check for rownames and colnames at the end
       return(dfList)
     }
   )
