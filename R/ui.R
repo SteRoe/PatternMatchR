@@ -252,6 +252,10 @@ generate_ui <- function() {
                                              height = 2000, #height = "100%",
                                              width = 1500, #width = "100%",
                                              inline = TRUE)
+                      ),
+                      shiny::tabPanel(
+                        "Selected CpG",
+                        DT::dataTableOutput("DTSelectedCpG")
                       )
                     )
                   ),

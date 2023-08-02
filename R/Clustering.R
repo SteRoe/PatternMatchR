@@ -69,7 +69,7 @@ getClustResFast <- function(distanceMatrix) {
 #' @return text
 #' examples updateTxtClusterOut(traitReducedcombinedDFP_Val_Labels, minP_Val, maxP_Val, minN, sldNumClasses)
 updateTxtClusterOut <- function(traitReducedcombinedDFP_Val_Labels, minP_Val, maxP_Val, minN, sldNumClasses) {
-  tryCatch(
+  base::tryCatch(
    {
       result <- NULL
       if (is.valid(traitReducedcombinedDFP_Val_Labels)) {

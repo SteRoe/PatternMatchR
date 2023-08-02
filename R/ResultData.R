@@ -22,7 +22,7 @@
 #'
 # examples loadResultDF(session, folder, FALSE)
 loadResultDF <- function(session, folder, loadRDS = FALSE) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start loadResultDF() for ", folder))
       fileNameLPV <- "listResultP_Val_DeltaMeth_N.RDS"
@@ -183,7 +183,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
 #' list resultColnames
 # examples loadtraitDFs(traitDFs)
 loadtraitDFs <- function(traitDFs) {
-  tryCatch(
+  base::tryCatch(
     {
       # browser() #everything seems fine until here (all DFs become loaded)
       #listPHENOdata <- base::list(1:base::length(traitDFs))
@@ -290,7 +290,7 @@ loadtraitDFs <- function(traitDFs) {
 # examples getlistOfResultsDF(session, folder)
 #getlistOfResultsDF <- function(session, folder, globalVariables) {
 getlistOfResultsDF <- function(session, folder) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " before list.files()"))
       if (base::dir.exists(folder)) {
@@ -322,7 +322,7 @@ getlistOfResultsDF <- function(session, folder) {
                 # omit unneccesary variables
                 resultDF <-
                   resultDF[, c("probeID", "P_VAL", "DeltaMeth", "N")]
-                tryCatch({
+                base::tryCatch({
                   if (base::min(resultDF$P_VAL, na.rm = TRUE) <
                       base::as.numeric(session$userData$config$P_VALWarningThreshold)) {
                     base::message(
@@ -342,7 +342,7 @@ getlistOfResultsDF <- function(session, folder) {
                   }
                 },
                 error = function(e) {
-                  base::message("An error occurred in getlistOfResultsDF(), inner tryCatch:\n", e)
+                  base::message("An error occurred in getlistOfResultsDF(), inner base::tryCatch:\n", e)
                 },
                 warning = function(w) {
                   base::message(
@@ -395,7 +395,7 @@ getlistOfResultsDF <- function(session, folder) {
 #' @return list of data.frame from folder
 # examples loadFolderDFList(session, folder)
 loadFolderDFList <- function(session, folder) {
-  tryCatch(
+  base::tryCatch(
     {
       fileNameLR <- "listOfResultsDF.RDS"
       fileNameLR <- base::paste0(folder, fileNameLR)
@@ -441,7 +441,7 @@ loadFolderDFList <- function(session, folder) {
 #' @return pheno DF for a certain PHENOFileName
 # examples getPHENODF(PHENOFileName)
 getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
-  tryCatch(
+  base::tryCatch(
     {
       if (utils::file_test("-f", PHENOFileName) == TRUE) {
         #  if (length(base::readLines(PHENOFileName))>0) {
@@ -498,7 +498,7 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
 #' @return data.frame with reduced data set
 # examples getAvailNForP_VALBorder(data.frame)
 getAvailNForP_VALBorder <- function(DF) {
-  tryCatch(
+  base::tryCatch(
     {
       numRows <- 300
       result <- base::matrix(nrow = numRows, ncol = 2)
@@ -564,7 +564,7 @@ delete.na <- function(df, n = 0) {
 #' @return data.frame with results
 # examples getNForP_ValBorder(mat, n)
 getNForP_ValBorder <- function(mat, n) {
-  tryCatch({
+  base::tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
     P_VAL_BORDER <- 5 * 10^-n
     mat[mat > P_VAL_BORDER] <- NA
@@ -600,7 +600,7 @@ getNForP_ValBorder <- function(mat, n) {
 #' @return data.frame with results
 # examples getNForDMBorder(mat, n)
 getNForDMBorder <- function(mat, DMBorder) {
-  tryCatch({
+  base::tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
     if (DMBorder > 0) {
       mat[mat < DMBorder] <- NA #mat[mat > DMBorder] <- NA
@@ -639,7 +639,7 @@ getNForDMBorder <- function(mat, DMBorder) {
 #' @return data.frame with results
 # examples getNForNBorder(mat, n)
 getNForNBorder <- function(mat, NBorder) {
-  tryCatch({
+  base::tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
     mat[mat > NBorder] <- NA
     mat <-
@@ -674,7 +674,7 @@ getNForNBorder <- function(mat, NBorder) {
 #' @return data.frame with results
 # examples getAvailNForP_VALBorderParallel(numCores, DF)
 getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
-  tryCatch({
+  base::tryCatch({
     base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
     i <- NULL
     DF <- as.matrix(DF)
@@ -716,7 +716,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
-    tryCatch(
+    base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)
       },
@@ -772,7 +772,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
 }
 
 getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
-  tryCatch({
+  base::tryCatch({
     base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
     result <- NULL
     i <- NULL
@@ -817,7 +817,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
-    tryCatch(
+    base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)
       },
@@ -872,7 +872,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
 }
 
 getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
-  tryCatch({
+  base::tryCatch({
     base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
     result <- NULL
     i <- NULL
@@ -917,7 +917,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
-    tryCatch(
+    base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)
       },
@@ -985,7 +985,7 @@ getReducedP_Valdf <-
            numRows,
            upperP_VALborder,
            lowerP_VALborder) {
-    tryCatch(
+    base::tryCatch(
       {
         if (!base::is.data.frame(df)) {
           df <- base::as.data.frame(df)
@@ -1045,7 +1045,7 @@ removeTraitsMinN <- function(dfList, minN) {
   # check for minimum n in each trait
   # also remove from <resultOriginDF> and <resultColnames>
   # check for valid minN
-  tryCatch(
+  base::tryCatch(
     {
       if (exists("minN")) {
         dfN <- dfList$dfN

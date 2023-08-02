@@ -15,7 +15,7 @@
 #' @return merged data.frame
 # examples getResultDfP_D_N(listDF, "P")
 getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start getResultDfP_D_N(): ", P_D_N, "."))
       i <- NULL
@@ -89,7 +89,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
 #' @return result$labelsDF3 for labels belonging to original df3
 # examples mergeDFP_Val_Labels(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN)
 mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start mergeDFP_Val_Labels()."))
       # merge three df
@@ -452,7 +452,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
 #' @return data.frame with contents of traitDirList
 # examples loadDir(session, traitDirList)
 loadDir <- function(session, traitDirList) {
-  tryCatch(
+  base::tryCatch(
     {
       #load all trait folders
       base::print(base::paste0(Sys.time(), " before loading '", traitDirList, "'."))
@@ -489,7 +489,7 @@ loadDir <- function(session, traitDirList) {
 #' @return HTML to show in result info line after data load section of PatternMatchR
 # examples updateTxtLoadOut(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3)
 updateTxtLoadOut <- function(session, resultDFListTrait1, resultDFListTrait2, resultDFListTrait3) {
-  tryCatch(
+  base::tryCatch(
     {
       i <- NULL
       result <- NULL
@@ -537,7 +537,7 @@ updateTxtLoadOut <- function(session, resultDFListTrait1, resultDFListTrait2, re
 #' @return HTML to show in result info line after data merge section of PatternMatchR
 # examples updateTxtMergeOut(combinedDFP_Val_Labels)
 updateTxtMergeOut <- function(combinedDFP_Val_Labels) {
-  tryCatch(
+  base::tryCatch(
     {
       result <- NULL
       if (is.valid(combinedDFP_Val_Labels)) {

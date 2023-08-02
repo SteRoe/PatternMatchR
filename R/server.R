@@ -113,7 +113,7 @@ server <- function(input, output, session) {
   })
 
   session$userData$sessionVariables$matP_Val.t <- shiny::reactive({
-    tryCatch(
+    base::tryCatch(
       {
         base::print(paste0(
           Sys.time(),
@@ -558,7 +558,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnLoadDir1,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start loading trait 1 folders."))
           session$userData$sessionVariables$resultDFListTrait1(NULL)
@@ -606,7 +606,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnLoadDir2,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start loading trait 2 folders."))
           session$userData$sessionVariables$resultDFListTrait2(NULL)
@@ -652,7 +652,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnLoadDir3,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start loading trait3 folders."))
           session$userData$sessionVariables$resultDFListTrait3(NULL)
@@ -697,7 +697,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnLoadDirAll,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start loading all folders."))
           session$userData$sessionVariables$resultDFListTrait1(NULL)
@@ -763,7 +763,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnDebug,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           minN <- base::as.integer(input$txtCases)
           output$plotDebug1 <-
@@ -786,7 +786,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnMerge,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start merging data."))
           session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
@@ -826,7 +826,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnReduce,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start reducing data by p-value."))
           session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
@@ -881,7 +881,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnCluster,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(
             base::paste0(
@@ -923,7 +923,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnCountProbesP_ValParallel,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start counting probes p-value."))
           minN <- base::as.integer(input$txtCases)
@@ -960,7 +960,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnCountProbesDeltaMethParallel,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start counting probes delta methylation."))
           minN <- base::as.integer(input$txtCases)
@@ -994,7 +994,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnCountProbesNParallel,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start counting probes n."))
           minN <- base::as.integer(input$txtCases)
@@ -1028,7 +1028,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnCountP_ValProbes,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           base::print(base::paste0(Sys.time(), " start counting probes."))
           minN <- base::as.integer(input$txtCases)
@@ -1064,15 +1064,28 @@ server <- function(input, output, session) {
   output$histP_Val <- plotly::renderPlotly(histP_Val())
 
   histP_Val <- shiny::reactive({
-    P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$traitReducedmatP_Val())))
-    result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_Val")
-    return(result)
+    base::tryCatch({
+      P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$traitReducedmatP_Val()))) #tbc(): here we encounter error: R character strings are limited to 2^31 bytes
+      result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_Val")
+    },
+    error = function(e) {
+      message("An error occurred in histP_Val <- shiny::reactive():\n", e)
+      browser() #tbc() #check object.size() of session$userData$sessionVariables$traitReducedmatP_Val()
+      a <- object.size(session$userData$sessionVariables$traitReducedmatP_Val())
+    },
+    warning = function(w) {
+      message("A warning occurred in histP_Val <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(Sys.time(), " end histP_Val <- shiny::reactive()."))
+      return(result)
+    })
   })
 
   shiny::observeEvent(input$btnExportCombinedData,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           fileNameCombinedHM <- base::paste0("CombinedHM.RDS")
           fileName <-
@@ -1098,7 +1111,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$btnImportCombinedData,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           fileNameCombinedHM <- base::paste0("CombinedHM.RDS")
           fileName <-
@@ -1222,7 +1235,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$plotCombinedHM,
     ignoreInit = TRUE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           plotCombinedHM(input = input, output = output, session = session)
         },
@@ -1243,7 +1256,7 @@ server <- function(input, output, session) {
   # shiny::observeEvent(input$sldP_Val,
   #   ignoreInit = FALSE,
   #   {
-  #     tryCatch(
+  #     base::tryCatch(
   #       {
   #         if (!base::is.na(base::as.integer(input$sldP_Val[1]))) {
   #           session$userData$sessionVariables$P_ValMinBorder <-
@@ -1272,7 +1285,7 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$chkDebug,
     ignoreInit = TRUE, #FALSE,
     {
-      tryCatch(
+      base::tryCatch(
         {
           if (input$chkDebug == TRUE) {
             session$userData$config$debugMode <- TRUE

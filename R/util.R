@@ -82,6 +82,7 @@ loadDirLists <- function(session, input, output) {
 loadObjects <- function(session) {
   base::print(base::paste0(Sys.time(), " loading annotation."))
   annotation <- meffil::meffil.get.features("450k")
+  rownames(annotation) <- annotation$name
   session$userData$annotation <- annotation
   base::print(base::paste0(Sys.time(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation),"."))
   base::print(base::paste0(Sys.time(), " detecting cores."))
@@ -269,7 +270,7 @@ loadDNAm <- function(betaFileName, config) {
         header = TRUE,
         sep = "\t",
         dec = ".",
-        nrows = 1000,
+#        nrows = 1000,
         data.table = FALSE
       )
   }
@@ -347,4 +348,46 @@ is.valid <- function(x) {
 #' examples getEmptyPlot()
 getEmptyPlot <- function() {
   plot.new()
+}
+
+#' addLinkToEWASDataHub
+#' adds links to EWASDataHub to a data.frame as separate column
+#' @param df data.frame to which links should be added
+#' @param baseURL string describing link to be included
+#' @param probeAttribut string describing the name of the probe variable
+#' @return data.frame
+#' @keywords internal
+#' @noRd
+# examples addLinkToEWASDataHub(data.frame, baseURL)
+addLinkToEWASDataHub <- function(df, baseURL, probeAttribut) {
+  #provide link to EWAS data hub
+  df$EWASDataHub = base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[,probeAttribut],'</a>')
+  return(df)
+}
+
+addLinkToEWASDataHubShort <- function(df, baseURL, probeAttribut) {
+  #provide link to EWAS data hub
+  df$EWASDataHubShort = base::paste0(baseURL, df[,probeAttribut])
+  return(df)
+}
+
+#' addLinkToMRCEWASCatalog
+#' adds links to MRC EWAS catalog to a data.frame as separate column
+#' @param df data.frame to which links should be added
+#' @param baseURL string describing link to be included
+#' @param probeAttribut string describing the name of the probe variable
+#' @return data.frame
+#' @keywords internal
+#' @noRd
+# examples addLinkToMRCEWASCatalog(data.frame)
+addLinkToMRCEWASCatalog <- function(df, baseURL, probeAttribut) {
+  #provide link to MRC EWAS catalog
+  df$MRCEWASCatalog = base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[,probeAttribut],'</a>' )
+  return(df)
+}
+
+addLinkToMRCEWASCatalogShort <- function(df, baseURL, probeAttribut) {
+  #provide link to MRC EWAS catalog
+  df$MRCEWASCatalogShort = base::paste0(baseURL, df[,probeAttribut])
+  return(df)
 }

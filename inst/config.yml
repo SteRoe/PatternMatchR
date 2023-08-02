@@ -7,4 +7,7 @@ default:
   workDir: "./extdata/mergedFolder/"
   keyAttributes: ["LINA_ID", "ID_Mutter", "ID_Kind", "MutterID", "KindID"]
   P_VALWarningThreshold: 5e-50
+  EWAScatalogFileName: "http://ewascatalog.org/static//docs/ewascatalog-results.txt.gz"
+  baseURL_EWASDataHub: "https://bigd.big.ac.cn/ewas/datahub/probe/"
+  baseURL_MRCEWASCatalog: "http://ewascatalog.org/?query="
   debugMode: FALSE

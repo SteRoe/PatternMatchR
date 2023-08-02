@@ -6,7 +6,7 @@
 #' @return list with cluster medoids
 #' examples getTraitClusterMedoids(clustResTraits, distMatTraits, numClusters)
 getTraitClusterMedoids <- function(clustResTraits, distMatTraits, numClusters) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start find cluster medoids."))
       if (is.valid(clustResTraits) && numClusters > 1) {
@@ -103,7 +103,7 @@ getPlot <- function(plotObject) {
 #' @return dendrogram
 #' examples getDendTraits(clustResTraits, traitClusters)
 getDendTraits <- function(clustResTraits, traitClusters) {
-  tryCatch(
+  base::tryCatch(
     {
       if (is.valid(clustResTraits) && traitClusters > 1) {
         base::print(base::paste0(Sys.time(), " start getDendTraits()."))
@@ -137,7 +137,7 @@ getDendTraits <- function(clustResTraits, traitClusters) {
 #' @return list with data structure for regression model results
 #' examples getTraitReducedcombinedDFP_Val_Labels(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)
 getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start gettraitReducedcombinedDFP_Val_Labels()."))
       traits <- getTraitSubsetcombinedDFP_Val_Labels(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)  #select medoids from traits
@@ -163,7 +163,7 @@ getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels
 #' @return combinedDFP_Val_Labels structure list()
 #' examples loadResultDF(combinedDFP_Val_Labels, traits)
 getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits, keys) {
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start getTraitSubsetcombinedDFP_Val_Labels()."))
       if (is.numeric(traits)) {
@@ -264,7 +264,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
 #' examples getplotClustergramTraitsLong(matP_Val.t, clustResTraits, traitClusters)
 getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitClusters) {
   base::print(base::paste0(Sys.time(), " start plotting clustergram."))
-  tryCatch(
+  base::tryCatch(
     {
       if (traitClusters > 1) {
         Clusters <- dendextend::cutree(clustResTraits, k = traitClusters) # Clusters <- cutree(clustResTraits, k = traitClusters)

@@ -11,7 +11,7 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
     base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
     browser()
   }
-  tryCatch(
+  base::tryCatch(
     {
       base::print(base::paste0(Sys.time(), " start pReduceTraitData()."))
       if (is.valid(combinedDFP_Val_Labels)) {
@@ -173,7 +173,7 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
 #' @return text
 #' examples updateTxtpReduceOut(pReducedcombinedDFP_Val_Labels)
 updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
-  tryCatch(
+  base::tryCatch(
     {
       result <- NULL
       if (is.valid(pReducedcombinedDFP_Val_Labels)) {

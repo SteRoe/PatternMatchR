@@ -16,7 +16,7 @@
 # examples getSelectedOriginalData(combinedDFP_Val_Labels, row_index, column_index)
 getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_index, session) {
   base::print(base::paste0(Sys.time(), " start getSelectedOriginalData()"))
-  tryCatch(
+  base::tryCatch(
     {
       selectedColnames <- combinedDFP_Val_Labels$mergedColnames[column_index] # we here have the colnames of the selected traits
       selectedColnames <- removeAdjFromColname(selectedColnames)
@@ -150,7 +150,7 @@ combinedDFInteractiveHeatMapP_Val <-
            #          dendTraits = NA, # {
            dendProbes = NA,
            dendTraits = NA) {
-    tryCatch(
+    base::tryCatch(
       {
         base::print(base::paste0(Sys.time(), " start making HM"))
         mat <- base::as.matrix(combinedDF_Labels$dfP_Val)
@@ -313,7 +313,7 @@ combinedDFInteractiveHeatMapP_Val <-
       }
     )
 
-    tryCatch(
+    base::tryCatch(
       {
         base::print(base::paste0(Sys.time(), " clearing grDevices()"))
         if (grDevices::dev.cur() > 1) {
@@ -332,7 +332,7 @@ combinedDFInteractiveHeatMapP_Val <-
       }
     )
 
-    tryCatch(
+    base::tryCatch(
       {
         base::print(base::paste0(Sys.time(), " plotting heatmap (takes some time)"))
         # with huge heatmaps, the following error occurs:
@@ -476,11 +476,26 @@ click_action_HM <- function(df, input, output, session) {
 #' @return nothing; function creates SPLOM
 # examples brush_action_HM(df, input, output, session)
 brush_action_HM <- function(df, input, output, session) {
-  tryCatch(
+  base::tryCatch(
     if (!is.null(df)) {
       session$userData$sessionVariables$SPLOM <- FALSE
       row_index <- collapse::funique(unlist(df$row_index)) #row_index <- unique(unlist(df$row_index))
       column_index <- collapse::funique(unlist(df$column_index))
+      #feed in selected CpG here
+      selectedCpG <- rownames(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)[row_index]
+      #add annotation
+      rownames(session$userData$annotation) <- session$userData$annotation$name
+      selectedAnnotation <- session$userData$annotation[selectedCpG,]
+      selectedAnnotation$probeID <- selectedAnnotation$name
+      #add links to EWAS data hub
+      selectedAnnotation <- addLinkToEWASDataHubShort(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+      selectedAnnotation <- addLinkToMRCEWASCatalogShort(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+
+      selectedAnnotation <- addLinkToEWASDataHub(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+      selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+      selectedAnnotation$probeID <- NULL
+      #create DT from selectedAnnotation
+      output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE)
       session$userData$sessionVariables$selectedOriginalData <-
         getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session)
       if (!is.null(session$userData$sessionVariables$selectedOriginalData)) {
@@ -509,7 +524,7 @@ brush_action_HM <- function(df, input, output, session) {
         )
       }
       if (session$userData$sessionVariables$SPLOM == FALSE) { # SPLOM empty
-browser()
+#browser()
         height <- input$numSPLOMVSize
         width <- input$numSPLOMHSize
         fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
