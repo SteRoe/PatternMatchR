@@ -212,7 +212,7 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "HeatMap",
-                        shiny::actionButton("plotCombinedHM", label = "Step 5: Plot Heatmap"),
+                        shiny::actionButton("btnPlotCombinedHM", label = "Step 5: Plot Heatmap"),
                         shiny::verbatimTextOutput("txtHMDescription", placeholder = TRUE),
                         shiny::column(
                           width = 6,
@@ -231,6 +231,18 @@ generate_ui <- function() {
                           inline = FALSE,
                           output_ui = shiny::htmlOutput("info1")
                         )
+                      ),
+                      shiny::tabPanel(
+                        "Search",
+                        "Search for CpG in Heatmap",
+                        shiny::textAreaInput(inputId = "txtSearchCpG", label = "Search CpG", value = ""),
+                        shiny::verbatimTextOutput(outputId = "txtSearchResultCpG"),
+                        shiny::actionButton("btnSearchCpGHM", label = "Search CpG"),
+                        "Search for Trait in Heatmap",
+                        shiny::textAreaInput(inputId = "txtSearchTrait", label = "Search Trait", value = ""),
+                        shiny::verbatimTextOutput(outputId = "txtSearchResultTrait"),
+                        shiny::actionButton("btnSearchTraitHM", label = "Search Trait")
+
                       ),
                       shiny::tabPanel(
                         "SPLOM",

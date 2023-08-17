@@ -182,7 +182,7 @@ server <- function(input, output, session) {
     numberCores <- session$userData$numCores
     base::print(paste0(
       Sys.time(),
-      " before distance matrix for reduced traits."
+      " before distance matrix for reduced traits. (takes some time)"
     ))
     result <- getDistMat(numberCores = numberCores, matrix = session$userData$sessionVariables$traitReducedmatP_Val.t())
     base::print(paste0(
@@ -196,7 +196,7 @@ server <- function(input, output, session) {
     numberCores <- session$userData$numCores
     base::print(paste0(
       Sys.time(),
-      " before distance matrix for traits."
+      " before distance matrix for traits. (takes some time)"
     ))
     result <- getDistMat(numberCores = numberCores, matrix = session$userData$sessionVariables$matP_Val.t())
     base::print(paste0(
@@ -266,7 +266,7 @@ server <- function(input, output, session) {
       base::print(
         base::paste0(
           Sys.time(),
-          " before distance matrix for probes.",
+          " before distance matrix for probes. (takes some time)",
           base::nrow(dfP_Val),
           " (takes some time)"
         )
@@ -1162,7 +1162,7 @@ server <- function(input, output, session) {
   })
 
   session$userData$sessionVariables$dendProbes <- shiny::reactive({
-    base::print(base::paste0(Sys.time(), " before making dendrogram for probes"))
+    base::print(base::paste0(Sys.time(), " before making dendrogram for probes (takes some time)"))
     result <- stats::as.dendrogram(session$userData$sessionVariables$clustResProbes())
     length(unlist(result))
     base::print(base::paste0(Sys.time(), " after making dendrogram for probes"))
@@ -1232,7 +1232,7 @@ server <- function(input, output, session) {
   output$plotDendrogramTraits <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$traitReducedclustResTraits(),
                                                                              rotate = TRUE, theme_dendro = FALSE))
 
-  shiny::observeEvent(input$plotCombinedHM,
+  shiny::observeEvent(input$btnPlotCombinedHM,
     ignoreInit = TRUE,
     {
       base::tryCatch(
@@ -1249,6 +1249,66 @@ server <- function(input, output, session) {
           base::print(base::paste0(Sys.time(), " end plotting heatmap."))
         }
       )
+    },
+    ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnSearchCpGHM,
+    ignoreInit = TRUE,
+    {
+      base::tryCatch(
+        {
+          #find positions
+          searchResult <- getSearchResultCpG(input$txtSearchCpG, session)
+          length <- length(session$userData$sessionVariables$clustResProbes()$labels)
+          resultText <- paste0(input$txtSearchCpG, " found at position: ", searchResult, " from ", length, " CpG.")
+          #write to output
+          output$txtSearchResultCpG <- shiny::renderText(resultText)
+          #mark in HM
+          #browser()
+          #plotCombinedHM()
+        },
+        error = function(e) {
+          message("An error occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", e)
+        },
+        warning = function(w) {
+          message("A warning occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(Sys.time(), " end search CpG heatmap."))
+        }
+      )
+
+    },
+    ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnSearchTraitHM,
+    ignoreInit = TRUE,
+    {
+      base::tryCatch(
+        {
+          #find positions
+          searchResult <- getSearchResultTrait(input$txtSearchTrait, session)
+          length <- length(session$userData$sessionVariables$clustResTraits()$labels)
+          resultText <- paste0(input$txtSearchTrait, " found at position: ", searchResult, " from ", length, " Traits.")
+          #write to output
+          output$txtSearchResultTrait <- shiny::renderText(resultText)
+          #mark in HM
+          #browser()
+          #plotCombinedHM()
+        },
+        error = function(e) {
+          message("An error occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", e)
+        },
+        warning = function(w) {
+          message("A warning occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(Sys.time(), " end search trait heatmap."))
+        }
+      )
+
     },
     ignoreNULL = FALSE
   )

@@ -149,7 +149,9 @@ combinedDFInteractiveHeatMapP_Val <-
            #           dendProbes = NA,
            #          dendTraits = NA, # {
            dendProbes = NA,
-           dendTraits = NA) {
+           dendTraits = NA,
+           selectedRowIndices = NA,
+           selectedColIndices = NA) {
     base::tryCatch(
       {
         base::print(base::paste0(Sys.time(), " start making HM"))
@@ -249,6 +251,25 @@ combinedDFInteractiveHeatMapP_Val <-
                     col = col3(ComplexHeatmap::pindex(mat, i[l], j[l]))
                   ))
                 }
+                #mark selected row indices
+                labelsProbes  <- labels(dendProbes)
+                rowsToMark <- labelsProbes %in% selectedRowIndices
+                if (any(rowsToMark)) {
+                  grid::grid.rect(x, y[rowsToMark], w, h[rowsToMark], gp = grid::gpar( #grid::grid.rect(x[rowsToMark], y[rowsToMark], w[rowsToMark], h[rowsToMark], gp = grid::gpar(
+                    fill = "yellow",
+                    col = "yellow"
+                  ))
+                }
+#                 #mark selected column indices
+#                 labelsTraits  <- labels(dendTraits)
+# #                selectedColIndices <- c("MeP_in_ug_g","MeP_in_ug_l")
+#                 colsToMark <- labelsTraits %in% selectedColIndices
+#                 if (any(colsToMark)) {
+#                   grid::grid.rect(x[colsToMark], y, w[colsToMark], h, gp = grid::gpar(
+#                     fill = "yellow",
+#                     col = "yellow"
+#                   ))
+#                 }
                 if (subHM == TRUE) {
                   grid::grid.text(
                     paste0(
@@ -322,10 +343,10 @@ combinedDFInteractiveHeatMapP_Val <-
         grDevices::pdf(NULL)
       },
       error = function(e) {
-        message("An error occurred in combinedDFInteractiveHeatMapP_Val():\n", e)
+        message("An error occurred in clearing grDevices():\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in combinedDFInteractiveHeatMapP_Val():\n", w)
+        message("A warning occurred in clearing grDevices():\n", w)
       },
       finally = {
         base::print(base::paste0(Sys.time(), " end clearing grDevices()."))
@@ -348,9 +369,50 @@ combinedDFInteractiveHeatMapP_Val <-
     l <- base::list()
     l$combinedHMP_VAL <- ht
     base::print(base::paste0(Sys.time(), " end plotting heatmap"))
-    return(l)
+    base::return(l)
   }
 
+getSearchResultCpG <- function(txtSearchCpG, session) {
+  base::tryCatch(
+    {
+      base::print(base::paste0(Sys.time(), " searching CpG"))
+      #look into clustResProbes and find position of CpG
+      CpG <- session$userData$sessionVariables$clustResProbes()$labels[session$userData$sessionVariables$clustResProbes()$order]
+      positions <- base::which(CpG %in% unlist(strsplit(txtSearchCpG, " ")))
+    },
+    error = function(e) {
+      message("An error occurred in getSearchResultCpG():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getSearchResultCpG():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(Sys.time(), " end getSearchResultCpG()."))
+      base::return(positions)
+    }
+  )
+}
+
+getSearchResultTrait <- function(txtSearchTrait, session) {
+  base::tryCatch(
+    {
+      base::print(base::paste0(Sys.time(), " searching Trait"))
+      #look into clustResTraits and find position of Trait
+      Trait <- session$userData$sessionVariables$clustResTraits()$labels[session$userData$sessionVariables$clustResTraits()$order]
+      positions <- base::which(Trait %in% unlist(strsplit(txtSearchTrait, " ")))
+    },
+    error = function(e) {
+      message("An error occurred in getSearchResultTrait():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getSearchResultTrait():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(Sys.time(), " end getSearchResultTrait()."))
+      base::return(positions)
+    }
+  )
+}
 
 plotCombinedHM <- function(input, output, session) {
   base::print(base::paste0(Sys.time(), " start plotting heatmap."))
@@ -385,65 +447,78 @@ plotCombinedHM <- function(input, output, session) {
     output$txtResultingN <-
       shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
     base::print(base::paste0(Sys.time(), " gc()"))
+    base::tryCatch({
+      # check clustResProbes > 8
+      base::length(session$userData$sessionVariables$clustResProbes())
+      base::options(expression = 500000)
+      dendProbes <- session$userData$sessionVariables$dendProbes()
+      dendProbes <-
+        dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      dendTraits <- session$userData$sessionVariables$traitReducedDendTraits()
 
-    # check clustResProbes > 8
-    base::length(session$userData$sessionVariables$clustResProbes())
-    base::options(expression = 500000)
-    dendProbes <- session$userData$sessionVariables$dendProbes()
-    dendProbes <-
-      dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
-    dendTraits <- session$userData$sessionVariables$traitReducedDendTraits()
+      base::print(base::paste0(Sys.time(), " before calculating heatmap"))
 
-    base::print(base::paste0(Sys.time(), " before calculating heatmap"))
+      base::print(base::paste0(Sys.time(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+      base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+      length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
+      length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
+      selectedRowIndices <- unlist(strsplit(input$txtSearchCpG, split = " "))
+      selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      l <-
+        combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)
+      combinedHMP_VAL <- l$combinedHMP_VAL
 
-    base::print(base::paste0(Sys.time(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
-    base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-    length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
-    length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
-    l <-
-      combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits)
-    combinedHMP_VAL <- l$combinedHMP_VAL
-
-    endTime <- Sys.time()
-    elapsedTime <- endTime - startTime
-    base::print(base::paste0(Sys.time(), " after calculating heatmap. Elapsed time: ", elapsedTime, "."))
-    base::print(base::paste0(Sys.time(), " before plotting heatmap."))
-    while (!base::is.null(grDevices::dev.list())) {
-      grDevices::dev.off()
-    }
-    InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
-      input = input,
-      output = output,
-      session = session,
-      ht_list = combinedHMP_VAL,
-      heatmap_id = "heatmap_1",
-      show_layer_fun = TRUE,
-      click_action = click_action_HM,
-      brush_action = brush_action_HM,
-      hover_action = hover_action_HM
-    )
-    output$txtHMDescription <-
-      shiny::renderText(
+      endTime <- Sys.time()
+      elapsedTime <- endTime - startTime
+      base::print(base::paste0(Sys.time(), " after calculating heatmap. Elapsed time: ", elapsedTime, "."))
+      base::print(base::paste0(Sys.time(), " before plotting heatmap."))
+      while (!base::is.null(grDevices::dev.list())) {
+        grDevices::dev.off()
+      }
+      InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+        input = input,
+        output = output,
+        session = session,
+        ht_list = combinedHMP_VAL,
+        heatmap_id = "heatmap_1",
+        show_layer_fun = TRUE,
+        click_action = click_action_HM,
+        brush_action = brush_action_HM,
+        hover_action = hover_action_HM
+      )
+      output$txtHMDescription <-
+        shiny::renderText(
+          base::paste0(
+            Sys.time(),
+            " done calculating heatmap..., current plot is valid. n(probe) = ",
+            base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+            "; n(trait) = ",
+            base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+            "; elapsed time: ",
+            elapsedTime
+          )
+        )
+      session$userData$sessionVariables$SPLOM <- FALSE
+    },
+    error = function(e) {
+      message("An error occurred in brush_action_HM():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      message("A warning occurred in brush_action_HM():\n", w)
+      browser()
+    },
+    finally = {
+      base::print(
         base::paste0(
           Sys.time(),
-          " done calculating heatmap..., current plot is valid. n(probe) = ",
-          base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-          "; n(trait) = ",
-          base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-          "; elapsed time: ",
-          elapsedTime
+          " finished plotting heatmap with n(probes)=",
+          base::nrow(dfP_Val),
+          " n(traits)=",
+          base::ncol(dfP_Val)
         )
       )
-    base::print(
-      base::paste0(
-        Sys.time(),
-        " finished plotting heatmap with n(probes)=",
-        base::nrow(dfP_Val),
-        " n(traits)=",
-        base::ncol(dfP_Val)
-      )
-    )
-    session$userData$sessionVariables$SPLOM <- FALSE
+    })
   }
 }
 

@@ -36,7 +36,7 @@ originalWd <- NULL
 }
 
 .onLoad <- function(libname, pkgname) {
-  base::print(base::paste0(Sys.time(), "set package wd"))
+  base::print(base::paste0(Sys.time(), " set package wd"))
   originalWd <<- getwd()
   packageWd <- paste0(libname, "/", pkgname)
   setwd(packageWd)
@@ -270,7 +270,7 @@ loadDNAm <- function(betaFileName, config) {
         header = TRUE,
         sep = "\t",
         dec = ".",
-#        nrows = 1000,
+        nrows = 1000,
         data.table = FALSE
       )
   }
