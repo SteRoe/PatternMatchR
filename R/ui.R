@@ -233,7 +233,7 @@ generate_ui <- function() {
                         )
                       ),
                       shiny::tabPanel(
-                        "Search",
+                        "Search & Mark",
                         "Search for CpG in Heatmap",
                         shiny::textAreaInput(inputId = "txtSearchCpG", label = "Search CpG", value = ""),
                         shiny::verbatimTextOutput(outputId = "txtSearchResultCpG"),

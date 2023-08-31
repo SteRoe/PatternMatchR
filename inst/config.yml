@@ -5,6 +5,8 @@ default:
   betaFileName: "./extdata/methylation_example_short.csv"
   probeAttribut: "probeID"
   workDir: "./extdata/mergedFolder/"
+  knownCpGs: "./inst/extdata/knownCpG.txt"
+  knownTraits: "./inst/extdata/knownTraits.txt"
   keyAttributes: ["LINA_ID", "ID_Mutter", "ID_Kind", "MutterID", "KindID"]
   P_VALWarningThreshold: 5e-50
   EWAScatalogFileName: "http://ewascatalog.org/static//docs/ewascatalog-results.txt.gz"

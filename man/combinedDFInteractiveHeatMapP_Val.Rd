@@ -7,7 +7,9 @@
 combinedDFInteractiveHeatMapP_Val(
   combinedDF_Labels,
   dendProbes = NA,
-  dendTraits = NA
+  dendTraits = NA,
+  selectedRowIndices = NA,
+  selectedColIndices = NA
 )
 }
 \arguments{

@@ -16,6 +16,7 @@ server <- function(input, output, session) {
   reactlog::reactlog_enable()
 
   packageWd <<- getwd()
+  session$userData$sessionVariables$callCounter <- 0
   session$userData$packageWd <- getwd()
   base::print(paste0(Sys.time(), " getwd: ", packageWd))
   base::print(paste0(Sys.time(), " loading configuration."))
@@ -25,6 +26,16 @@ server <- function(input, output, session) {
                shinyFiles::getVolumes()())
   shinyFiles::shinyFileChoose(input, "file", roots = volumes, session = session)
   shinyFiles::shinyFileSave(input, "save", roots = volumes, session = session, restrictions = system.file(package = "base"))
+  if (is.valid(session$userData$config$knownCpGs)) {
+    #load CpG from txt file to search input
+    knownCpG <- paste(unlist(data.table::fread(file = session$userData$config$knownCpGs, header = FALSE)), collapse = " ")
+    shiny::updateTextInput(session, inputId = "txtSearchCpG", value = knownCpG)
+  }
+  if (is.valid(session$userData$config$knownTraits)) {
+    #load Traits from txt file to search input
+    knownTrait <- paste(unlist(data.table::fread(file = session$userData$config$knownTraits, header = FALSE)), collapse = " ")
+    shiny::updateTextInput(session, inputId = "txtSearchTrait", value = knownTrait)
+  }
   #base::options(spam.force64 = TRUE)
 
   if (session$userData$config$debugMode == TRUE) {
@@ -531,6 +542,9 @@ server <- function(input, output, session) {
                         #browser()
                         height <- input$numHMVSize
                         width <- input$numHMHSize
+                        if (session$userData$sessionVariables$callCounter > 1) {
+browser() #check, whether this is called initially and why plotCombinedHM is called twice
+                        }
                         plotCombinedHM(input = input, output = output, session = session)
                       },
                       ignoreNULL = FALSE
@@ -543,6 +557,9 @@ server <- function(input, output, session) {
                         #browser()
                         height <- input$numHMVSize
                         width <- input$numHMHSize
+                        if (session$userData$sessionVariables$callCounter > 1) {
+browser() #check, whether this is called initially and why plotCombinedHM is called twice
+                        }
                         plotCombinedHM(input = input, output = output, session = session)
                       },
                       ignoreNULL = FALSE
@@ -895,6 +912,23 @@ server <- function(input, output, session) {
             if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) && is.valid(session$userData$sessionVariables$traitClusterMedoids())) {
               result <- getTraitReducedcombinedDFP_Val_Labels(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(),
                                                               session$userData$sessionVariables$traitClusterMedoids(), keys)
+              # add "number" and reorder columns
+              result$dfP_Val_w_number <- result$dfP_Val
+              nprobes <- nrow(result$dfP_Val_w_number)
+              result$dfP_Val_w_number$number <- seq(1:nprobes)
+              col_order <- c("number", colnames(result$dfP_Val_w_number))
+              result$dfP_Val_w_number <- result$dfP_Val_w_number[, col_order]
+              result$dfP_Val_w_number <- result$dfP_Val_w_number[ , -which(colnames(result$dfP_Val_w_number) %in% "number.1")]
+              result$dfDM_w_number <- result$dfDM
+              result$dfDM_w_number$number <- seq(1:nprobes)
+              col_order <- c("number", colnames(result$dfDM_w_number))
+              result$dfDM_w_number <- result$dfDM_w_number[, col_order]
+              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+              result$dfN_w_number <- result$dfN
+              result$dfN_w_number$number <- seq(1:nprobes)
+              col_order <- c("number", colnames(result$dfN_w_number))
+              result$dfN_w_number <- result$dfN_w_number[, col_order]
+              result$dfN_w_number <- result$dfN_w_number[ , -which(colnames(result$dfN_w_number) %in% "number.1")]
             }
             else {
               base::print(base::paste0(Sys.time(), " (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) && is.valid(session$userData$sessionVariables$traitClusterMedoids())) == FALSE."))
@@ -1147,11 +1181,11 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  output$DTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfP_Val))
+  output$DTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfP_Val_w_number))
 
-  output$DTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfDM))
+  output$DTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfDM_w_number))
 
-  output$DTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfN))
+  output$DTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfN_w_number))
 
   session$userData$sessionVariables$traitReducedDendTraits <- shiny::reactive({
     base::print(base::paste0(Sys.time(), " before making dendrogram for traits"))
@@ -1238,6 +1272,7 @@ server <- function(input, output, session) {
       base::tryCatch(
         {
           plotCombinedHM(input = input, output = output, session = session)
+          session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
         error = function(e) {
           message("An error occurred in shiny::observeEvent(input$plotCombinedHM):\n", e)

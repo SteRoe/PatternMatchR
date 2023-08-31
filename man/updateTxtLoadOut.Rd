@@ -4,7 +4,12 @@
 \alias{updateTxtLoadOut}
 \title{updateTxtLoadOut}
 \usage{
-updateTxtLoadOut(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3)
+updateTxtLoadOut(
+  session,
+  resultDFListTrait1,
+  resultDFListTrait2,
+  resultDFListTrait3
+)
 }
 \arguments{
 \item{resultDFListTrait1}{data.frame containing results from trait1 (red)}

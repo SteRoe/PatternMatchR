@@ -152,6 +152,7 @@ combinedDFInteractiveHeatMapP_Val <-
            dendTraits = NA,
            selectedRowIndices = NA,
            selectedColIndices = NA) {
+    #function is not called twice (check caller function), if so, check here
     base::tryCatch(
       {
         base::print(base::paste0(Sys.time(), " start making HM"))
@@ -464,6 +465,7 @@ plotCombinedHM <- function(input, output, session) {
       length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
       selectedRowIndices <- unlist(strsplit(input$txtSearchCpG, split = " "))
       selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+#browser() #check, whether this is called twice
       l <-
         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)
       combinedHMP_VAL <- l$combinedHMP_VAL
@@ -561,7 +563,11 @@ brush_action_HM <- function(df, input, output, session) {
       #add annotation
       rownames(session$userData$annotation) <- session$userData$annotation$name
       selectedAnnotation <- session$userData$annotation[selectedCpG,]
+      nprobes <- nrow(selectedAnnotation)
+      selectedAnnotation$number <- seq(1:nprobes)
       selectedAnnotation$probeID <- selectedAnnotation$name
+      col_order <- c("number", "probeID", "type", "target",	"name", "chromosome",	"position", "meth.dye", "gene.symbol", "gene.accession", "gene.region", "cpg.island.name", "relation.to.island", "snp.exclude", "450k", "common", "epic", "epic2")
+      selectedAnnotation <- selectedAnnotation[, col_order]
       #add links to EWAS data hub
       selectedAnnotation <- addLinkToEWASDataHubShort(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
       selectedAnnotation <- addLinkToMRCEWASCatalogShort(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
