@@ -923,7 +923,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
               result$dfDM_w_number$number <- seq(1:nprobes)
               col_order <- c("number", colnames(result$dfDM_w_number))
               result$dfDM_w_number <- result$dfDM_w_number[, col_order]
-              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+#              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
               result$dfN_w_number <- result$dfN
               result$dfN_w_number$number <- seq(1:nprobes)
               col_order <- c("number", colnames(result$dfN_w_number))
