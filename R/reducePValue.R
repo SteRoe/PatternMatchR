@@ -4,9 +4,9 @@
 #' @param minP_Val minimum p-value to retain
 #' @param maxP_Val maximum p-value to retain
 #' @param minN minimum n for model in regression result
-#' @param debugMode return smaller data structure (only 1000 records) for faster debugging
+#' @param debugMode return smaller data structure (only session$userData$sessionVariables$debugNumber records) for faster debugging
 #' @return result list()
-getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
+getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
   if (maxN < 1) {
     base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
     browser()
@@ -106,11 +106,12 @@ getPReducedTraitData <- function(combinedDFP_Val_Labels, minP_Val, maxP_Val, min
         base::print(base::class(dfP_Val))
         base::print(Cstack_info())
         if (base::nrow(dfP_Val) >= 5) {
-          if (debugMode == TRUE && base::nrow(dfP_Val) > 1000) {
-            base::print(base::paste0(Sys.time(), " debug mode n probes=1000."))
-            dfP_Val <- dfP_Val[1:1000, ]
-            dfDM <- dfDM[1:1000, ]
-            dfN <- dfN[1:1000, ]
+          if (debugMode == TRUE && base::nrow(dfP_Val) > session$userData$sessionVariables$debugNumber) {
+            base::print(base::paste0(Sys.time(), " debug mode n probes=session$userData$sessionVariables$debugNumber"))
+            #dfP_Val <- dfP_Val[1:session$userData$sessionVariables$debugNumber, ]
+            dfP_Val <- head(dfP_Val,session$userData$sessionVariables$debugNumber)
+            dfDM <- head(dfDM,session$userData$sessionVariables$debugNumber)
+            dfN <- head(dfN,session$userData$sessionVariables$debugNumber)
           }
           base::print(base::paste0(
             Sys.time(),

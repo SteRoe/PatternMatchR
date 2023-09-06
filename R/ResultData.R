@@ -136,14 +136,15 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
       if (loadRDS != FALSE) {
         if (session$userData$config$debugMode == TRUE) { #if (globalVariables$config$debugMode == TRUE) {
           # it is mandatory to reassign rownames and also colnames... Thanks R!
-          rn <- base::rownames(listResultP_Val_DeltaMeth_N$P_Val)[1:1000]
+          #rn <- base::rownames(listResultP_Val_DeltaMeth_N$P_Val)[1:session$userData$sessionVariables$debugNumber]
+          rn <- head(base::rownames(listResultP_Val_DeltaMeth_N$P_Val),session$userData$sessionVariables$debugNumber)
           cn <- base::colnames(listResultP_Val_DeltaMeth_N$P_Val)
           listResultP_Val_DeltaMeth_N$P_Val <-
-            base::as.data.frame(listResultP_Val_DeltaMeth_N$P_Val[1:1000, ])
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$P_Val,session$userData$sessionVariables$debugNumber))
           listResultP_Val_DeltaMeth_N$DM <-
-            base::as.data.frame(listResultP_Val_DeltaMeth_N$DM[1:1000, ])
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$DM,session$userData$sessionVariables$debugNumber))
           listResultP_Val_DeltaMeth_N$N <-
-            base::as.data.frame(listResultP_Val_DeltaMeth_N$N[1:1000, ])
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$N,session$userData$sessionVariables$debugNumber))
           rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
           rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
           rownames(listResultP_Val_DeltaMeth_N$N) <- rn

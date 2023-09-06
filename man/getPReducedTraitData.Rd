@@ -6,6 +6,7 @@
 reduces data in structure combinedDFP_Val_Labels by p-value range and minimum n; entire CpGs will be removed}
 \usage{
 getPReducedTraitData(
+  session,
   combinedDFP_Val_Labels,
   minP_Val,
   maxP_Val,
@@ -25,7 +26,7 @@ getPReducedTraitData(
 
 \item{minN}{minimum n for model in regression result}
 
-\item{debugMode}{return smaller data structure (only 1000 records) for faster debugging}
+\item{debugMode}{return smaller data structure (only session$userData$sessionVariables$debugNumber records) for faster debugging}
 }
 \value{
 result list()

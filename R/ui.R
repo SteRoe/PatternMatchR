@@ -206,11 +206,6 @@ generate_ui <- function() {
                     "HeatMap",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
-                        "Histogram",
-                        "Histogram of all p-values in heatmap",
-                        plotly::plotlyOutput("histP_Val", inline = TRUE)
-                      ),
-                      shiny::tabPanel(
                         "HeatMap",
                         shiny::actionButton("btnPlotCombinedHM", label = "Step 5: Plot Heatmap"),
                         shiny::verbatimTextOutput("txtHMDescription", placeholder = TRUE),
@@ -268,6 +263,11 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "Selected CpG",
                         DT::dataTableOutput("DTSelectedCpG")
+                      ),
+                      shiny::tabPanel(
+                        "Histogram",
+                        "Histogram of all p-values in heatmap",
+                        plotly::plotlyOutput("histP_Val", inline = TRUE)
                       )
                     )
                   ),
