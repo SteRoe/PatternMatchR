@@ -31,7 +31,7 @@ getDimensionsForPlotlySPLOM <- function(df, omitVar) {
 #' @return list with variables that can be treated as factor in df
 # examples getBinaryFactorialVars(df)
 getBinaryFactorialVars <- function(df) {
-  base::print(base::paste0(Sys.time(), " start getBinaryFactorialVars()."))
+  base::print(base::paste0(sysTimePID(), " start getBinaryFactorialVars()."))
   result <- list()
   for (i in base::seq_along(df)) {
     if (is.integer(df[[i]])) {
@@ -41,8 +41,8 @@ getBinaryFactorialVars <- function(df) {
     }
   }
   if (length(result) == 0) result <- NULL
-  base::print(base::paste0(Sys.time(), " found", length(result), " binary factorial vars."))
-  base::print(base::paste0(Sys.time(), " end getBinaryFactorialVars()."))
+  base::print(base::paste0(sysTimePID(), " found", length(result), " binary factorial vars."))
+  base::print(base::paste0(sysTimePID(), " end getBinaryFactorialVars()."))
   return(result)
 }
 

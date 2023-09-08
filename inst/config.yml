@@ -54,4 +54,4 @@ default:
   EWAScatalogFileName: "http://ewascatalog.org/static//docs/ewascatalog-results.txt.gz"
   baseURL_EWASDataHub: "https://bigd.big.ac.cn/ewas/datahub/probe/"
   baseURL_MRCEWASCatalog: "http://ewascatalog.org/?query="
-  debugMode: FALSE
+  debugMode: TRUE

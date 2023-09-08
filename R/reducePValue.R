@@ -8,18 +8,18 @@
 #' @return result list()
 getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
   if (maxN < 1) {
-    base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+    base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
     browser()
   }
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start pReduceTraitData()."))
+      base::print(base::paste0(sysTimePID(), " start pReduceTraitData()."))
       if (is.valid(combinedDFP_Val_Labels)) {
         result <- combinedDFP_Val_Labels
         dfP_Val <- result$dfP_Val
         dfDM <- result$dfDM
         dfN <- result$dfN
-        base::print(base::paste0(Sys.time(),
+        base::print(base::paste0(sysTimePID(),
                                  " result matrix before reduce has N(row) probes=",
                                  base::nrow(dfP_Val),
                                  " and n(col) traits=",
@@ -49,7 +49,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           cgsToRetainP <- cgsToRetainMinP
         }
         if (length(cgsToRetainP) == 0) {
-          base::print(base::paste0(Sys.time(), "Warning: length(cgsToRetainP) == 0. Please check your data.")) #that should not be the case, please check data!
+          base::print(base::paste0(sysTimePID(), "Warning: length(cgsToRetainP) == 0. Please check your data.")) #that should not be the case, please check data!
           browser()
         }
         #take only DM outside slider defined range in cgsToRetainDM
@@ -69,7 +69,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           cgsToRetainDM <- cgsToRetainMinDM
         }
         if (length(cgsToRetainDM) == 0) {
-          base::print(base::paste0(Sys.time(), "Warning: length(cgsToRetainDM) == 0. Please check your data.")) #that should not be the case, please check data!
+          base::print(base::paste0(sysTimePID(), "Warning: length(cgsToRetainDM) == 0. Please check your data.")) #that should not be the case, please check data!
           browser()
         }
         cgsToRetainMaxN <- dfN < maxN
@@ -89,15 +89,15 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         cgsToRetain <- intersect(cgsToRetainP, cgsToRetainDM)
         cgsToRetain <- intersect(cgsToRetain, cgsToRetainN)
         if (!base::exists("cgsToRetain") || length(cgsToRetain) == 0) {
-          base::print(base::paste0(Sys.time(), "Warning: length(cgsToRetain) == 0. Please check your data.")) #that should not be the case, please check data!
+          base::print(base::paste0(sysTimePID(), "Warning: length(cgsToRetain) == 0. Please check your data.")) #that should not be the case, please check data!
           browser()
-          base::print(base::paste0(Sys.time(), " max p-val border too low: ",
+          base::print(base::paste0(sysTimePID(), " max p-val border too low: ",
                                    maxP_Val, "; no remaining CpG."))
         }
         dfP_Val <- dfP_Val[cgsToRetain, ]
         dfDM <- dfDM[cgsToRetain, ]
         dfN <- dfN[cgsToRetain, ]
-        base::print(base::paste0(Sys.time(),
+        base::print(base::paste0(sysTimePID(),
                                  " result matrix after reduce has N(row) probes=",
                                  base::nrow(dfP_Val),
                                  " and n(col) traits=", base::ncol(dfP_Val),
@@ -107,14 +107,14 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         base::print(Cstack_info())
         if (base::nrow(dfP_Val) >= 5) {
           if (debugMode == TRUE && base::nrow(dfP_Val) > session$userData$sessionVariables$debugNumber) {
-            base::print(base::paste0(Sys.time(), " debug mode n probes=session$userData$sessionVariables$debugNumber"))
+            base::print(base::paste0(sysTimePID(), " debug mode n probes=session$userData$sessionVariables$debugNumber"))
             #dfP_Val <- dfP_Val[1:session$userData$sessionVariables$debugNumber, ]
             dfP_Val <- head(dfP_Val,session$userData$sessionVariables$debugNumber)
             dfDM <- head(dfDM,session$userData$sessionVariables$debugNumber)
             dfN <- head(dfN,session$userData$sessionVariables$debugNumber)
           }
           base::print(base::paste0(
-            Sys.time(),
+            sysTimePID(),
             " set infinite p-values to .Machine$integer.max."
           ))
           indexdfP_Val_infinite <- is.infinite(as.matrix(dfP_Val))
@@ -122,12 +122,12 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           if (!base::is.data.frame(dfDM)) {
             dfDM <- base::as.data.frame(dfDM)
           }
-          base::print(base::paste0(Sys.time(), " shortening dfDM"))
+          base::print(base::paste0(sysTimePID(), " shortening dfDM"))
           dfDM <- dfDM[rownames(dfP_Val), colnames(dfP_Val)]
           if (!base::is.data.frame(dfN)) {
             dfN <- base::as.data.frame(dfN)
           }
-          base::print(base::paste0(Sys.time(), " shortening dfN"))
+          base::print(base::paste0(sysTimePID(), " shortening dfN"))
           dfN <- dfN[rownames(dfP_Val), colnames(dfP_Val)]
           combinedDFP_Val_Labels <- base::list(dfP_Val = NULL, dfDM = NULL,
                                                dfN = NULL, labelsDF1 = NULL,
@@ -147,7 +147,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           combinedDFP_Val_Labels$mergedDFList <- mergedDFList #(consists of mergedDFList$PHENODF and mergedDFList$PHENOFileName for each source file)
         }
         else {
-          base::message(base::paste0(Sys.time(), " less than 5 probes remained. Please check your maximum and minimum p-val settings."))
+          base::message(base::paste0(sysTimePID(), " less than 5 probes remained. Please check your maximum and minimum p-val settings."))
         }
       }
     },
@@ -158,11 +158,11 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
       message("A warning occurred in getPReducedTraitData():\n", w)
     },
     finally = {
-      #base::print(base::paste0(Sys.time(), " size of reduced data.frame: ", dim(combinedDFP_Val_Labels$dfP_Val), " ."))
-      base::print(base::paste0(Sys.time(), " size of reduced data.frame: nrow (CpG)=",
+      #base::print(base::paste0(sysTimePID(), " size of reduced data.frame: ", dim(combinedDFP_Val_Labels$dfP_Val), " ."))
+      base::print(base::paste0(sysTimePID(), " size of reduced data.frame: nrow (CpG)=",
                                nrow(combinedDFP_Val_Labels$dfP_Val), "; ncol (trait)=",
                                ncol(combinedDFP_Val_Labels$dfP_Val), " ."))
-      base::print(base::paste0(Sys.time(), " pReduceTraitData() finished."))
+      base::print(base::paste0(sysTimePID(), " pReduceTraitData() finished."))
       return(combinedDFP_Val_Labels)
     }
   )
@@ -183,7 +183,7 @@ updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
                                "; ncol (trait): ", ncol(pReducedcombinedDFP_Val_Labels$dfP_Val))
       }
       else {
-        base::message(base::paste0(Sys.time(), " is.valid(pReducedcombinedDFP_Val_Labels) == FALSE."))
+        base::message(base::paste0(sysTimePID(), " is.valid(pReducedcombinedDFP_Val_Labels) == FALSE."))
       }
     },
     error = function(e) {

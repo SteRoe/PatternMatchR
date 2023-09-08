@@ -17,13 +17,13 @@
 getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start getResultDfP_D_N(): ", P_D_N, "."))
+      base::print(base::paste0(sysTimePID(), " start getResultDfP_D_N(): ", P_D_N, "."))
       i <- NULL
       if (base::length(listOfResultDF) != 0) {
         #foreach::foreach(i = 1:length(listOfResultDF)) %do% {
         for (i in seq_along(listOfResultDF)) {
           base::print(base::paste0(
-            Sys.time(),
+            sysTimePID(),
             " processing trait ",
             i,
             " of ",
@@ -41,7 +41,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
             merged <- DF
             rownames(merged) <- DF$probeID
           } else {
-            base::print(base::paste0(Sys.time(), " merge"))
+            base::print(base::paste0(sysTimePID(), " merge"))
             # merge
             merged <-
               base::merge(
@@ -59,7 +59,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
       rownames(merged) <- merged$probeID
       merged$probeID <-
         NULL # here we have probeIDs as rownames, therefore this variable is no longer needed
-      base::print(base::paste0(Sys.time(), " finished getResultDfP_D_N()"))
+      base::print(base::paste0(sysTimePID(), " finished getResultDfP_D_N()"))
     },
     error = function(e) {
       message("An error occurred in getResultDfP_D_N():\n", e)
@@ -68,7 +68,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
       message("A warning occurred in getResultDfP_D_N():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getResultDfP_D_N(): ", P_D_N, "."))
+      base::print(base::paste0(sysTimePID(), " end getResultDfP_D_N(): ", P_D_N, "."))
       return(merged)
     }
   )
@@ -91,7 +91,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
 mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start mergeDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " start mergeDFP_Val_Labels()."))
       # merge three df
       if (!base::is.null(resultDFListTrait1$resultDFP_Val)) {
         dfList <- base::list(
@@ -119,10 +119,10 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         DFList1 <- dfList$listPHENOdata
         originTrait1 <- rep("1", length(Colnames1))
         if (!((base::nrow(dfP_Val1) > 0) && (base::ncol(dfP_Val1) > 0))) {
-          base::print(base::paste0(Sys.time(), "nrow(DFP_Val1) or ncol(DFP_Val1) == 0"))
+          base::print(base::paste0(sysTimePID(), "nrow(DFP_Val1) or ncol(DFP_Val1) == 0"))
         }
       } else {
-        base::message(base::paste0(Sys.time(), "DF1 is not valid"))
+        base::message(base::paste0(sysTimePID(), "DF1 is not valid"))
       }
       if (!base::is.null(resultDFListTrait2$resultDFP_Val)) {
         dfList <- base::list()
@@ -143,10 +143,10 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         DFList2 <- dfList$listPHENOdata
         originTrait2 <- rep("2", length(Colnames2))
         if (!((base::nrow(dfP_Val2) > 0) && (base::ncol(dfP_Val2) > 0))) {
-          base::message(base::paste0(Sys.time(), "nrow(DF2) or ncol(DF2) == 0"))
+          base::message(base::paste0(sysTimePID(), "nrow(DF2) or ncol(DF2) == 0"))
         }
       } else {
-        base::message(base::paste0(Sys.time(), "DF2 is not valid"))
+        base::message(base::paste0(sysTimePID(), "DF2 is not valid"))
       }
       if (!base::is.null(resultDFListTrait3$resultDFP_Val)) {
         dfList <- base::list()
@@ -167,10 +167,10 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         DFList3 <- dfList$listPHENOdata
         originTrait3 <- rep("3", length(Colnames3))
         if (!((base::nrow(dfP_Val3) > 0) && (base::ncol(dfP_Val3) > 0))) {
-          base::message(base::paste0(Sys.time(), "nrow(DF3) or ncol(DF3) == 0"))
+          base::message(base::paste0(sysTimePID(), "nrow(DF3) or ncol(DF3) == 0"))
         }
       } else {
-        base::message(base::paste0(Sys.time(), "DF3 is not valid"))
+        base::message(base::paste0(sysTimePID(), "DF3 is not valid"))
       }
       if (base::exists("dfP_Val1")) {
         rn <- base::rownames(dfP_Val1)
@@ -439,8 +439,8 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
       message("A warning occurred in mergeDFP_Val_Labels():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " size of merged data.frame: ", dim(result$mergedOriginDF), " ."))
-      base::print(base::paste0(Sys.time(), " end mergeDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " size of merged data.frame: ", dim(result$mergedOriginDF), " ."))
+      base::print(base::paste0(sysTimePID(), " end mergeDFP_Val_Labels()."))
       return(result)
     }
   )
@@ -455,14 +455,14 @@ loadDir <- function(session, traitDirList) {
   base::tryCatch(
     {
       #load all trait folders
-      base::print(base::paste0(Sys.time(), " before loading '", traitDirList, "'."))
+      base::print(base::paste0(sysTimePID(), " before loading '", traitDirList, "'."))
       traitDFs <-
         base::lapply(traitDirList,
                      FUN = loadResultDF,
                      session = session, loadRDS = TRUE
         )
       #merge all loaded folders
-      base::print(base::paste0(Sys.time(), " before merge folders()"))
+      base::print(base::paste0(sysTimePID(), " before merge folders()"))
       resultDFList <- loadtraitDFs(traitDFs)
       if (base::exists("resultDFList$resultDFP_Val")) {
         #browser()
@@ -476,7 +476,7 @@ loadDir <- function(session, traitDirList) {
       message("A warning occurred in loadDir():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " '", traitDirList, "' successfully loaded."))
+      base::print(base::paste0(sysTimePID(), " '", traitDirList, "' successfully loaded."))
       return(resultDFList)
     }
   )
@@ -546,7 +546,7 @@ updateTxtMergeOut <- function(combinedDFP_Val_Labels) {
                                "; ncol: ", ncol(combinedDFP_Val_Labels$dfP_Val))
       }
       else {
-        base::print(base::paste0(Sys.time(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
+        base::print(base::paste0(sysTimePID(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
       }
     },
     error = function(e) {
@@ -576,13 +576,13 @@ updateSliders <- function(session, combinedDFP_Val_Labels) {
   minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
   minDM <- base::min(minDM)
   if (minDM < 0) {
-    base::message(base::paste0(Sys.time(), " Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
+    base::message(base::paste0(sysTimePID(), " Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
     minDM <- 0
   }
   maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
   maxDM <- base::max(maxDM)
   if (maxDM > 1) {
-    base::print(base::paste0(Sys.time(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
+    base::print(base::paste0(sysTimePID(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
     maxDM <- 1
   }
   shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
@@ -591,21 +591,21 @@ updateSliders <- function(session, combinedDFP_Val_Labels) {
   minN <- base::apply(DF, 2, FUN = function(x) {base::min(as.integer(x[x > 0]), na.rm = TRUE)})
   minN <- base::min(minN)
   if (minN < 1) {
-    base::print(base::paste0(Sys.time(), "Warning: minN < 1. Please check your data.")) #that should not be the case, please check data!
+    base::print(base::paste0(sysTimePID(), "Warning: minN < 1. Please check your data.")) #that should not be the case, please check data!
     minN <- 1
   }
   if (minN != as.integer(minN)) {
-    base::print(base::paste0(Sys.time(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
+    base::print(base::paste0(sysTimePID(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
     minN <- as.integer(minN)
   }
   maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
   maxN <- base::max(maxN)
   if (maxN != as.integer(maxN)) {
-    base::print(base::paste0(Sys.time(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
+    base::print(base::paste0(sysTimePID(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
     maxN <- as.integer(maxN)
   }
   if (maxN < 1) {
-    base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+    base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
     browser()
   }
   shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))

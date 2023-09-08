@@ -11,6 +11,8 @@ generate_ui <- function() {
       shiny::tags$head(shiny::tags$style(
         shiny::HTML("      pre, table.table {        font-size: smaller;      }    ")
       )),
+      "Hostname / PID",
+      shiny::verbatimTextOutput(outputId = "Sys.PID", placeholder = TRUE),
       shiny::tabsetPanel(
         shiny::tabPanel(
           "PatternMatchR",
@@ -50,7 +52,7 @@ generate_ui <- function() {
                   id = "colRed",
                   width = 4,
                   "red traits",
-                  DT::dataTableOutput("trait1DirList"),
+                  DT::DTOutput("trait1DirList"), #DT::dataTableOutput("trait1DirList"),
                   shiny::actionButton("btnLoadDir1", label = "Load trait 1 (red) dir")
                 ),
                 shiny::column(
@@ -263,6 +265,14 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "Selected CpG",
                         DT::dataTableOutput("DTSelectedCpG")
+                      ),
+                      shiny::tabPanel(
+                        "Selected trait",
+                        DT::dataTableOutput("DTSelectedTrait") #TBC()
+                      ),
+                      shiny::tabPanel(
+                        "Selected p-value",
+                        DT::dataTableOutput("DTSelectedP_Val") #TBC()
                       ),
                       shiny::tabPanel(
                         "Histogram",

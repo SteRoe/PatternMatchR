@@ -36,11 +36,11 @@ originalWd <- NULL
 }
 
 .onLoad <- function(libname, pkgname) {
-  base::print(base::paste0(Sys.time(), " set package wd"))
+  base::print(base::paste0(sysTimePID(), " set package wd"))
   originalWd <<- getwd()
   packageWd <- paste0(libname, "/", pkgname)
   setwd(packageWd)
-  base::print(base::paste0(Sys.time(), " setwd():", packageWd))
+  base::print(base::paste0(sysTimePID(), " setwd():", packageWd))
 }
 
 .onUnload <- function(libpath) {
@@ -64,7 +64,7 @@ loadDirLists <- function(session, input, output) {
   dfdD3 <<-
     data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
 
-  output$trait1DirList <- DT::renderDataTable(dfdD1)
+  output$trait1DirList <- DT::renderDT({DT::datatable(dfdD1, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = list("copy", "csv")))}, server = FALSE) #output$trait1DirList <- DT::renderDataTable(dfdD1)
   output$trait2DirList <- DT::renderDataTable(dfdD2)
   output$trait3DirList <- DT::renderDataTable(dfdD3)
   result <- list()
@@ -80,12 +80,12 @@ loadDirLists <- function(session, input, output) {
 # examples loadObjects(session)
 #loadObjects <- function(globalVariables) {
 loadObjects <- function(session) {
-  base::print(base::paste0(Sys.time(), " loading annotation."))
+  base::print(base::paste0(sysTimePID(), " loading annotation."))
   annotation <- meffil::meffil.get.features("450k")
   rownames(annotation) <- annotation$name
   session$userData$annotation <- annotation
-  base::print(base::paste0(Sys.time(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation),"."))
-  base::print(base::paste0(Sys.time(), " detecting cores."))
+  base::print(base::paste0(sysTimePID(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation),"."))
+  base::print(base::paste0(sysTimePID(), " detecting cores."))
   numCores <- parallelly::availableCores() # parallel::detectCores()
   if (!is.null(numCores)) {
     if (numCores >= 64) {
@@ -104,17 +104,17 @@ loadObjects <- function(session) {
     numCores <- 1
   }
   session$userData$numCores <- numCores
-  base::print(base::paste0(Sys.time(), " finished detecting cores."))
+  base::print(base::paste0(sysTimePID(), " finished detecting cores."))
 
   #check config file for "/inst"
   betaFileName <- session$userData$config$betaFileName
   #check for existence of betaFileName
   if (!file.exists(betaFileName)) {
-    base::message(base::paste0(Sys.time(), " beta file not found: ", betaFileName, ". Is your config.yml correct?"))
+    base::message(base::paste0(sysTimePID(), " beta file not found: ", betaFileName, ". Is your config.yml correct?"))
     #add /inst to betafilename and try again
     betaFileName <- addInstToPath(betaFileName)
     if (file.exists(betaFileName)) {
-      base::message(base::paste0(Sys.time(), " beta file now found: ", betaFileName, "."))
+      base::message(base::paste0(sysTimePID(), " beta file now found: ", betaFileName, "."))
     }
   }
   dataDirList <- as.list(session$userData$config$dataDir1)
@@ -135,7 +135,7 @@ loadObjects <- function(session) {
   # read methylation data
   session$userData$BetaDF <- loadDNAm(betaFileName = betaFileName, config = session$userData$config)
   session$userData$Beta_tDF <- as.data.frame(t(session$userData$BetaDF))
-  base::print(base::paste0(Sys.time(), " finished read methylation data with nrow = ", nrow(session$userData$BetaDF), " and ncol = ", ncol(session$userData$BetaDF), "."))
+  base::print(base::paste0(sysTimePID(), " finished read methylation data with nrow = ", nrow(session$userData$BetaDF), " and ncol = ", ncol(session$userData$BetaDF), "."))
   return(session)
 }
 
@@ -159,7 +159,7 @@ loadResultFile <- function(session, folder, fileName) {
 #tbc() insert tryCatch here or options(warn=2)
 options(warn = 2)
   fileName <- base::paste0(folder, fileName, ".csv")
-  base::print(base::paste0(Sys.time(), " before fread()."))
+  base::print(base::paste0(sysTimePID(), " before fread()."))
   all.results <-
     data.table::fread(
       fileName,
@@ -176,7 +176,7 @@ options(warn = 2)
       base::c("probeID", "BETA", "SE", "P_VAL", "FDR", "DeltaMeth", "N")
     )
   all.results <- all.results[, 1:7]
-  base::print(base::paste0(Sys.time(), " before merging annotation."))
+  base::print(base::paste0(sysTimePID(), " before merging annotation."))
   all.results <-
     data.table::merge.data.table(
       x = all.results,
@@ -195,7 +195,7 @@ options(warn = 2)
   all.results <- all.results[order(all.results$FDR), ]
   # duplicated(all.results$probeID)
   rownames(all.results) <- all.results$probeID
-  base::print(base::paste0(Sys.time(), " after excluding chr x and y ."))
+  base::print(base::paste0(sysTimePID(), " after excluding chr x and y ."))
 
   return(all.results)
 }
@@ -228,14 +228,14 @@ extractMantissaExponent <-
 
 addInstToPath <- function (fileName) {
   if(!file.exists(fileName)) {
-    base::message(base::paste0(Sys.time(), " file not found: ", fileName, ". Is your config.yml correct?"))
+    base::message(base::paste0(sysTimePID(), " file not found: ", fileName, ". Is your config.yml correct?"))
     fileName <- stringr::str_sub(fileName, start = 2, end = stringr::str_length(fileName))
     fileName <- paste0("./inst", fileName)
     if(file.exists(fileName)) {
-      base::message(base::paste0(Sys.time(), " file now found: ", fileName, "."))
+      base::message(base::paste0(sysTimePID(), " file now found: ", fileName, "."))
     }
     else {
-      base::message(base::paste0(Sys.time(), " file furthermore not found: ", fileName, ". Is your config.yml correct?"))
+      base::message(base::paste0(sysTimePID(), " file furthermore not found: ", fileName, ". Is your config.yml correct?"))
     }
   }
   return(fileName)
@@ -248,9 +248,9 @@ addInstToPath <- function (fileName) {
 #' @return data frame with measured beta values
 # examples loadDNAm(betaFileName)
 loadDNAm <- function(betaFileName, config) {
-  base::print(base::paste0(Sys.time(), " loading configuration."))
+  base::print(base::paste0(sysTimePID(), " loading configuration."))
 #  config <- session$userData$config #config::get(file = "config.yml")
-  base::print(base::paste0(Sys.time(), " load beta."))
+  base::print(base::paste0(sysTimePID(), " load beta."))
   #if (TRUE) {
   if (config$debugMode == FALSE) {
     beta <-
@@ -315,7 +315,7 @@ findInFiles <-
     }
     if (!found) {
       result <- FALSE
-      base::print(base::paste0(Sys.time(), " ", what, "not found in ", in_files))
+      base::print(base::paste0(sysTimePID(), " ", what, "not found in ", in_files))
     }
     return(result)
   }
@@ -325,9 +325,9 @@ findInFiles <-
 #' @return colnames without 'adj' at the end
 removeAdjFromColname <- function(colnames) {
   #' adj' was added to the end of the name of an analysis for a regression model with additional adjustment variables
-  base::print(base::paste0(Sys.time(), " start removeAdjFromColname()"))
+  base::print(base::paste0(sysTimePID(), " start removeAdjFromColname()"))
   result <- sub("adj$", "", colnames)
-  base::print(base::paste0(Sys.time(), " end removeAdjFromColname()"))
+  base::print(base::paste0(sysTimePID(), " end removeAdjFromColname()"))
   return(result)
 }
 
@@ -390,4 +390,42 @@ addLinkToMRCEWASCatalogShort <- function(df, baseURL, probeAttribut) {
   #provide link to MRC EWAS catalog
   df$MRCEWASCatalogShort = base::paste0(baseURL, df[,probeAttribut])
   return(df)
+}
+
+sysTimePID <- function() {
+  result <- paste0(as.character(Sys.time()), "; PID: ", as.character(Sys.getpid()))
+  return(result)
+}
+
+invalidateStep1 <- function(session) {
+  session <- invalidateStep2(session)
+  session$userData$sessionVariables$resultDFListTrait1(NULL)
+  session$userData$sessionVariables$resultDFListTrait2(NULL)
+  session$userData$sessionVariables$resultDFListTrait3(NULL)
+  session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
+  return(session)
+}
+
+invalidateStep2 <- function(session) {
+  session <- invalidateStep3(session)
+  session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
+  return(session)
+}
+
+invalidateStep3 <- function(session) {
+  session <- invalidateStep4(session)
+  session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
+  return(session)
+}
+
+invalidateStep4 <- function(session) {
+  session <- invalidateStep5(session)
+  session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels(NULL)
+  return(session)
+}
+
+
+invalidateStep5 <- function(session) {
+
+  return(session)
 }

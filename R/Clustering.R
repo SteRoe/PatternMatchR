@@ -41,20 +41,20 @@ getDistMat <- function(numberCores, matrix) {
 #' @return hclust object
 #' examples getClustResFast(distanceMatrix)
 getClustResFast <- function(distanceMatrix) {
-  base::print(base::paste0(Sys.time(), " start getClustResFast()"))
+  base::print(base::paste0(sysTimePID(), " start getClustResFast()"))
   #check size of distanceMatrix
   if (is.valid(distanceMatrix)) {
-    base::print(base::paste0(Sys.time(), " clustering trait data."))
+    base::print(base::paste0(sysTimePID(), " clustering trait data."))
     startTime <- Sys.time()
     gc()
     ClustRes <- fastcluster::hclust(stats::as.dist(distanceMatrix), method = "ward.D2")
     endTime <- Sys.time()
     runTime <- difftime(endTime, startTime, units = "secs")
-    base::print(base::paste0(Sys.time(), " runtime for FastCluster: ", runTime))
+    base::print(base::paste0(sysTimePID(), " runtime for FastCluster: ", runTime))
   }
   else {
     ClustRes <- NULL
-    base::print(base::paste0(Sys.time(), " is.valid(distanceMatrix) == FALSE"))
+    base::print(base::paste0(sysTimePID(), " is.valid(distanceMatrix) == FALSE"))
   }
   return(ClustRes)
 }

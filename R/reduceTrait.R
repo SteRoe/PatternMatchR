@@ -8,17 +8,17 @@
 getTraitClusterMedoids <- function(clustResTraits, distMatTraits, numClusters) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start find cluster medoids."))
+      base::print(base::paste0(sysTimePID(), " start find cluster medoids."))
       if (is.valid(clustResTraits) && numClusters > 1) {
         i <- NULL
         numClusters <- numClusters
         ClustRes <- clustResTraits
-        base::print(base::paste0(Sys.time(), " cutting tree."))
+        base::print(base::paste0(sysTimePID(), " cutting tree."))
         Clusters <- cutree(ClustRes, k = numClusters)
         numClusters <- max(Clusters)
-        base::print(base::paste0(Sys.time(), " defined ", numClusters, " clusters."))
+        base::print(base::paste0(sysTimePID(), " defined ", numClusters, " clusters."))
         ClusterMedoids <- base::list()
-        base::print(base::paste0(Sys.time(), " calculating clusters."))
+        base::print(base::paste0(sysTimePID(), " calculating clusters."))
         #iterate over each cluster:
         foreach::foreach(i = 1:numClusters) %do% {
           #select traits in cluster from DistMat
@@ -50,7 +50,7 @@ getTraitClusterMedoids <- function(clustResTraits, distMatTraits, numClusters) {
     },
     finally = {
       return(ClusterMedoids)
-      base::print(base::paste0(Sys.time(), " end find cluster medoids."))
+      base::print(base::paste0(sysTimePID(), " end find cluster medoids."))
     }
   )
 }
@@ -106,7 +106,7 @@ getDendTraits <- function(clustResTraits, traitClusters) {
   base::tryCatch(
     {
       if (is.valid(clustResTraits) && traitClusters > 1) {
-        base::print(base::paste0(Sys.time(), " start getDendTraits()."))
+        base::print(base::paste0(sysTimePID(), " start getDendTraits()."))
         dendTraits <- stats::as.dendrogram(clustResTraits)
         dendTraits <- dendextend::color_branches(dendTraits, k = traitClusters)
         dendTraits <- dendextend::color_labels(dendTraits, k = traitClusters)
@@ -118,13 +118,15 @@ getDendTraits <- function(clustResTraits, traitClusters) {
     },
     error = function(e) {
       message("An error occurred in getDendTraits():\n", e)
+      browser()
     },
     warning = function(w) {
       message("A warning occurred in getDendTraits():\n", w)
+      browser()
     },
     finally = {
       return(dendTraits)
-      base::print(base::paste0(Sys.time(), " end getDendTraits()."))
+      base::print(base::paste0(sysTimePID(), " end getDendTraits()."))
     }
   )
 }
@@ -139,7 +141,7 @@ getDendTraits <- function(clustResTraits, traitClusters) {
 getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start gettraitReducedcombinedDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " start gettraitReducedcombinedDFP_Val_Labels()."))
       traits <- getTraitSubsetcombinedDFP_Val_Labels(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)  #select medoids from traits
     },
     error = function(e) {
@@ -150,7 +152,7 @@ getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels
     },
     finally = {
       return(traits)
-      base::print(base::paste0(Sys.time(), " end gettraitReducedcombinedDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " end gettraitReducedcombinedDFP_Val_Labels()."))
     }
   )
 }
@@ -165,7 +167,7 @@ getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels
 getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits, keys) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start getTraitSubsetcombinedDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " start getTraitSubsetcombinedDFP_Val_Labels()."))
       if (is.numeric(traits)) {
         traitNos <- traits
       }
@@ -248,8 +250,8 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       message("A warning occurred in getTraitSubsetcombinedDFP_Val_Labels():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " size of merged data.frame: ", dim(result$dfP_Val), " ."))
-      base::print(base::paste0(Sys.time(), " end getTraitSubsetcombinedDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " size of merged data.frame: ", dim(result$dfP_Val), " ."))
+      base::print(base::paste0(sysTimePID(), " end getTraitSubsetcombinedDFP_Val_Labels()."))
       return(result)
     }
   )
@@ -263,7 +265,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
 #' @return plot with clustergram
 #' examples getplotClustergramTraitsLong(matP_Val.t, clustResTraits, traitClusters)
 getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitClusters) {
-  base::print(base::paste0(Sys.time(), " start plotting clustergram."))
+  base::print(base::paste0(sysTimePID(), " start plotting clustergram."))
   base::tryCatch(
     {
       if (traitClusters > 1) {
@@ -287,7 +289,7 @@ getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitCluste
       message("A warning occurred in getplotClustergramTraitsLong():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end plotting clustergram."))
+      base::print(base::paste0(sysTimePID(), " end plotting clustergram."))
       return(p)
     }
   )

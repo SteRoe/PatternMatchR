@@ -15,7 +15,7 @@
 #' @return df with merged original data
 # examples getSelectedOriginalData(combinedDFP_Val_Labels, row_index, column_index)
 getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_index, session) {
-  base::print(base::paste0(Sys.time(), " start getSelectedOriginalData()"))
+  base::print(base::paste0(sysTimePID(), " start getSelectedOriginalData()"))
   base::tryCatch(
     {
       selectedColnames <- combinedDFP_Val_Labels$mergedColnames[column_index] # we here have the colnames of the selected traits
@@ -30,13 +30,13 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       selectedColnamesTrait2 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait2()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait2)
       selectedColnamesTrait3 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait3()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait3)
       if (!is.valid(selectedColnamesTrait1)) {
-        base::message(base::paste0(Sys.time(), " file names in trait 1 folder do not match colnames in pheno file! SPLOM will not work."))
+        base::message(base::paste0(sysTimePID(), " file names in trait 1 folder do not match colnames in pheno file! SPLOM will not work."))
       }
       if (!is.valid(selectedColnamesTrait2)) {
-        base::message(base::paste0(Sys.time(), " file names in trait 2 folder do not match colnames in pheno file! SPLOM will not work."))
+        base::message(base::paste0(sysTimePID(), " file names in trait 2 folder do not match colnames in pheno file! SPLOM will not work."))
       }
       if (!is.valid(selectedColnamesTrait3)) {
-        base::message(base::paste0(Sys.time(), " file names in trait 3 folder do not match colnames in pheno file! SPLOM will not work."))
+        base::message(base::paste0(sysTimePID(), " file names in trait 3 folder do not match colnames in pheno file! SPLOM will not work."))
       }
       # get selected original data from trait data
       selectedDFTrait1 <- session$userData$sessionVariables$resultDFListTrait1()$listPHENOdata[[1]]$PHENODF[selectedColnamesTrait1]
@@ -89,7 +89,7 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
                 Reason might be, that the beta data set was not loaded in full length (debugMode == TRUE?).\n")
       }
       if (nrow(selectedDF_Beta) > 256 || ncol(selectedDF_Beta) > 256) {
-        base::message(base::paste0(Sys.time(), "nrow(selectedDF) = ",
+        base::message(base::paste0(sysTimePID(), "nrow(selectedDF) = ",
                                    nrow(selectedDF_Beta),
                                    "&& ncol(selectedDF) = ",
                                    ncol(selectedDF_Beta),
@@ -114,7 +114,7 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       message("A warning occurred in getSelectedOriginalData():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getSelectedOriginalData()"))
+      base::print(base::paste0(sysTimePID(), " end getSelectedOriginalData()"))
       return(selectedDF_Beta)
     }
   )
@@ -155,7 +155,8 @@ combinedDFInteractiveHeatMapP_Val <-
     #function is not called twice (check caller function), if so, check here
     base::tryCatch(
       {
-        base::print(base::paste0(Sys.time(), " start making HM"))
+        startTime <- Sys.time()
+        base::print(base::paste0(sysTimePID(), " start preparing HM; combinedDFInteractiveHeatMapP_Val()"))
         mat <- base::as.matrix(combinedDF_Labels$dfP_Val)
         matDM <- base::as.matrix(combinedDF_Labels$dfDM)
         matN <- base::as.matrix(combinedDF_Labels$dfN)
@@ -165,7 +166,7 @@ combinedDFInteractiveHeatMapP_Val <-
         # ((((((((((((((((((((((((()))))))))))))))))))))))))
         # and use rasterization like described in
         # https://jokergoo.github.io/2020/06/30/rasterization-in-complexheatmap/
-        base::print(base::paste0(Sys.time(), " making labels"))
+        base::print(base::paste0(sysTimePID(), " making labels"))
         labelsDF1 <- combinedDF_Labels$labelsDF1
         labelsDF2 <- combinedDF_Labels$labelsDF2
         labelsDF3 <- combinedDF_Labels$labelsDF3
@@ -176,7 +177,7 @@ combinedDFInteractiveHeatMapP_Val <-
         while (!base::is.null(grDevices::dev.list())) {
           grDevices::dev.off()
         }
-        base::print(base::paste0(Sys.time(), " making annotations"))
+        base::print(base::paste0(sysTimePID(), " making annotations"))
         ha <- ComplexHeatmap::columnAnnotation(
           classes = labels,
           col = base::list(
@@ -188,7 +189,7 @@ combinedDFInteractiveHeatMapP_Val <-
           )
         )
 
-        base::print(base::paste0(Sys.time(), " making colors"))
+        base::print(base::paste0(sysTimePID(), " making colors"))
         max.Col1 <- 0.05
         min.Col1 <- base::min(mat, na.rm = TRUE)
         max.Col2 <- 0.05
@@ -210,10 +211,10 @@ combinedDFInteractiveHeatMapP_Val <-
             base::seq(max.Col3, min.Col3, length = 9),
             RColorBrewer::brewer.pal(9, "GnBu")
           )
-        base::print(base::paste0(Sys.time(), " making heatmap n(probes)=", base::dim(mat)[1], " x n(traits)=", base::dim(mat)[2]))
+        base::print(base::paste0(sysTimePID(), " preparing heatmap n(probes)=", base::dim(mat)[1], " x n(traits)=", base::dim(mat)[2]))
         if ("dendrogram" %in% class(dendProbes) && "dendrogram" %in% class(dendTraits)) {
-          base::print(base::paste0(Sys.time(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
-          base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+          base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+          base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
           length(unlist(dendTraits)) == base::dim(mat)[2]
           length(unlist(dendProbes)) == base::dim(mat)[1]
           ht <-
@@ -294,9 +295,9 @@ combinedDFInteractiveHeatMapP_Val <-
               raster_by_magick = TRUE
             )
         } else {
-          base::print(base::paste0(Sys.time(), " at least one distance matrix is not of class \"dendrogram\""))
+          base::print(base::paste0(sysTimePID(), " at least one distance matrix is not of class \"dendrogram\""))
         }
-        base::print(base::paste0(Sys.time(), " making legend"))
+        base::print(base::paste0(sysTimePID(), " making legend"))
         lgd <- list(
           ComplexHeatmap::Legend(
             title = "trait 1",
@@ -331,13 +332,15 @@ combinedDFInteractiveHeatMapP_Val <-
         message("A warning occurred in combinedDFInteractiveHeatMapP_Val():\n", w)
       },
       finally = {
-        base::print(base::paste0(Sys.time(), " end preparing heatmap."))
+        endTime <- Sys.time()
+        elapsedTime <- endTime - startTime
+        base::print(base::paste0(sysTimePID(), " end preparing heatmap. Elapsed time: ", elapsedTime, "."))
       }
     )
 
     base::tryCatch(
       {
-        base::print(base::paste0(Sys.time(), " clearing grDevices()"))
+        base::print(base::paste0(sysTimePID(), " clearing grDevices()"))
         if (grDevices::dev.cur() > 1) {
           grDevices::dev.off()
         }
@@ -350,33 +353,43 @@ combinedDFInteractiveHeatMapP_Val <-
         message("A warning occurred in clearing grDevices():\n", w)
       },
       finally = {
-        base::print(base::paste0(Sys.time(), " end clearing grDevices()."))
+        base::print(base::paste0(sysTimePID(), " end clearing grDevices()."))
       }
     )
 
     base::tryCatch(
       {
-        base::print(base::paste0(Sys.time(), " plotting heatmap (takes some time)"))
+        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw()"))
         # with huge heatmaps, the following error occurs:
         # Error in Cairo: Failed to create Cairo backend!
         ht <- ComplexHeatmap::draw(ht, annotation_legend_list = lgd)
       },
       error = function(err) {
-        base::print(base::paste0(Sys.time(), " Error: unable to plot HM. ", err$message))
+        base::print(base::paste0(sysTimePID(), " Error: unable to draw HM. ", err$message))
+      },
+      warning = function(w) {
+        base::print(base::paste0(sysTimePID(), " Error: unable to wraw HM. ", w$message))
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " grDevices::dev.off()"))
+        grDevices::dev.off()
+        base::print(base::paste0(sysTimePID(), " l <- base::list()"))
+        l <- base::list()
+        base::print(base::paste0(sysTimePID(), " l$combinedHMP_VAL <- ht"))
+        l$combinedHMP_VAL <- ht
+        endTime <- Sys.time()
+        elapsedTime <- endTime - startTime
+        base::print(base::paste0(sysTimePID(), " end combinedDFInteractiveHeatMapP_Val()"))
+        base::print(base::paste0(sysTimePID(), " finished drawing heatmap (takes some time). (step after ComplexHeatmap::draw(); Elapsed time: ", elapsedTime, "."))
+        base::return(l)
       }
     )
-
-    grDevices::dev.off()
-    l <- base::list()
-    l$combinedHMP_VAL <- ht
-    base::print(base::paste0(Sys.time(), " end plotting heatmap"))
-    base::return(l)
   }
 
 getSearchResultCpG <- function(txtSearchCpG, session) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " searching CpG"))
+      base::print(base::paste0(sysTimePID(), " searching CpG"))
       #look into clustResProbes and find position of CpG
       CpG <- session$userData$sessionVariables$clustResProbes()$labels[session$userData$sessionVariables$clustResProbes()$order]
       positions <- base::which(CpG %in% unlist(strsplit(txtSearchCpG, " ")))
@@ -388,7 +401,7 @@ getSearchResultCpG <- function(txtSearchCpG, session) {
       message("A warning occurred in getSearchResultCpG():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getSearchResultCpG()."))
+      base::print(base::paste0(sysTimePID(), " end getSearchResultCpG()."))
       base::return(positions)
     }
   )
@@ -397,7 +410,7 @@ getSearchResultCpG <- function(txtSearchCpG, session) {
 getSearchResultTrait <- function(txtSearchTrait, session) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " searching Trait"))
+      base::print(base::paste0(sysTimePID(), " searching Trait"))
       #look into clustResTraits and find position of Trait
       Trait <- session$userData$sessionVariables$clustResTraits()$labels[session$userData$sessionVariables$clustResTraits()$order]
       positions <- base::which(Trait %in% unlist(strsplit(txtSearchTrait, " ")))
@@ -409,20 +422,20 @@ getSearchResultTrait <- function(txtSearchTrait, session) {
       message("A warning occurred in getSearchResultTrait():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getSearchResultTrait()."))
+      base::print(base::paste0(sysTimePID(), " end getSearchResultTrait()."))
       base::return(positions)
     }
   )
 }
 
 plotCombinedHM <- function(input, output, session) {
-  base::print(base::paste0(Sys.time(), " start plotting heatmap."))
+  base::print(base::paste0(sysTimePID(), " start plotting heatmap."))
   output$txtHMDescription <-
     shiny::renderText(base::paste0("calculating heatmap..., current plot is not valid"))
   while (!is.null(grDevices::dev.list())) {
     grDevices::dev.off()
   }
-  base::print(base::paste0(Sys.time(), " creating empty heatmap."))
+  base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
   # combinedHMP_VAL <- emptyHM()
   # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input = input, output = output,
   #                                                          session = session, ht_list = combinedHMP_VAL,
@@ -435,7 +448,7 @@ plotCombinedHM <- function(input, output, session) {
   dfP_Val[dfP_Val > 0.05] <- NA # 1
   base::print(
     base::paste0(
-      Sys.time(),
+      sysTimePID(),
       " calculating combined heatmap with rows= ",
       nrow(dfP_Val),
       " cols= ",
@@ -447,7 +460,7 @@ plotCombinedHM <- function(input, output, session) {
     startTime <- Sys.time()
     output$txtResultingN <-
       shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
-    base::print(base::paste0(Sys.time(), " gc()"))
+    base::print(base::paste0(sysTimePID(), " gc()"))
     base::tryCatch({
       # check clustResProbes > 8
       base::length(session$userData$sessionVariables$clustResProbes())
@@ -457,26 +470,29 @@ plotCombinedHM <- function(input, output, session) {
         dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
       dendTraits <- session$userData$sessionVariables$traitReducedDendTraits()
 
-      base::print(base::paste0(Sys.time(), " before calculating heatmap"))
+      base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
 
-      base::print(base::paste0(Sys.time(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
-      base::print(base::paste0(Sys.time(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+      base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+      base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
       length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
       length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
       selectedRowIndices <- unlist(strsplit(input$txtSearchCpG, split = " "))
       selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
 #browser() #check, whether this is called twice
       l <-
         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)
+      base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
       combinedHMP_VAL <- l$combinedHMP_VAL
 
       endTime <- Sys.time()
       elapsedTime <- endTime - startTime
-      base::print(base::paste0(Sys.time(), " after calculating heatmap. Elapsed time: ", elapsedTime, "."))
-      base::print(base::paste0(Sys.time(), " before plotting heatmap."))
+      base::print(base::paste0(sysTimePID(), " after calculating heatmap. Elapsed time: ", elapsedTime, " sec."))
+      base::print(base::paste0(sysTimePID(), " before plotting heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
       while (!base::is.null(grDevices::dev.list())) {
         grDevices::dev.off()
       }
+      startTime <- Sys.time()
       InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
         input = input,
         output = output,
@@ -488,38 +504,32 @@ plotCombinedHM <- function(input, output, session) {
         brush_action = brush_action_HM,
         hover_action = hover_action_HM
       )
+      session$userData$sessionVariables$SPLOM <- FALSE
+    },
+    error = function(e) {
+      message("An error occurred in plotCombinedHM():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      message("A warning occurred in plotCombinedHM():\n", w)
+      browser()
+    },
+    finally = {
+      endTime <- Sys.time()
+      elapsedTime <- endTime - startTime
+      base::print(base::paste0(sysTimePID(), " after plotting heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
       output$txtHMDescription <-
         shiny::renderText(
           base::paste0(
-            Sys.time(),
-            " done calculating heatmap..., current plot is valid. n(probe) = ",
+            sysTimePID(),
+            " done plotting heatmap..., current plot is valid. n(probe) = ",
             base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
             "; n(trait) = ",
             base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
             "; elapsed time: ",
-            elapsedTime
+            elapsedTime, " sec."
           )
         )
-      session$userData$sessionVariables$SPLOM <- FALSE
-    },
-    error = function(e) {
-      message("An error occurred in brush_action_HM():\n", e)
-      browser()
-    },
-    warning = function(w) {
-      message("A warning occurred in brush_action_HM():\n", w)
-      browser()
-    },
-    finally = {
-      base::print(
-        base::paste0(
-          Sys.time(),
-          " finished plotting heatmap with n(probes)=",
-          base::nrow(dfP_Val),
-          " n(traits)=",
-          base::ncol(dfP_Val)
-        )
-      )
     })
   }
 }
@@ -532,17 +542,31 @@ plotCombinedHM <- function(input, output, session) {
 #' @return nothing; function info label for click action in HM
 # examples click_action_HM(df, input, output, session)
 click_action_HM <- function(df, input, output, session) {
-  output[["info1"]] <- shiny::renderUI({
-    if (!is.null(df)) {
-      htmltools::HTML(
-        GetoptLong::qq(
-          "<p style='background-color:#FF8080;color:white;padding:5px;'>
-          row_label: @{df$row_label}, col_label: @{df$column_label},
-          row: @{df$row_index}, column: @{df$column_index}</p>"
-        )
-      )
-    }
-  })
+  base::tryCatch(
+    {
+      base::print(base::paste0(sysTimePID(), " start click_action_HM()."))
+      output[["info1"]] <- shiny::renderUI({
+        if (!is.null(df)) {
+          htmltools::HTML(
+            GetoptLong::qq(
+              "<p style='background-color:#FF8080;color:white;padding:5px;'>
+              row_label: @{df$row_label}, col_label: @{df$column_label},
+              row: @{df$row_index}, column: @{df$column_index}</p>"
+            )
+          )
+        }
+      })
+    },
+  error = function(e) {
+    message("An error occurred in click_action_HM():\n", e)
+  },
+  warning = function(w) {
+    message("A warning occurred in click_action_HM():\n", w)
+  },
+  finally = {
+    base::print(base::paste0(sysTimePID(), " end click_action_HM()."))
+  }
+  )
 }
 
 #' brush_action_HM
@@ -576,7 +600,8 @@ brush_action_HM <- function(df, input, output, session) {
       selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
       selectedAnnotation$probeID <- NULL
       #create DT from selectedAnnotation
-      output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE)
+      #output$test <- DT::renderDataTable({DT::datatable(dat, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("copy", "csv")))}, server = FALSE)
+      output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"))) #output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE)
       session$userData$sessionVariables$selectedOriginalData <-
         getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session)
       if (!is.null(session$userData$sessionVariables$selectedOriginalData)) {
@@ -605,7 +630,6 @@ brush_action_HM <- function(df, input, output, session) {
         )
       }
       if (session$userData$sessionVariables$SPLOM == FALSE) { # SPLOM empty
-#browser()
         height <- input$numSPLOMVSize
         width <- input$numSPLOMHSize
         fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
@@ -632,5 +656,18 @@ brush_action_HM <- function(df, input, output, session) {
 #' @return nothing; function info label for click action in HM
 # examples click_action_HM(df, input, output, session)
 hover_action_HM <- function(df, input, output, session) {
-  base::print(base::paste0(Sys.time(), " hover_action_HM.", as.character(head(df))))
+  base::tryCatch(
+    {
+      base::print(base::paste0(sysTimePID(), " hover_action_HM.", as.character(head(df))))
+    },
+    error = function(e) {
+      message("An error occurred in hover_action_HM():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in hover_action_HM():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end hover_action_HM()."))
+    }
+  )
 }

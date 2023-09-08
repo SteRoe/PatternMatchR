@@ -24,17 +24,16 @@
 loadResultDF <- function(session, folder, loadRDS = FALSE) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " start loadResultDF() for ", folder))
       fileNameLPV <- "listResultP_Val_DeltaMeth_N.RDS"
       fileNameLPV <- base::paste0(folder, fileNameLPV)
       doLoadFolderDFList <- TRUE
       if (utils::file_test("-f", fileNameLPV) == TRUE && getYoungestFile(folder) == fileNameLPV) {
         if (loadRDS != FALSE) {
-          base::print(base::paste0(Sys.time(), " read loadResultDF() from ", fileNameLPV))
+          base::print(base::paste0(sysTimePID(), " read loadResultDF() from ", fileNameLPV))
           listResultP_Val_DeltaMeth_N <- base::readRDS(file = fileNameLPV)
           doLoadFolderDFList <- FALSE
         } else {
-          base::print(base::paste0(Sys.time(), " can't read RDS in loadResultDF() from ", fileNameLPV))
+          base::print(base::paste0(sysTimePID(), " can't read RDS in loadResultDF() from ", fileNameLPV))
         }
       }
       else {
@@ -49,7 +48,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
 #      else {
       if (doLoadFolderDFList == TRUE) {
         # load or generate list of DFs with results
-        base::print(base::paste0(Sys.time(), " read from loadFolderDFList()."))
+        base::print(base::paste0(sysTimePID(), " read from loadFolderDFList()."))
         listOfResultDF <- loadFolderDFList(session = session, folder = folder) #listOfResultDF <- loadFolderDFList(folder, globalVariables)
         if (base::length(listOfResultDF) != 0) {
           # read original data for each member of listofResultDF
@@ -71,7 +70,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             ) #look one folder above
           }
           if (base::length(PHENOFileNameLine) == 0 || PHENOFileNameLine == FALSE) {
-            base::message(base::paste0(Sys.time(), " config.yml in data folder or
+            base::message(base::paste0(sysTimePID(), " config.yml in data folder or
                                        PHENOFileNameLine not found. Consider placing
                                        a config.yml file with PHENOFileName:
                                        <location of PHENO file> in each data folder."))
@@ -80,7 +79,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             PHENOFileName <-
               stringr::str_match(PHENOFileNameLine, "\"(.*?)\"")[2]
             if (base::length(PHENOFileName) == 0) {
-              base::message(base::paste0(Sys.time(), " PHENOFileName in PHENOFileNameLine not found."))
+              base::message(base::paste0(sysTimePID(), " PHENOFileName in PHENOFileNameLine not found."))
             }
             else {
               if (!file.exists(PHENOFileName)) {
@@ -127,10 +126,10 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
             rownames(listResultP_Val_DeltaMeth_N$N) <- rn
           }
-          base::print(base::paste0(Sys.time(), " saveRDS loadFolderDFList()")) # , fileNameLPV, "."))
+          base::print(base::paste0(sysTimePID(), " saveRDS loadFolderDFList()")) # , fileNameLPV, "."))
           base::saveRDS(listResultP_Val_DeltaMeth_N, file = fileNameLPV)
         } else {
-          base::message(base::paste0(Sys.time(), " length(listOfResultDF) == 0."))
+          base::message(base::paste0(sysTimePID(), " length(listOfResultDF) == 0."))
         }
       }
       if (loadRDS != FALSE) {
@@ -153,7 +152,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
           colnames(listResultP_Val_DeltaMeth_N$N) <- cn
         }
         result <- listResultP_Val_DeltaMeth_N
-        base::print(base::paste0(Sys.time(), " finished read from loadFolderDFList()", "."))
+        base::print(base::paste0(sysTimePID(), " finished read from loadFolderDFList()", "."))
       } else {
         result <- FALSE
       }
@@ -165,7 +164,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
       message("A warning occurred in loadResultDF():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end loadResultDF()."))
+      base::print(base::paste0(sysTimePID(), " end loadResultDF()."))
       return(result)
     }
   )
@@ -204,7 +203,7 @@ loadtraitDFs <- function(traitDFs) {
           resultDFDM$Row.names <- rownames(traitDFs[[i]]$DM)
           resultDFN$Row.names <- rownames(traitDFs[[i]]$N)
         } else {
-          base::print(base::paste0(Sys.time(), " merge trait ", i, "."))
+          base::print(base::paste0(sysTimePID(), " merge trait ", i, "."))
           OriginColnames <- base::colnames(traitDFs[[i]]$P_Val)
           OriginDF <- base::rep(i, length(OriginColnames))
           traitDFs[[i]]$P_Val$Row.names <-
@@ -277,7 +276,7 @@ loadtraitDFs <- function(traitDFs) {
       message("A warning occurred in loadtraitDFs():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end loadtraitDFs()."))
+      base::print(base::paste0(sysTimePID(), " end loadtraitDFs()."))
       return(result)
     }
   )
@@ -293,7 +292,7 @@ loadtraitDFs <- function(traitDFs) {
 getlistOfResultsDF <- function(session, folder) {
   base::tryCatch(
     {
-      base::print(base::paste0(Sys.time(), " before list.files()"))
+      base::print(base::paste0(sysTimePID(), " before list.files()"))
       if (base::dir.exists(folder)) {
         temp <- base::list.files(path = folder, pattern = "*.csv")
         result <- list()
@@ -315,8 +314,8 @@ getlistOfResultsDF <- function(session, folder) {
             if (colnames(firstlines)[1] == "probeID") {
               if (nrow(firstlines) >= 5) {
                 #          if (grepl("adj", temp[i], fixed = TRUE) == TRUE) {
-                base::print(base::paste0(Sys.time(), " file ", i, " of ", base::length(temp)))
-                base::print(base::paste0(Sys.time(), " load result file ", folder, trait))
+                base::print(base::paste0(sysTimePID(), " file ", i, " of ", base::length(temp)))
+                base::print(base::paste0(sysTimePID(), " load result file ", folder, trait))
                 # read results into DF
                 resultDF <-
                   loadResultFile(session = session, folder = folder, fileName = trait) #loadResultFile(folder, trait, globalVariables)
@@ -328,7 +327,7 @@ getlistOfResultsDF <- function(session, folder) {
                       base::as.numeric(session$userData$config$P_VALWarningThreshold)) {
                     base::message(
                       base::paste0(
-                        Sys.time(),
+                        sysTimePID(),
                         " p-value below warning threshold found in ",
                         folder
                       )
@@ -348,7 +347,7 @@ getlistOfResultsDF <- function(session, folder) {
                 warning = function(w) {
                   base::message(
                     base::paste0(
-                      Sys.time(),
+                      sysTimePID(),
                       " no other p-values than NA found in ",
                       trait
                     )
@@ -364,7 +363,7 @@ getlistOfResultsDF <- function(session, folder) {
               #result <- FALSE
               base::message(
                 base::paste0(
-                  Sys.time(),
+                  sysTimePID(),
                   " only 1 column found in file ", fileName, ". Are you using \t as column separator?"
                 )
               )
@@ -383,7 +382,7 @@ getlistOfResultsDF <- function(session, folder) {
       message("A warning occurred in getlistOfResultsDF():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getlistOfResultsDF()."))
+      base::print(base::paste0(sysTimePID(), " end getlistOfResultsDF()."))
       return(result)
     }
   )
@@ -414,10 +413,10 @@ loadFolderDFList <- function(session, folder) {
       #check for original data in RDS
       if (getList == TRUE) {
         #        listOfResultDF = getlistOfResultsDF(dataDir())
-        base::print(base::paste0(Sys.time(), " before getlistOfResultsDF()"))
+        base::print(base::paste0(sysTimePID(), " before getlistOfResultsDF()"))
         listOfResultDF <- getlistOfResultsDF(session = session, folder = folder) #listOfResultDF <- getlistOfResultsDF(folder, globalVariables)
         if (is.list(listOfResultDF)) { #if (listOfResultDF != FALSE) {
-          base::print(base::paste0(Sys.time(), " saveRDS getlistOfResultsDF()", fileNameLR))
+          base::print(base::paste0(sysTimePID(), " saveRDS getlistOfResultsDF()", fileNameLR))
           base::saveRDS(listOfResultDF, file = fileNameLR)
         }
       }
@@ -429,7 +428,7 @@ loadFolderDFList <- function(session, folder) {
       message("A warning occurred in loadFolderDFList():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end loadFolderDFList()."))
+      base::print(base::paste0(sysTimePID(), " end loadFolderDFList()."))
       return(listOfResultDF)
     }
   )
@@ -471,12 +470,12 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
             data.frame(tibble::column_to_rownames(PHENO, var = keyvar))
         }
         else {
-          base::message(base::paste0(Sys.time(), " no key found in data. (from list:", as.character(listPrimaryKeys), "."))
+          base::message(base::paste0(sysTimePID(), " no key found in data. (from list:", as.character(listPrimaryKeys), "."))
         }
         PHENO <- as.data.frame(PHENO)
         result <- PHENO
       } else {
-        base::message(base::paste0(Sys.time(), " file not found: ", PHENOFileName))
+        base::message(base::paste0(sysTimePID(), " file not found: ", PHENOFileName))
         result <- FALSE
       }
     },
@@ -487,7 +486,7 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
       message("A warning occurred in getPHENODF():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getPHENODF()."))
+      base::print(base::paste0(sysTimePID(), " end getPHENODF()."))
       return(result)
     }
   )
@@ -518,7 +517,7 @@ getAvailNForP_VALBorder <- function(DF) {
         }
         base::print(
           base::paste0(
-            Sys.time(),
+            sysTimePID(),
             " counting remaining probes at p = ",
             P_VAL_BORDER,
             " remaining n = ",
@@ -540,7 +539,7 @@ getAvailNForP_VALBorder <- function(DF) {
       message("A warning occurred in getAvailNForP_VALBorder():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getAvailNForP_VALBorder()."))
+      base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorder()."))
       return(result)
     }
   )
@@ -588,7 +587,7 @@ getNForP_ValBorder <- function(mat, n) {
     message("A warning occurred in getNForP_ValBorder():\n", w)
   },
   finally = {
-    base::print(base::paste0(Sys.time(), " end getNForP_ValBorder()."))
+    base::print(base::paste0(sysTimePID(), " end getNForP_ValBorder()."))
     return(result)
   }
   )
@@ -628,7 +627,7 @@ getNForDMBorder <- function(mat, DMBorder) {
     message("A warning occurred in getNForDMBorder():\n", w)
   },
   finally = {
-    base::print(base::paste0(Sys.time(), " end getNForDMBorder()."))
+    base::print(base::paste0(sysTimePID(), " end getNForDMBorder()."))
     return(result)
   }
   )
@@ -662,7 +661,7 @@ getNForNBorder <- function(mat, NBorder) {
     message("A warning occurred in getNForNBorder():\n", w)
   },
   finally = {
-    base::print(base::paste0(Sys.time(), " end getNForNBorder()."))
+    base::print(base::paste0(sysTimePID(), " end getNForNBorder()."))
     return(result)
   }
   )
@@ -676,7 +675,7 @@ getNForNBorder <- function(mat, NBorder) {
 # examples getAvailNForP_VALBorderParallel(numCores, DF)
 getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
   base::tryCatch({
-    base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+    base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     i <- NULL
     DF <- as.matrix(DF)
     #minP <- base::min(DF, na.rm = TRUE)
@@ -684,14 +683,14 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     minP <- base::min(minP)
     minP <- extractMantissaExponent(minP)$exponent
     if (minP > -1) {
-      base::print(base::paste0(Sys.time(), "Warning: minP > -1. Please check your data.")) #that should not be the case, please check data!
+      base::print(base::paste0(sysTimePID(), "Warning: minP > -1. Please check your data.")) #that should not be the case, please check data!
       browser()
     }
     maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
     maxP <- base::max(maxP)
     maxP <- extractMantissaExponent(maxP)$exponent
     # if (maxP < 1) {
-    #   base::print(base::paste0(Sys.time(), "Warning: maxP < 1. Please check your data.")) #that should not be the case, please check data!
+    #   base::print(base::paste0(sysTimePID(), "Warning: maxP < 1. Please check your data.")) #that should not be the case, please check data!
     #   browser()
     # }
     numRows <- maxP - minP
@@ -713,7 +712,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
       numCoresMemSize <- multiple
     }
     else {
-      base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      base::print(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
@@ -742,7 +741,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
         message("A warning occurred future::plan():\n", w)
       },
       finally = {
-        base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
+        base::print(base::paste0(sysTimePID(), " end error handler future::plan()."))
       }
     )
     library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
@@ -766,7 +765,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
       message("A warning occurred in getAvailNForP_VALBorderParallel():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end getAvailNForP_VALBorderParallel()."))
+      base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorderParallel()."))
       return(result)
     }
   )
@@ -774,7 +773,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
 
 getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
   base::tryCatch({
-    base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+    base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     result <- NULL
     i <- NULL
     #check min DM and max DM
@@ -783,14 +782,14 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
     minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
     minDM <- base::min(minDM)
     if (minDM < 0) {
-      base::print(base::paste0(Sys.time(), "Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
+      base::print(base::paste0(sysTimePID(), "Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
       browser() #that should not be the case, please check data!
     }
     #maxDM <- base::round(base::max(DF, na.rm = TRUE), 5)
     maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
     maxDM <- base::max(maxDM)
     if (maxDM > 1) {
-      base::print(base::paste0(Sys.time(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
+      base::print(base::paste0(sysTimePID(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
       browser() #that should not be the case, please check data!
     }
     shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
@@ -814,7 +813,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
       numCoresMemSize <- multiple
     }
     else {
-      base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      base::print(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
@@ -844,7 +843,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
         message("A warning occurred future::plan():\n", w)
       },
       finally = {
-        base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
+        base::print(base::paste0(sysTimePID(), " end error handler future::plan()."))
       }
     )
     library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
@@ -867,14 +866,14 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
     message("A warning occurred in getAvailNForDMBorderParallel():\n", w)
   },
   finally = {
-    base::print(base::paste0(Sys.time(), " end getAvailNForDMBorderParallel()."))
+    base::print(base::paste0(sysTimePID(), " end getAvailNForDMBorderParallel()."))
     return(result)
   })
 }
 
 getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
   base::tryCatch({
-    base::print(base::paste0(Sys.time(), " start getAvailNForP_VALBorderParallel()."))
+    base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     result <- NULL
     i <- NULL
     DF <- as.matrix(DF)
@@ -882,18 +881,18 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
     minN <- base::min(minN)
     if (minN < 1) {minN <- 1}
     if (minN != as.integer(minN)) {
-      base::print(base::paste0(Sys.time(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
+      base::print(base::paste0(sysTimePID(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
       browser()
     }
     maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
     maxN <- base::max(maxN)
     numRows <- maxN - minN
     if (maxN != as.integer(maxN)) {
-      base::print(base::paste0(Sys.time(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
+      base::print(base::paste0(sysTimePID(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
       browser()
     }
     if (maxN < 1) {
-      base::print(base::paste0(Sys.time(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+      base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
       browser()
     }
     shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))
@@ -914,7 +913,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
       numCoresMemSize <- multiple
     }
     else {
-      base::print(base::paste0(Sys.time(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      base::print(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
@@ -944,7 +943,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
         message("A warning occurred future::plan():\n", w)
       },
       finally = {
-        base::print(base::paste0(Sys.time(), " end error handler future::plan()."))
+        base::print(base::paste0(sysTimePID(), " end error handler future::plan()."))
       }
     )
     library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
@@ -968,7 +967,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
     message("A warning occurred in getAvailNForNBorderParallel():\n", w)
   },
   finally = {
-    base::print(base::paste0(Sys.time(), " end getAvailNForNBorderParallel()."))
+    base::print(base::paste0(sysTimePID(), " end getAvailNForNBorderParallel()."))
     return(result)
   })
 }
@@ -1027,7 +1026,7 @@ getReducedP_Valdf <-
         message("A warning occurred in getReducedP_Valdf():\n", w)
       },
       finally = {
-        base::print(base::paste0(Sys.time(), " end getReducedP_Valdf()."))
+        base::print(base::paste0(sysTimePID(), " end getReducedP_Valdf()."))
         return(result_df)
       }
     )
@@ -1096,7 +1095,7 @@ removeTraitsMinN <- function(dfList, minN) {
         dfList$listPHENOdata <- listPHENOdata
       }
       else {
-        base::print(base::paste0(Sys.time(), " minN does not exist."))
+        base::print(base::paste0(sysTimePID(), " minN does not exist."))
       }
     },
     error = function(e) {
@@ -1106,7 +1105,7 @@ removeTraitsMinN <- function(dfList, minN) {
       message("A warning occurred in removeTraitsMinN():\n", w)
     },
     finally = {
-      base::print(base::paste0(Sys.time(), " end removeTraitsMinN()."))
+      base::print(base::paste0(sysTimePID(), " end removeTraitsMinN()."))
       return(dfList)
     }
   )
@@ -1160,7 +1159,7 @@ checkResultP_Val_cg <- function(listResultP_Val) {
       ) != TRUE) {
         base::message(
           base::paste0(
-            Sys.time(),
+            sysTimePID(),
             "warning: rownames(listResultP_Val)[1] does not start with 'cg'"
           )
         )
@@ -1173,7 +1172,7 @@ checkResultP_Val_cg <- function(listResultP_Val) {
     else {
       base::message(
         base::paste0(
-          Sys.time(),
+          sysTimePID(),
           "warning: length(listResultP_Val)[1] == 0"
         )
       )
