@@ -256,11 +256,29 @@ generate_ui <- function() {
                           width = 6,
                           shiny::numericInput(inputId = "numSPLOMVSize", label = "Height", value = 1500, min = 1000, max = 10000),
                         ),
-                        "SPLOM from selected area in heatmap",
-                        plotly::plotlyOutput("SPLOM",
+                        shiny::tabsetPanel(
+                          shiny::tabPanel(
+                            "SPLOM from selected area in heatmap",
+                            plotly::plotlyOutput("SPLOM",
                                              height = 2000, #height = "100%",
                                              width = 1500, #width = "100%",
                                              inline = TRUE)
+                          ),
+                          shiny::tabPanel(
+                            "SPLOM trait/trait",
+                            plotly::plotlyOutput("SPLOMTrait",
+                                                 height = 2000, #height = "100%",
+                                                 width = 1500, #width = "100%",
+                                                 inline = TRUE)
+                          ),
+                          shiny::tabPanel(
+                            "SPLOM probe/probe",
+                            plotly::plotlyOutput("SPLOMProbe",
+                                                 height = 2000, #height = "100%",
+                                                 width = 1500, #width = "100%",
+                                                 inline = TRUE)
+                          )
+                        ),
                       ),
                       shiny::tabPanel(
                         "Selected CpG",

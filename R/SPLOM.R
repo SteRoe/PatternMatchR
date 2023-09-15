@@ -11,16 +11,15 @@
 # examples getDimensionsForPlotlySPLOM(df, omitVar)
 getDimensionsForPlotlySPLOM <- function(df, omitVar) {
   dimensionList <- list()
-  #for (i in 1:ncol(df)) {
   for (i in seq_along(df)) {
-    if (is.null(omitVar)) {
-      l <- list(label = colnames(df[i]), values = as.formula(paste("~", colnames(df)[i]))) # ~ as formula operator for plotly
-      dimensionList[[i]] <- l
-    } else {
+    if (is.valid(omitVar)) {
       if (colnames(df[i]) != omitVar) { # omit grouping variabe for plotly
         l <- list(label = colnames(df[i]), values = as.formula(paste("~", colnames(df)[i]))) # ~ as formula operator for plotly
         dimensionList[[i]] <- l
       }
+    } else {
+      l <- list(label = colnames(df[i]), values = as.formula(paste("~", colnames(df)[i]))) # ~ as formula operator for plotly
+      dimensionList[[i]] <- l
     }
   }
   return(dimensionList)
@@ -41,7 +40,7 @@ getBinaryFactorialVars <- function(df) {
     }
   }
   if (length(result) == 0) result <- NULL
-  base::print(base::paste0(sysTimePID(), " found", length(result), " binary factorial vars."))
+  base::print(base::paste0(sysTimePID(), " found ", length(result), " binary factorial vars."))
   base::print(base::paste0(sysTimePID(), " end getBinaryFactorialVars()."))
   return(result)
 }
@@ -51,9 +50,10 @@ getBinaryFactorialVars <- function(df) {
 #' @param markingVar variable inside the data frame, which will be not drawn in SPLOM, instead it will be used for visual stratification
 #' @return a plotly figure, which can be drawn using renderPlotly
 # examples getSPLOM(df, markingVar)
-getSPLOM <- function(df, markingVar, height, width) {
+getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
   if (!is.null(df)) {
     dimensions <- getDimensionsForPlotlySPLOM(df, markingVar)
+#    dimensions <- getDimensionsForPlotlySPLOM(df)
     pl_colorscale <- list(
       c(0.0, "#119dff"),
       c(0.5, "#119dff"),
@@ -74,41 +74,69 @@ getSPLOM <- function(df, markingVar, height, width) {
     if (is.numeric(width)) {
       w <- base::paste0(width, "px")
     }
+    if ("markingVar" %in% colnames(df)) {
+      df[,"markingVar"]<-as.factor(df[,"markingVar"])
+    }
     fig <- df %>%
       plotly::plot_ly(height = height, width = width) # plotly::plot_ly()
-    if (!any(nzchar(markingVar))) {
-      #    if (is.null(markingVar)) {
+    if ("markingVar" %in% colnames(df)) {
       fig <- fig %>%
         plotly::add_trace(
           type = "splom",
           dimensions = dimensions,
+          text = as.formula("~factor(markingVar, labels=c(\"control\",\"case\"))"),
           diagonal = list(visible = FALSE),
           marker = list(
+            color = as.formula(paste0("~markingVar")),
             colorscale = pl_colorscale,
             size = 5,
             line = list(
               width = 1,
               color = "rgb(230,230,230)"
             )
-          )
+          ),
+          xaxes = XVars #tbc()
+          #yaxes = YVars
         )
-    } else {
+    }
+    else if (is.valid(markingVar) && any(markingVar %in% colnames(df))) {
+#    if (!is.null(markingVar) && any(markingVar %in% colnames(df))) {
       fig <- fig %>%
-        plotly::add_trace(
-          type = "splom",
-          dimensions = dimensions,
-          text = as.formula(paste0("~factor(", markingVar, ", labels=c(\"control\",\"case\"))")),
-          diagonal = list(visible = FALSE),
-          marker = list(
-            color = as.formula(paste0("~", markingVar)),
-            colorscale = pl_colorscale,
-            size = 5,
-            line = list(
-              width = 1,
-              color = "rgb(230,230,230)"
-            )
+      plotly::add_trace(
+        type = "splom",
+        dimensions = dimensions,
+        text = as.formula(paste0("~factor(", markingVar, ", labels=c(\"control\",\"case\"))")),
+        diagonal = list(visible = FALSE),
+        marker = list(
+          color = as.formula(paste0("~", markingVar)),
+          colorscale = pl_colorscale,
+          size = 5,
+          line = list(
+            width = 1,
+            color = "rgb(230,230,230)"
           )
-        )
+        ),
+        xaxes = XVars #tbc()
+        #yaxes = YVars
+      )
+    }
+    else {
+      fig <- fig %>%
+      plotly::add_trace(
+        type = "splom",
+        dimensions = dimensions,
+        diagonal = list(visible = FALSE),
+        marker = list(
+          colorscale = pl_colorscale,
+          size = 5,
+          line = list(
+            width = 1,
+            color = "rgb(230,230,230)"
+          )
+        ),
+        xaxes = XVars #tbc()
+        #yaxes = YVars
+      )
     }
   } else {
     fig <- NULL

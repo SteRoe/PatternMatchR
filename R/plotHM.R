@@ -18,10 +18,10 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
   base::print(base::paste0(sysTimePID(), " start getSelectedOriginalData()"))
   base::tryCatch(
     {
-      selectedColnames <- combinedDFP_Val_Labels$mergedColnames[column_index] # we here have the colnames of the selected traits
+      colInd <- which(combinedDFP_Val_Labels$mergedColnames %in% column_index)
+      selectedColnames <- combinedDFP_Val_Labels$mergedColnames[colInd] # we here have the colnames of the selected traits
       selectedColnames <- removeAdjFromColname(selectedColnames)
-      selectedTraitSources <- combinedDFP_Val_Labels$mergedOriginTrait[column_index] # we here have the trait indicies of the selected traits
-      # selectedTraitOriginDF <- combinedDFP_Val_Labels$mergedOriginDF[column_index] #we here have the DF indicies of the selected traits
+      selectedTraitSources <- combinedDFP_Val_Labels$mergedOriginTrait[colInd] # we here have the trait indicies of the selected traits
       selectedColnamesTrait1 <- selectedColnames[selectedTraitSources == 1]
       selectedColnamesTrait2 <- selectedColnames[selectedTraitSources == 2]
       selectedColnamesTrait3 <- selectedColnames[selectedTraitSources == 3]
@@ -69,7 +69,8 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       rownames(selectedDF) <- selectedDF$Row.names
 
       # get selected methylation data...
-      selectedRownames <- rownames(combinedDFP_Val_Labels$dfP_Val)[row_index]
+      rowInd <- which(rownames(combinedDFP_Val_Labels$dfP_Val) %in% row_index)
+      selectedRownames <- rownames(combinedDFP_Val_Labels$dfP_Val)[rowInd]
       #subset selectedRownames to only keep those, that are loaded in $Beta_tDF
       selectedRownames <- intersect(colnames(session$userData$Beta_tDF), selectedRownames)
       selectedBeta <- session$userData$Beta_tDF[, selectedRownames] #if error
@@ -79,8 +80,8 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       rn <- rownames(selectedBeta)
       if (is.valid(rn)) {
         selectedBeta$Row.names <- rn
-        #selectedDF$Row.names <- rownames(selectedDF)
         selectedDF_Beta <- merge(selectedDF, selectedBeta, by = "Row.names", all.x = FALSE, all.y = FALSE)
+        #selectedDF_Beta <- merge(selectedBeta, selectedDF, by = "Row.names", all.x = FALSE, all.y = FALSE) #beta first, then traits
         rownames(selectedDF_Beta) <- selectedDF_Beta$Row.names
         selectedDF_Beta$Row.names <- NULL
       }
@@ -91,7 +92,7 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       if (nrow(selectedDF_Beta) > 256 || ncol(selectedDF_Beta) > 256) {
         base::message(base::paste0(sysTimePID(), "nrow(selectedDF) = ",
                                    nrow(selectedDF_Beta),
-                                   "&& ncol(selectedDF) = ",
+                                   " || ncol(selectedDF) = ",
                                    ncol(selectedDF_Beta),
                                    " that might be too much for fast processing!"))
       }
@@ -119,6 +120,143 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
     }
   )
 }
+
+getSelectedOriginalDataTraits <- function(combinedDFP_Val_Labels, row_index, column_index, session) {
+  base::print(base::paste0(sysTimePID(), " start getSelectedOriginalDataTraits()"))
+  base::tryCatch(
+    {
+      colInd <- which(combinedDFP_Val_Labels$mergedColnames %in% column_index)
+      selectedColnames <- combinedDFP_Val_Labels$mergedColnames[colInd] # we here have the colnames of the selected traits
+      selectedColnames <- removeAdjFromColname(selectedColnames)
+      selectedTraitSources <- combinedDFP_Val_Labels$mergedOriginTrait[colInd] # we here have the trait indicies of the selected traits
+      selectedColnamesTrait1 <- selectedColnames[selectedTraitSources == 1]
+      selectedColnamesTrait2 <- selectedColnames[selectedTraitSources == 2]
+      selectedColnamesTrait3 <- selectedColnames[selectedTraitSources == 3]
+      #to be sure we select only colnames, which are within PHENODF:
+      selectedColnamesTrait1 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait1()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait1)
+      selectedColnamesTrait2 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait2()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait2)
+      selectedColnamesTrait3 <- intersect(colnames(session$userData$sessionVariables$resultDFListTrait3()$listPHENOdata[[1]]$PHENODF), selectedColnamesTrait3)
+      if (!is.valid(selectedColnamesTrait1)) {
+        base::message(base::paste0(sysTimePID(), " file names in trait 1 folder do not match colnames in pheno file! SPLOM will not work."))
+      }
+      if (!is.valid(selectedColnamesTrait2)) {
+        base::message(base::paste0(sysTimePID(), " file names in trait 2 folder do not match colnames in pheno file! SPLOM will not work."))
+      }
+      if (!is.valid(selectedColnamesTrait3)) {
+        base::message(base::paste0(sysTimePID(), " file names in trait 3 folder do not match colnames in pheno file! SPLOM will not work."))
+      }
+      # get selected original data from trait data
+      selectedDFTrait1 <- session$userData$sessionVariables$resultDFListTrait1()$listPHENOdata[[1]]$PHENODF[selectedColnamesTrait1]
+      selectedDFTrait2 <- session$userData$sessionVariables$resultDFListTrait2()$listPHENOdata[[1]]$PHENODF[selectedColnamesTrait2]
+      selectedDFTrait3 <- session$userData$sessionVariables$resultDFListTrait3()$listPHENOdata[[1]]$PHENODF[selectedColnamesTrait3]
+      # merge all trait data together by Kind_ID or rowname (better)
+      rn <- rownames(selectedDFTrait1)
+      selectedDFTrait1$Row.names <- rn
+      rn <- rownames(selectedDFTrait2)
+      selectedDFTrait2$Row.names <- rn
+      rn <- rownames(selectedDFTrait3)
+      selectedDFTrait3$Row.names <- rn
+      selectedDF <- NULL
+      if (!base::is.null(selectedDFTrait1) && !base::is.null(selectedDFTrait2)) {
+        selectedDF <- merge(selectedDFTrait1, selectedDFTrait2, by = "Row.names", all.x = FALSE, all.y = FALSE)
+      }
+      else {
+        if (!base::is.null(selectedDFTrait2)) {
+          selectedDF <- selectedDFTrait2
+        }
+      }
+      if (!base::is.null(selectedDF) && !base::is.null(selectedDFTrait3)) {
+        selectedDF <- merge(selectedDF, selectedDFTrait3, by = "Row.names", all.x = FALSE, all.y = FALSE)
+      }
+      else {
+        if (!base::is.null(selectedDFTrait3)) {
+          selectedDF <- selectedDFTrait3
+        }
+      }
+      rownames(selectedDF) <- selectedDF$Row.names
+
+      if (length(selectedColnames) > 256) {
+        base::message(base::paste0(sysTimePID(), "length(selectedColnames) = ",
+                                   length(selectedColnames),
+                                   " that might be too much for fast processing!"))
+      }
+      #remove row.names from selectedDF
+      if("Row.names" %in% colnames(selectedDF)) {
+        selectedDF$Row.names <- NULL
+      }
+    },
+    error = function(e) {
+      message("An error occurred in getSelectedOriginalDataTraits():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getSelectedOriginalDataTraits():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end getSelectedOriginalDataTraits()"))
+      return(selectedDF)
+    }
+  )
+}
+
+getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, row_index, column_index, session) {
+  base::print(base::paste0(sysTimePID(), " start getSelectedOriginalDataProbes()"))
+  base::tryCatch(
+    {
+      # get selected methylation data...
+      rowInd <- which(rownames(combinedDFP_Val_Labels$dfP_Val) %in% row_index)
+      selectedRownames <- rownames(combinedDFP_Val_Labels$dfP_Val)[rowInd]
+#      selectedRownames <- rownames(combinedDFP_Val_Labels$dfP_Val)[row_index] #which(column_index %in% combinedDFP_Val_Labels$mergedColnames)
+      #subset selectedRownames to only keep those, that are loaded in $Beta_tDF
+      selectedRownames <- intersect(colnames(session$userData$Beta_tDF), selectedRownames)
+      selectedBeta <- session$userData$Beta_tDF[, selectedRownames] #if error
+      #"nicht definierte Spalten gewählt" occurs, this is due to debug mode,
+      #where most columns in Beta_tDF are not loaded.
+      #... and merge with trait data from markingVar
+      #get Values of markingVar from traits table associated with ID#
+#browser()
+      markingVar <- session$userData$sessionVariables$markingVar()
+      traits <- session$userData$sessionVariables$selectedOriginalDataTraits()
+      #select only ID# and markingVar
+      traits$id <- rownames(traits)
+      Vars <- c("id", markingVar)
+      if (all(Vars %in% colnames(traits))) {
+        traits <- traits[,Vars]
+        traits$markingVar <- traits[,markingVar]
+        traits[,markingVar] <- NULL
+        #merge
+        selectedBeta$id <- rownames(selectedBeta)
+        selectedBeta <- merge(selectedBeta, traits, by.x = "id", by.y = "id")
+        rownames(selectedBeta) <- selectedBeta$id
+        selectedBeta$id <- NULL
+      }
+      rn <- rownames(selectedBeta)
+      if (!is.valid(rn)) {
+        message("We miss rownames in selectedDF_Beta here... (in getSelectedOriginalData()).\n
+                Reason might be, that the beta data set was not loaded in full length (debugMode == TRUE?).\n")
+      }
+      if (length(selectedRownames) > 256) {
+        base::message(base::paste0(sysTimePID(), "length(selectedRownames) = ",
+                                   length(selectedRownames),
+                                   " that might be too much for fast processing!"))
+      }
+      #remove row.names from selectedDF
+      if("Row.names" %in% colnames(selectedBeta)) {
+        selectedBeta$Row.names <- NULL
+      }
+    },
+    error = function(e) {
+      message("An error occurred in getSelectedOriginalDataProbes():\n", e)
+    },
+    warning = function(w) {
+      message("A warning occurred in getSelectedOriginalDataProbes():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end getSelectedOriginalDataProbes()"))
+      return(selectedBeta)
+    }
+  )
+}
+
 
 #' emptyHM
 #' creates an empty heatmap
@@ -504,7 +642,7 @@ plotCombinedHM <- function(input, output, session) {
         brush_action = brush_action_HM,
         hover_action = hover_action_HM
       )
-      session$userData$sessionVariables$SPLOM <- FALSE
+#      session$userData$sessionVariables$SPLOM <- FALSE
     },
     error = function(e) {
       message("An error occurred in plotCombinedHM():\n", e)
@@ -579,14 +717,13 @@ click_action_HM <- function(df, input, output, session) {
 brush_action_HM <- function(df, input, output, session) {
   base::tryCatch(
     if (!is.null(df)) {
-      session$userData$sessionVariables$SPLOM <- FALSE
       row_index <- collapse::funique(unlist(df$row_index)) #row_index <- unique(unlist(df$row_index))
       column_index <- collapse::funique(unlist(df$column_index))
       #feed in selected CpG here
-      selectedCpG <- rownames(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)[row_index]
+      session$userData$sessionVariables$selectedCpG(rownames(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)[row_index])
       #add annotation
       rownames(session$userData$annotation) <- session$userData$annotation$name
-      selectedAnnotation <- session$userData$annotation[selectedCpG,]
+      selectedAnnotation <- session$userData$annotation[session$userData$sessionVariables$selectedCpG(),]
       nprobes <- nrow(selectedAnnotation)
       selectedAnnotation$number <- seq(1:nprobes)
       selectedAnnotation$probeID <- selectedAnnotation$name
@@ -599,20 +736,30 @@ brush_action_HM <- function(df, input, output, session) {
       selectedAnnotation <- addLinkToEWASDataHub(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
       selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
       selectedAnnotation$probeID <- NULL
+      session$userData$sessionVariables$selectedTrait(colnames(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)[column_index])
       #create DT from selectedAnnotation
-      #output$test <- DT::renderDataTable({DT::datatable(dat, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("copy", "csv")))}, server = FALSE)
-      output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"))) #output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE)
-      session$userData$sessionVariables$selectedOriginalData <-
-        getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session)
-      if (!is.null(session$userData$sessionVariables$selectedOriginalData)) {
-        FactorialVars <- getBinaryFactorialVars(session$userData$sessionVariables$selectedOriginalData)
-        if (!is.null(FactorialVars)) {
+      output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+      output$DTSelectedTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+      #session$userData$sessionVariables$selectedOriginalData(getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session))
+      session$userData$sessionVariables$selectedOriginalData(getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
+
+      #session$userData$sessionVariables$selectedOriginalDataTraits(getSelectedOriginalDataTraits(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session))
+      session$userData$sessionVariables$selectedOriginalDataTraits(getSelectedOriginalDataTraits(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
+      #session$userData$sessionVariables$selectedOriginalDataProbes(getSelectedOriginalDataProbes(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session))
+      session$userData$sessionVariables$selectedOriginalDataProbes(getSelectedOriginalDataProbes(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
+      if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
+        FactorialVars <- getBinaryFactorialVars(session$userData$sessionVariables$selectedOriginalData())
+        #if (!is.null(FactorialVars)) {
+        if (is.valid(FactorialVars)) {
           shiny::updateSelectizeInput(
             session = session,
             inputId = "markingVar",
             choices = FactorialVars,
             server = TRUE
           )
+          #session$userData$sessionVariables$markingVar <- unlist(FactorialVars[1])
+          #session$userData$sessionVariables$markingVar(unlist(FactorialVars[1]))
+          message(session$userData$sessionVariables$markingVar())
         } else {
           shiny::updateSelectizeInput(
             session = session,
@@ -628,13 +775,6 @@ brush_action_HM <- function(df, input, output, session) {
           choices = NULL,
           server = TRUE
         )
-      }
-      if (session$userData$sessionVariables$SPLOM == FALSE) { # SPLOM empty
-        height <- input$numSPLOMVSize
-        width <- input$numSPLOMHSize
-        fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
-        output$SPLOM <- plotly::renderPlotly(fig)
-        session$userData$sessionVariables$SPLOM <- TRUE
       }
     },
     error = function(e) {

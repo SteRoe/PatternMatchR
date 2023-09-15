@@ -100,7 +100,13 @@ server <- function(input, output, session) {
   session$userData$sessionVariables$clustResProbes <- shiny::reactiveVal(value = NULL, label = "clustResProbes")
   session$userData$sessionVariables$dendProbes <- shiny::reactiveVal(value = NULL, label = "dendProbes")
 
-  session$userData$sessionVariables$SPLOM <- FALSE
+  session$userData$sessionVariables$selectedOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedOriginalData")
+  session$userData$sessionVariables$selectedOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataTraits")
+  session$userData$sessionVariables$selectedOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataProbes")
+  session$userData$sessionVariables$selectedCpG <- shiny::reactiveVal(value = NULL, label = "selectedCpG")
+  session$userData$sessionVariables$selectedTrait <- shiny::reactiveVal(value = NULL, label = "selectedTrait")
+#  session$userData$sessionVariables$SPLOM <- FALSE
+  session$userData$sessionVariables$markingVar <- shiny::reactiveVal(value = NULL, label = "markingVar")
 
   shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = 0, max = 0, value = c(0, 0))
   shiny::updateSliderInput(session = session, inputId = "sldDM", min = 0, max = 0, value = c(0, 0))
@@ -586,6 +592,38 @@ server <- function(input, output, session) {
     )
   })
 
+  session$userData$sessionVariables$markingVar <- shiny::reactive({
+
+    return(input$markingVar)
+  })
+
+  output$SPLOM <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
+      height <- input$numSPLOMVSize
+      width <- input$numSPLOMHSize
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedOriginalDataProbes()), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
+      return(fig)
+    }
+  })
+
+  output$SPLOMTrait <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedOriginalDataTraits())) {
+      height <- input$numSPLOMVSize
+      width <- input$numSPLOMHSize
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedOriginalDataTraits(), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
+      return(fig)
+    }
+  })
+
+  output$SPLOMProbe <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedOriginalDataProbes())) {
+      height <- input$numSPLOMVSize
+      width <- input$numSPLOMHSize
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedOriginalDataProbes(), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
+      return(fig)
+    }
+  })
+
   output$txtLoadOut <- shiny::reactive({
     base::tryCatch(
       {
@@ -729,50 +767,10 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
-  shiny::observeEvent(input$markingVar,
-    ignoreInit = TRUE,
-    {
-      session$userData$sessionVariables$markingVar <- input$markingVar
-      # redraw SPLOM
-      height <- input$numSPLOMVSize
-      width <- input$numSPLOMHSize
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
-      output$SPLOM <- plotly::renderPlotly(fig)
-      session$userData$sessionVariables$SPLOM <- TRUE
-    },
-    ignoreNULL = FALSE
-  )
-
-  shiny::observeEvent(input$numSPLOMHSize,
-    ignoreInit = TRUE,
-    {
-      session$userData$sessionVariables$markingVar <- input$markingVar
-      # redraw SPLOM
-      height <- input$numSPLOMVSize
-      width <- input$numSPLOMHSize
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
-      output$SPLOM <- plotly::renderPlotly(fig)
-      session$userData$sessionVariables$SPLOM <- TRUE
-    },
-    ignoreNULL = FALSE
-  )
-  shiny::observeEvent(input$numSPLOMVSize,
-    ignoreInit = TRUE,
-    {
-      session$userData$sessionVariables$markingVar <- input$markingVar
-      # redraw SPLOM
-      height <- input$numSPLOMVSize
-      width <- input$numSPLOMHSize
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData, session$userData$sessionVariables$markingVar, height = height, width = width)
-      output$SPLOM <- plotly::renderPlotly(fig)
-      session$userData$sessionVariables$SPLOM <- TRUE
-    },
-    ignoreNULL = FALSE
-  )
   shiny::observeEvent(input$numHMHSize,
     ignoreInit = TRUE,
     {
-      session$userData$sessionVariables$markingVar <- input$markingVar
+#      session$userData$sessionVariables$markingVar <- input$markingVar
       # redraw HM
       #browser()
       height <- input$numHMVSize
@@ -787,7 +785,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
   shiny::observeEvent(input$numHMVSize,
     ignoreInit = TRUE,
     {
-      session$userData$sessionVariables$markingVar <- input$markingVar
+#      session$userData$sessionVariables$markingVar <- input$markingVar
       # redraw HM
       #browser()
       height <- input$numHMVSize

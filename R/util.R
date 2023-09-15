@@ -270,7 +270,7 @@ loadDNAm <- function(betaFileName, config) {
         header = TRUE,
         sep = "\t",
         dec = ".",
-        nrows = 1000,
+        nrows = 10000,
         data.table = FALSE
       )
   }
@@ -338,7 +338,7 @@ removeAdjFromColname <- function(colnames) {
 #' examples is.valid(x)
 is.valid <- function(x) {
   if (base::exists("x")) {
-  is.null(shiny::need(x, message = FALSE))
+    is.null(shiny::need(x, message = FALSE))
   }
   else return(FALSE)
 }
