@@ -53,20 +53,12 @@ getBinaryFactorialVars <- function(df) {
 getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
   if (!is.null(df)) {
     dimensions <- getDimensionsForPlotlySPLOM(df, markingVar)
-#    dimensions <- getDimensionsForPlotlySPLOM(df)
     pl_colorscale <- list(
       c(0.0, "#119dff"),
       c(0.5, "#119dff"),
       c(0.5, "#ef553b"),
       c(1, "#ef553b")
     )
-    # axis <- list(
-    #   showline = FALSE,
-    #   zeroline = FALSE,
-    #   gridcolor = "#ffff",
-    #   ticklen = 4,
-    #   titlefont = list(size = 13)
-    # )
     #25900x3200 is possible for dimensions
     if (is.numeric(height)) {
       h <- base::paste0(height, "px")
@@ -78,7 +70,7 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
       df[,"markingVar"]<-as.factor(df[,"markingVar"])
     }
     fig <- df %>%
-      plotly::plot_ly(height = height, width = width) # plotly::plot_ly()
+      plotly::plot_ly(height = height, width = width)
     if ("markingVar" %in% colnames(df)) {
       fig <- fig %>%
         plotly::add_trace(
@@ -95,8 +87,10 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
               color = "rgb(230,230,230)"
             )
           ),
-          xaxes = XVars #tbc()
+          xaxes = XVars
           #yaxes = YVars
+          # xaxis = list(title = "trait", tickangle = 90),
+          # yaxis = list(title = "probe", tickangle = 90)
         )
     }
     else if (is.valid(markingVar) && any(markingVar %in% colnames(df))) {
@@ -116,8 +110,10 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
             color = "rgb(230,230,230)"
           )
         ),
-        xaxes = XVars #tbc()
+        xaxes = XVars
         #yaxes = YVars
+        # xaxis = list(title = "trait", tickangle = 90),
+        # yaxis = list(title = "trait", tickangle = 90)
       )
     }
     else {
@@ -134,8 +130,10 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
             color = "rgb(230,230,230)"
           )
         ),
-        xaxes = XVars #tbc()
+        xaxes = XVars
         #yaxes = YVars
+        # xaxis = list(title = "probe", tickangle = 90),
+        # yaxis = list(title = "probe", tickangle = 90)
       )
     }
   } else {

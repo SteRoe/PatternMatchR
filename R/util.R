@@ -64,9 +64,9 @@ loadDirLists <- function(session, input, output) {
   dfdD3 <<-
     data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
 
-  output$trait1DirList <- DT::renderDT({DT::datatable(dfdD1, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = list("copy", "csv")))}, server = FALSE) #output$trait1DirList <- DT::renderDataTable(dfdD1)
-  output$trait2DirList <- DT::renderDataTable(dfdD2)
-  output$trait3DirList <- DT::renderDataTable(dfdD3)
+  output$trait1DirList <- DT::renderDT({DT::datatable(dfdD1, options = list(pageLength = 100))}, server = FALSE) #output$trait1DirList <- DT::renderDataTable(dfdD1)
+  output$trait2DirList <- DT::renderDataTable(DT::datatable(dfdD2, options = list(pageLength = 100)), server = FALSE)
+  output$trait3DirList <- DT::renderDataTable(DT::datatable(dfdD3, options = list(pageLength = 100)), server = FALSE)
   result <- list()
   result$dfdD1 <- dfdD1
   result$dfdD2 <- dfdD2
@@ -87,9 +87,12 @@ loadObjects <- function(session) {
   base::print(base::paste0(sysTimePID(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation),"."))
   base::print(base::paste0(sysTimePID(), " detecting cores."))
   numCores <- parallelly::availableCores() # parallel::detectCores()
+  nWorkers <- parallelly::availableCores(constraints = "connections")
+  numCores <- base::min(numCores,nWorkers)
   if (!is.null(numCores)) {
     if (numCores >= 64) {
-      numCores <- as.integer(numCores / 2)
+      #numCores <- as.integer(numCores / 2)
+      numCores <- as.integer(numCores * 0.75) #take 3/4 of available cores
     }
     else if (numCores >= 8) {
       numCores <- numCores - 4
@@ -395,37 +398,4 @@ addLinkToMRCEWASCatalogShort <- function(df, baseURL, probeAttribut) {
 sysTimePID <- function() {
   result <- paste0(as.character(Sys.time()), "; PID: ", as.character(Sys.getpid()))
   return(result)
-}
-
-invalidateStep1 <- function(session) {
-  session <- invalidateStep2(session)
-  session$userData$sessionVariables$resultDFListTrait1(NULL)
-  session$userData$sessionVariables$resultDFListTrait2(NULL)
-  session$userData$sessionVariables$resultDFListTrait3(NULL)
-  session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
-  return(session)
-}
-
-invalidateStep2 <- function(session) {
-  session <- invalidateStep3(session)
-  session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
-  return(session)
-}
-
-invalidateStep3 <- function(session) {
-  session <- invalidateStep4(session)
-  session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
-  return(session)
-}
-
-invalidateStep4 <- function(session) {
-  session <- invalidateStep5(session)
-  session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels(NULL)
-  return(session)
-}
-
-
-invalidateStep5 <- function(session) {
-
-  return(session)
 }

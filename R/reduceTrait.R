@@ -1,5 +1,5 @@
 #' getTraitClusterMedoids
-#' gets Medoids of earlier produced clusters
+#' gets Medoids of earlier produced clusters; select trait with lowest (square) sum of distances as cluster medoid
 #' @param clustResTraits (reduced) clustering results of traits
 #' @param distMatTraits (reduced) distance matrix of traits
 #' @param numClusters number of clusters to produce
@@ -43,10 +43,10 @@ getTraitClusterMedoids <- function(clustResTraits, distMatTraits, numClusters) {
       }
     },
     error = function(e) {
-      message("An error occurred in getTraitClusterMedoids():\n", e)
+      base::message("An error occurred in getTraitClusterMedoids():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getTraitClusterMedoids():\n", w)
+      base::message("A warning occurred in getTraitClusterMedoids():\n", w)
     },
     finally = {
       return(ClusterMedoids)
@@ -108,8 +108,16 @@ getDendTraits <- function(clustResTraits, traitClusters) {
       if (is.valid(clustResTraits) && traitClusters > 1) {
         base::print(base::paste0(sysTimePID(), " start getDendTraits()."))
         dendTraits <- stats::as.dendrogram(clustResTraits)
-        dendTraits <- dendextend::color_branches(dendTraits, k = traitClusters)
-        dendTraits <- dendextend::color_labels(dendTraits, k = traitClusters)
+        #the following fails, if number of objects inside clustResTraits is not between 1 and 120:
+        #Error in stats::cutree(tree, k = k, h = h, ...) : elements of 'k' must be between 1 and 120
+        #so check
+        if (traitClusters < 120 && traitClusters >= 1) {
+          dendTraits <- dendextend::color_branches(dendTraits, k = traitClusters)
+          dendTraits <- dendextend::color_labels(dendTraits, k = traitClusters)
+        }
+        else {
+          message("Warning: number of clusters is not 1 < traitClusters < 120\n")
+        }
       }
       else {
         dendTraits <- getEmptyPlot()
@@ -117,11 +125,11 @@ getDendTraits <- function(clustResTraits, traitClusters) {
       }
     },
     error = function(e) {
-      message("An error occurred in getDendTraits():\n", e)
+      base::message("An error occurred in getDendTraits():\n", e)
       browser()
     },
     warning = function(w) {
-      message("A warning occurred in getDendTraits():\n", w)
+      base::message("A warning occurred in getDendTraits():\n", w)
       browser()
     },
     finally = {
@@ -131,28 +139,28 @@ getDendTraits <- function(clustResTraits, traitClusters) {
   )
 }
 
-#' getTraitReducedcombinedDFP_Val_Labels
+#' getTraitReducedData
 #' gets a list with data structure for regression results after reduction for traits
 #' @param pReducedcombinedDFP_Val_Labels list with data structure for regression results (from p-val reduction)
 #' @param ClusterMedoids medoids of clusters for name setting
 #' @param keys key attributes for merging of original data
 #' @return list with data structure for regression model results
-#' examples getTraitReducedcombinedDFP_Val_Labels(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)
-getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys) {
+#' examples getTraitReducedData(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)
+getTraitReducedData <- function(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys) {
   base::tryCatch(
     {
-      base::print(base::paste0(sysTimePID(), " start gettraitReducedcombinedDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " start getTraitReducedData()."))
       traits <- getTraitSubsetcombinedDFP_Val_Labels(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)  #select medoids from traits
     },
     error = function(e) {
-      message("An error occurred in getTraitReducedcombinedDFP_Val_Labels():\n", e)
+      base::message("An error occurred in getTraitReducedData():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getTraitReducedcombinedDFP_Val_Labels():\n", w)
+      base::message("A warning occurred in getTraitReducedData():\n", w)
     },
     finally = {
       return(traits)
-      base::print(base::paste0(sysTimePID(), " end gettraitReducedcombinedDFP_Val_Labels()."))
+      base::print(base::paste0(sysTimePID(), " end getTraitReducedData()."))
     }
   )
 }
@@ -163,7 +171,7 @@ getTraitReducedcombinedDFP_Val_Labels <- function(pReducedcombinedDFP_Val_Labels
 #' @param traits traits to retain
 #' @param keys key attributes to retain in data
 #' @return combinedDFP_Val_Labels structure list()
-#' examples loadResultDF(combinedDFP_Val_Labels, traits)
+#' examples getTraitSubsetcombinedDFP_Val_Labels(combinedDFP_Val_Labels, traits, keys)
 getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits, keys) {
   base::tryCatch(
     {
@@ -244,10 +252,10 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       #browser() #check result
     },
     error = function(e) {
-      message("An error occurred in getTraitSubsetcombinedDFP_Val_Labels():\n", e)
+      base::message("An error occurred in getTraitSubsetcombinedDFP_Val_Labels():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getTraitSubsetcombinedDFP_Val_Labels():\n", w)
+      base::message("A warning occurred in getTraitSubsetcombinedDFP_Val_Labels():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " size of merged data.frame: ", dim(result$dfP_Val), " ."))
@@ -283,14 +291,40 @@ getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitCluste
       }
     },
     error = function(e) {
-      message("An error occurred in getplotClustergramTraitsLong():\n", e)
+      base::message("An error occurred in getplotClustergramTraitsLong():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getplotClustergramTraitsLong():\n", w)
+      base::message("A warning occurred in getplotClustergramTraitsLong():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end plotting clustergram."))
       return(p)
+    }
+  )
+}
+
+updateTxtOmitTraitsOut <- function(traitReducedcombinedDFP_Val_Labels) {
+  base::tryCatch(
+    {
+      result <- NULL
+      if (is.valid(traitReducedcombinedDFP_Val_Labels)) {
+        result <- base::paste0("omit trait successful. result table is: nrow (CpG): ",
+                               nrow(traitReducedcombinedDFP_Val_Labels$dfP_Val),
+                               "; ncol (trait): ", ncol(traitReducedcombinedDFP_Val_Labels$dfP_Val), " (if # is less than defined number of clusters, then duplicate variable names have been omitted)")
+      }
+      else {
+        base::message(base::paste0(sysTimePID(), " is.valid(traitReducedcombinedDFP_Val_Labels) == FALSE."))
+      }
+    },
+    error = function(e) {
+      base::message("An error occurred in updateTxtOmitTraitsOut():\n", e)
+    },
+
+    warning = function(w) {
+      base::message("A warning occurred in updateTxtOmitTraitsOut():\n", w)
+    },
+    finally = {
+      return(shiny::HTML(result))
     }
   )
 }

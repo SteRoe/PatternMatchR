@@ -11,7 +11,6 @@ server <- function(input, output, session) {
     brush_action = NULL,
     hover_action = NULL
   )
-
   #define sessionVariables here
   reactlog::reactlog_enable()
   pid <- Sys.getpid()
@@ -70,41 +69,36 @@ server <- function(input, output, session) {
   dfdD2 <- result$dfdD2
   dfdD3 <- result$dfdD3
 
-  session$userData$sessionVariables$reactiveTestVal <- shiny::reactiveVal(value = NULL, label = "reactiveTestVal")
-  #necessary for step 2; generated in step 1:
   session$userData$sessionVariables$resultDFListTrait1 <- shiny::reactiveVal(value = NULL, label = "resultDFListTrait1")
   session$userData$sessionVariables$resultDFListTrait2 <- shiny::reactiveVal(value = NULL, label = "resultDFListTrait2")
   session$userData$sessionVariables$resultDFListTrait3 <- shiny::reactiveVal(value = NULL, label = "resultDFListTrait3")
-  #necessary for step 3; generated in step 2:
-  session$userData$sessionVariables$combinedDFP_Val_Labels <- shiny::reactiveVal(value = NULL, label = "combinedDFP_Val_Labels")
-  #necessary for step 4; generated in step 3:
-  session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels <- shiny::reactiveVal(value = NULL, label = "pReducedcombinedDFP_Val_Labels")
 
-  session$userData$sessionVariables$matP_Val <- shiny::reactiveVal(value = NULL, label = "matP_Val")
-  session$userData$sessionVariables$matP_Val.t <- shiny::reactiveVal(value = NULL, label = "matP_Val.t")
-  session$userData$sessionVariables$distMatTraits <- shiny::reactiveVal(value = NULL, label = "distMatTraits")
-  session$userData$sessionVariables$clustResTraits <- shiny::reactiveVal(value = NULL, label = "clustResTraits")
-  session$userData$sessionVariables$traitClusters <- shiny::reactiveVal(value = NULL, label = "traitClusters")
-  session$userData$sessionVariables$traitClusterMedoids <- shiny::reactiveVal(value = NULL, label = "traitClusterMedoids")
-  session$userData$sessionVariables$traitDendrogram <- shiny::reactiveVal(value = NULL, label = "traitDendrogram")
-  session$userData$sessionVariables$traitClustergram <- shiny::reactiveVal(value = NULL, label = "traitClustergram")
-  #necessary for step 5; generated in step 4:
-  session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels <- shiny::reactiveVal(value = NULL, label = "traitReducedcombinedDFP_Val_Labels")
-  session$userData$sessionVariables$traitReducedmatP_Val <- shiny::reactiveVal(value = NULL, label = "traitReducedmatP_Val")
-  session$userData$sessionVariables$traitReducedmatP_Val.t <- shiny::reactiveVal(value = NULL, label = "traitReducedmatP_Val.t")
-  session$userData$sessionVariables$traitReduceddistMatTraits <- shiny::reactiveVal(value = NULL, label = "traitReduceddistMatTraits")
-  session$userData$sessionVariables$traitReducedclustResTraits <- shiny::reactiveVal(value = NULL, label = "traitReducedclustResTraits")
-  session$userData$sessionVariables$traitReducedDendTraits <- shiny::reactiveVal(value = NULL, label = "traitReducedDendTraits")
+  session$userData$sessionVariables$combinedData <- shiny::reactiveVal(value = NULL, label = "combinedData")
+  session$userData$sessionVariables$pReducedData <- shiny::reactiveVal(value = NULL, label = "pReducedData")
+  session$userData$sessionVariables$traitReducedData <- shiny::reactiveVal(value = NULL, label = "traitReducedData")
+  #  session$userData$sessionVariables$combinedDFP_Val_Labels <- shiny::reactiveVal(value = NULL, label = "combinedDFP_Val_Labels")
 
-  session$userData$sessionVariables$distMatProbes <- shiny::reactiveVal(value = NULL, label = "distMatProbes")
-  session$userData$sessionVariables$clustResProbes <- shiny::reactiveVal(value = NULL, label = "clustResProbes")
-  session$userData$sessionVariables$dendProbes <- shiny::reactiveVal(value = NULL, label = "dendProbes")
+  # session$userData$sessionVariables$clustResTraits <- shiny::reactiveVal(value = NULL, label = "clustResTraits")
+
+  # session$userData$sessionVariables$traitReducedmatP_Val <- shiny::reactiveVal(value = NULL, label = "traitReducedmatP_Val")
+
+  #new (4.2024) basic data structure:
+  session$userData$sessionVariables$generalDataStructure <- shiny::reactiveVal(value = NULL, label = "generalDataStructure")
+
+  session$userData$sessionVariables$distancesBelowThreshold <- shiny::reactiveVal(value = NULL, label = "distancesBelowThreshold")
+
+  session$userData$sessionVariables$distNeigboursProbes10000 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes10000")
+  session$userData$sessionVariables$distNeigboursProbes1000 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes1000")
+  session$userData$sessionVariables$distNeigboursProbes100 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes100")
+  session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes10")
 
   session$userData$sessionVariables$selectedOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedOriginalData")
   session$userData$sessionVariables$selectedOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataTraits")
   session$userData$sessionVariables$selectedOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataProbes")
   session$userData$sessionVariables$selectedCpG <- shiny::reactiveVal(value = NULL, label = "selectedCpG")
   session$userData$sessionVariables$selectedTrait <- shiny::reactiveVal(value = NULL, label = "selectedTrait")
+  session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels <- shiny::reactiveVal(value = NULL, label = "selectedTraitReducedcombinedDFP_Val_Labels")
+
 #  session$userData$sessionVariables$SPLOM <- FALSE
   session$userData$sessionVariables$markingVar <- shiny::reactiveVal(value = NULL, label = "markingVar")
 
@@ -112,7 +106,8 @@ server <- function(input, output, session) {
   shiny::updateSliderInput(session = session, inputId = "sldDM", min = 0, max = 0, value = c(0, 0))
   shiny::updateSliderInput(session = session, inputId = "sldN", min = 0, max = 0, value = c(0, 0))
 
-  base::print(paste0(sysTimePID(), " starting application."))
+  #base::print(paste0(sysTimePID(), " starting application."))
+  base::message(paste0(sysTimePID(), " starting application."))
 
   shinyjs::toggleClass("colRed", "red")
   shinyjs::toggleClass("colGreen", "green")
@@ -138,455 +133,112 @@ server <- function(input, output, session) {
     }
   })
 
-  countersession.userData.sessionVariables.matP_Val <- local({
-    static <- 0
-    function() { static <<- static + 1; static }
-  })
-
-  session$userData$sessionVariables$matP_Val <- shiny::reactive({
+  session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactive({
+    #calculate distance from each probe to its neigbours to build a right column in heatmap to estimate relevance of heatmap findings
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$matP_Val. (first step in session$userData$sessionVariables$matP_Val <- shiny::reactive())"))
-        base::print(paste0(
-          sysTimePID(),
-        " before receiving matrix for traits."
-        ))
-        combinedDFP_Val_Labels <- session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()
-        base::print(paste0(
-          sysTimePID(),
-          " after receiving matrix for traits."
-        ))
+        result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$matP_Val):\n", e)
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$matP_Val):\n", w)
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10):\n", w)
       },
       finally = {
-        countersession.userData.sessionVariables.matP_Val()
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$matP_Val. (last step in session$userData$sessionVariables$matP_Val <- shiny::reactive())"))
-        return(combinedDFP_Val_Labels$dfP_Val)
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distNeigboursProbes10. (last step in session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactive())"))
+        return(result)
       }
     )
   })
 
-  countersession.userData.sessionVariables.matP_Val.t <- local({
-    static <- 0
-    function() { static <<- static + 1; static }
-  })
-
-  session$userData$sessionVariables$matP_Val.t <- shiny::reactive({
+  session$userData$sessionVariables$distNeigboursProbes100 <- shiny::reactive({
+    #calculate distance from each probe to its neigbours to build a right column in heatmap to estimate relevance of heatmap findings
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$matP_Val.t. (first step in session$userData$sessionVariables$matP_Val.t <- shiny::reactive())"))
-        base::print(paste0(
-          sysTimePID(),
-          " before transposing matrix for traits."
-        ))
-        #do this only, if session$userData$sessionVariables$matP_Val() is.valid
-        if (is.valid(session$userData$sessionVariables$matP_Val())) {
-          dfP_Val <- session$userData$sessionVariables$matP_Val()
-          dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
-          result <- t(dfP_Val)
+        result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 100, numCores = session$userData$numCores)
+      },
+      error = function(e) {
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes100):\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes100):\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distNeigboursProbes100. (last step in session$userData$sessionVariables$distNeigboursProbes100 <- shiny::reactive())"))
+        return(result)
+      }
+    )
+  })
+
+  session$userData$sessionVariables$distNeigboursProbes1000 <- shiny::reactive({
+    #calculate distance from each probe to its neigbours to build a right column in heatmap to estimate relevance of heatmap findings
+    base::tryCatch(
+      {
+        result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 1000, numCores = session$userData$numCores)
+      },
+      error = function(e) {
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes1000):\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes1000):\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distNeigboursProbes1000. (last step in session$userData$sessionVariables$distNeigboursProbes1000 <- shiny::reactive())"))
+        return(result)
+      }
+    )
+  })
+
+  session$userData$sessionVariables$distNeigboursProbes10000 <- shiny::reactive({
+    #calculate distance from each probe to its neigbours to build a right column in heatmap to estimate relevance of heatmap findings
+    base::tryCatch(
+      {
+        result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10000, numCores = session$userData$numCores)
+      },
+      error = function(e) {
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10000):\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10000):\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distNeigboursProbes10000. (last step in session$userData$sessionVariables$distNeigboursProbes10000 <- shiny::reactive())"))
+        return(result)
+      }
+    )
+  })
+
+  session$userData$sessionVariables$distancesBelowThreshold <- shiny::reactive({
+    #gets CpG below a certain threshold
+    base::tryCatch(
+      {
+        distances <- session$userData$sessionVariables$distNeigboursProbes10000()
+        rownames(distances) <- distances[,1]
+#        distances <- distances[,3]
+#        distances <- na.omit(distances)
+        threshold <- session$userData$config$CpGDistanceThreshold
+        #which distances < threshold
+        result <- rownames(distances)[distances$meanDistance < threshold]
+        result <- na.omit(result)
+#to check, make the first elements (1,3,5) of distances orange...
+#        browser()
+#        result <- rownames(distances)[c(1,3,5)]
+        if (length(result) == 0) {
+          base::message(base::paste0(sysTimePID(), "no CpG below distance threshold of ", threshold, "found."))
         }
         else {
-          base::print(paste0(
-            sysTimePID(),
-            " is.valid(session$userData$sessionVariables$matP_Val()) == FALSE."
-          ))
-          result <- FALSE
+          base::print(base::paste0(sysTimePID(), " found n = ", length(result), " CpG below distance threshold of ", threshold, "."))
         }
       },
       error = function(e) {
-        message("An error occurred in session$userData$sessionVariables$matP_Val.t():\n", e)
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distancesBelowThreshold):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in session$userData$sessionVariables$matP_Val.t():\n", w)
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distancesBelowThreshold):\n", w)
       },
       finally = {
-        base::print(paste0(
-          sysTimePID(),
-          " after transposing matrix for traits."
-        ))
-        countersession.userData.sessionVariables.matP_Val.t()
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$matP_Val.t. (last step in session$userData$sessionVariables$matP_Val.t <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitReducedmatP_Val <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitReducedmatP_Val. (first step in session$userData$sessionVariables$traitReducedmatP_Val <- shiny::reactive())"))
-        #take selected medoids as new traits for HM
-        base::print(paste0(
-          sysTimePID(),
-          " before receiving matrix for reduced traits."
-        ))
-        combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()
-        base::print(paste0(
-          sysTimePID(),
-          " after receiving matrix for reduced traits."
-        ))
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitReducedmatP_Val):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitReducedmatP_Val):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitReducedmatP_Val. (last step in session$userData$sessionVariables$traitReducedmatP_Val <- shiny::reactive())"))
-        return(combinedDFP_Val_Labels$dfP_Val)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitReducedmatP_Val.t <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitReducedmatP_Val.t. (first step in session$userData$sessionVariables$traitReducedmatP_Val.t <- shiny::reactive())"))
-        base::print(paste0(
-          sysTimePID(),
-          " before transposing matrix for reduced traits."
-        ))
-        dfP_Val <- session$userData$sessionVariables$traitReducedmatP_Val()
-        dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
-        base::print(paste0(
-          sysTimePID(),
-          " after transposing matrix for reduced traits."
-        ))
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitReducedmatP_Val.t):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitReducedmatP_Val.t):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitReducedmatP_Val.t. (last step in session$userData$sessionVariables$traitReducedmatP_Val.t <- shiny::reactive())"))
-        return(t(dfP_Val))
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitReduceddistMatTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitReduceddistMatTraits. (first step in session$userData$sessionVariables$traitReduceddistMatTraits <- shiny::reactive())"))
-        numberCores <- session$userData$numCores
-        base::print(paste0(
-          sysTimePID(),
-          " before distance matrix for reduced traits. (takes some time)"
-        ))
-        result <- getDistMat(numberCores = numberCores, matrix = session$userData$sessionVariables$traitReducedmatP_Val.t())
-        base::print(paste0(
-          sysTimePID(),
-          " after distance matrix for reduced traits."
-        ))
-      },
-    error = function(e) {
-      message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitReduceddistMatTraits):\n", e)
-    },
-    warning = function(w) {
-      message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitReduceddistMatTraits):\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitReduceddistMatTraits. (last step in session$userData$sessionVariables$traitReduceddistMatTraits <- shiny::reactive())"))
-      return(result)
-    }
-    )
-  })
-
-  session$userData$sessionVariables$distMatTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$distMatTraits. (first step in session$userData$sessionVariables$distMatTraits <- shiny::reactive())"))
-        numberCores <- session$userData$numCores
-        base::print(paste0(
-          sysTimePID(),
-          " before distance matrix for traits. (takes some time)"
-        ))
-        result <- getDistMat(numberCores = numberCores, matrix = session$userData$sessionVariables$matP_Val.t())
-        base::print(paste0(
-          sysTimePID(),
-          " after distance matrix for traits."
-        ))
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$distMatTraits):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distMatTraits):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distMatTraits. (last step in session$userData$sessionVariables$distMatTraits <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-   output$DTDebugOut1 <-
-     DT::renderDataTable(as.matrix(session$userData$sessionVariables$distMatTraits()))
-
-   output$plotDebug1 <-
-     shiny::renderPlot(session$userData$sessionVariables$clustResTraits())
-
-  session$userData$sessionVariables$clustResTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$clustResTraits. (first step in session$userData$sessionVariables$clustResTraits <- shiny::reactive())"))
-        base::print(paste0(
-          sysTimePID(),
-          " before clustering for traits.",
-          nrow(session$userData$sessionVariables$matP_Val.t())
-        ))
-        result <- getClustResFast(session$userData$sessionVariables$distMatTraits())
-        base::print(paste0(
-          sysTimePID(),
-          " after clustering results for traits.",
-          nrow(session$userData$sessionVariables$matP_Val.t())
-        ))
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$clustResTraits):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$clustResTraits):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$clustResTraits. (last step in session$userData$sessionVariables$clustResTraits <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitReducedclustResTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitReducedclustResTraits. (first step in session$userData$sessionVariables$traitReducedclustResTraits <- shiny::reactive())"))
-        base::print(paste0(
-          sysTimePID(),
-          " before clustering for reduced traits.",
-          nrow(session$userData$sessionVariables$traitReducedmatP_Val.t())
-        ))
-        result <- getClustResFast(session$userData$sessionVariables$traitReduceddistMatTraits())
-        base::print(paste0(
-          sysTimePID(),
-          " after clustering results for reduced traits.",
-          nrow(session$userData$sessionVariables$traitReducedmatP_Val.t())
-        ))
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitReducedclustResTraits):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitReducedclustResTraits):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitReducedclustResTraits. (last step in session$userData$sessionVariables$distMatProbes <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$distMatProbes <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$distMatProbes. (first step in session$userData$sessionVariables$distMatProbes <- shiny::reactive())"))
-        dfP_Val <- session$userData$sessionVariables$traitReducedmatP_Val()
-        if (is.valid(dfP_Val)) {
-        dfP_Val[dfP_Val > 0.05] <- NA # 1
-        base::print(
-          base::paste0(
-            sysTimePID(),
-            " calculating distance matrix with rows= ",
-            nrow(dfP_Val),
-            " cols= ",
-            ncol(dfP_Val)
-          )
-        )
-        base::print(base::class(dfP_Val))
-        base::print(base::class(dfP_Val))
-        base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
-        dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
-        base::print(base::class(dfP_Val))
-        base::print(Cstack_info())
-        if (base::nrow(dfP_Val) >= 5) {
-          # clustering for rows
-          base::print(
-            base::paste0(
-              sysTimePID(),
-              " before distance matrix for probes. (takes some time)",
-              base::nrow(dfP_Val),
-              " (takes some time)"
-            )
-          )
-          #base::options(spam.force64 = TRUE)
-          gc()
-          numberCores <- session$userData$numCores
-          result <- getDistMat(numberCores = numberCores, matrix = dfP_Val)
-          base::print(
-            base::paste0(
-              sysTimePID(),
-              " after distance matrix for probes.",
-              base::nrow(dfP_Val)
-            )
-          )
-        } else {
-          base::message(base::paste0(sysTimePID(), " less than 5 probes remained."))
-          result <- NULL
-        }
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$distMatProbes):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distMatProbes):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distMatProbes. (last step in session$userData$sessionVariables$distMatProbes <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$clustResProbes <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$clustResProbes. (first step in session$userData$sessionVariables$clustResProbes <- shiny::reactive())"))
-        distMat <- session$userData$sessionVariables$distMatProbes()
-        if (is.valid(distMat)) {
-          result <- getClustResFast(distMat)
-        }
-        else {
-          base::print(
-            base::paste0(
-              sysTimePID(),
-              " is.valid(distMat) == FALSE."
-            )
-          )
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$clustResProbes):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$clustResProbes):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$clustResProbes. (last step in session$userData$sessionVariables$clustResProbes <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitDendrogram <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitDendrogram. (first step in session$userData$sessionVariables$traitDendrogram <- shiny::reactive())"))
-        #do this only, if a dataset is already loaded
-        if (is.valid(session$userData$sessionVariables$clustResTraits())) {
-          result <- getDendTraits(clustResTraits = session$userData$sessionVariables$clustResTraits(), traitClusters = input$sldNumClusters)
-          base::print(
-            base::paste0(
-              sysTimePID(),
-              " after making traitDendrogram."
-            )
-          )
-        }
-        else {
-          base::print(
-            base::paste0(
-              sysTimePID(),
-              " is.valid(session$userData$sessionVariables$clustResTraits() == FALSE."
-            )
-          )
-          result <- FALSE
-        }
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitDendrogram):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitDendrogram):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitDendrogram. (last step in session$userData$sessionVariables$traitDendrogram <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitClustergram <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitClustergram. (first step in session$userData$sessionVariables$traitClustergram <- shiny::reactive())"))
-        result <- getplotClustergramTraitsLong(matP_Val.t = session$userData$sessionVariables$matP_Val.t(),
-                                           clustResTraits = session$userData$sessionVariables$clustResTraits(),
-                                           traitClusters = input$sldNumClusters)
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitClustergram):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitClustergram):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitClustergram. (last step in session$userData$sessionVariables$traitClustergram <- shiny::reactive())"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$traitClusterMedoids <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitClusterMedoids. (first step in session$userData$sessionVariables$traitClusterMedoids <- shiny::reactive())"))
-        result <- getTraitClusterMedoids(clustResTraits = session$userData$sessionVariables$clustResTraits(),
-                                     distMatTraits = session$userData$sessionVariables$distMatTraits(),
-                                     numClusters = input$sldNumClusters)
-      },
-    error = function(e) {
-      message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitClusterMedoids):\n", e)
-    },
-    warning = function(w) {
-      message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitClusterMedoids):\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitClusterMedoids. (last step in session$userData$sessionVariables$traitClusterMedoids <- shiny::reactive())"))
-      return(result)
-    }
-    )
-  })
-
-  session$userData$sessionVariables$traitClusters <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitClusters. (first step in session$userData$sessionVariables$traitClusters <- shiny::reactive())"))
-        if (is.valid(session$userData$sessionVariables$clustResTraits()) && input$sldNumClusters > 1) {
-          result <- cutree(session$userData$sessionVariables$clustResTraits(),
-                           k = input$sldNumClusters)
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitClusters):\n", e)
-      },
-      warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitClusters):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitClusters. (last step in session$userData$sessionVariables$traitClusters <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distancesBelowThreshold. (last step in session$userData$sessionVariables$distNeigboursProbes10000 <- shiny::reactive())"))
         return(result)
       }
     )
@@ -601,6 +253,10 @@ server <- function(input, output, session) {
     if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
       height <- input$numSPLOMVSize
       width <- input$numSPLOMHSize
+      base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedOriginalData()))) #thats sum of probes and traits
+      base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedOriginalData()))) #thats number of cases in data set
+      base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedOriginalDataTraits())))
+      base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedOriginalDataProbes())))
       fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedOriginalDataProbes()), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
       return(fig)
     }
@@ -633,10 +289,10 @@ server <- function(input, output, session) {
                                 session$userData$sessionVariables$resultDFListTrait3()))
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(output$txtLoadOut):\n", e)
+        base::message("An error occurred in shiny::reactive(output$txtLoadOut):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(output$txtLoadOut):\n", w)
+        base::message("A warning occurred in shiny::reactive(output$txtLoadOut):\n", w)
       },
       finally = {
         base::print(base::paste0(sysTimePID(), " finished generating output$txtLoadOut. (last step in output$txtLoadOut <- shiny::reactive())"))
@@ -648,108 +304,100 @@ server <- function(input, output, session) {
   output$txtMergeOut <- shiny::reactive({
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating output$txtMergeOut. (first step in output$txtMergeOut <- shiny::reactive())"))
-        if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
-        result <- updateTxtMergeOut(session$userData$sessionVariables$combinedDFP_Val_Labels())
-        }
-        else {
-          result <- NULL
-        }
+        base::print(base::paste0(sysTimePID(), " start generating output$txtMergeOut."))
+#        if (is.valid(session$userData$sessionVariables$combinedDataStructure())) {
+          result <- updateTxtMergeOut(session$userData$sessionVariables$combinedDataStructure())
+#        }
+#        else {
+#          result <- NULL
+#        }
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(output$txtMergeOut):\n", e)
+        base::message("An error occurred in shiny::reactive(output$txtMergeOut):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(output$txtMergeOut):\n", w)
+        base::message("A warning occurred in shiny::reactive(output$txtMergeOut):\n", w)
       },
       finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating output$txtMergeOut. (last step in output$txtMergeOut <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " finished generating output$txtMergeOut."))
         return(result)
       }
     )
   })
 
-  counter.output.txtPReduceOut <- local({
-    static <- 0
-    function() { static <<- static + 1; static }
-  })
+  # counter.output.txtPReduceOut <- local({
+  #   static <- 0
+  #   function() { static <<- static + 1; static }
+  # })
 
   output$txtPReduceOut <- shiny::reactive({
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating output$txtPReduceOut. (first step in output$txtPReduceOut <- shiny::reactive())"))
-        if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels())) {
-        maxTraits <- ncol(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)
-        if (is.valid(session$userData$sessionVariables$traitReducedmatP_Val())) {
-          value <- ncol(session$userData$sessionVariables$traitReducedmatP_Val())
-        }
-        else {
-          value <- maxTraits
-        }
-        shiny::updateSliderInput(session = session, inputId = "sldNumClusters", max = maxTraits, min = 1, value = value, step = 1)
-        result <- updateTxtpReduceOut(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels())
+        base::print(base::paste0(sysTimePID(), " start generating output$txtPReduceOut."))
+        #if (is.valid(session$userData$sessionVariables$pReducedData())) {
+        if (is.valid(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+#        maxTraits <- ncol(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)
+#        value <- maxTraits
+        #if (is.valid(session$userData$sessionVariables$traitReducedmatP_Val())) {
+        # if (is.valid(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+        #   value <- ncol(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)
+        # }
+        # else {
+        #   value <- maxTraits
+        # }
+#        shiny::updateSliderInput(session = session, inputId = "sldNumClusters", max = maxTraits, min = 1, value = value, step = 1)
+        result <- updateTxtpReduceOut(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels)
         }
         else {
           result <- NULL
         }
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(output$txtPReduceOut):\n", e)
+        base::message("An error occurred in shiny::reactive(output$txtPReduceOut):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(output$txtPReduceOut):\n", w)
+        base::message("A warning occurred in shiny::reactive(output$txtPReduceOut):\n", w)
       },
       finally = {
-        counter.output.txtPReduceOut()
-        base::print(base::paste0(sysTimePID(), " finished generating output$txtPReduceOut. (last step in output$txtPReduceOut <- shiny::reactive())"))
+#        counter.output.txtPReduceOut()
+        base::print(base::paste0(sysTimePID(), " finished generating output$txtPReduceOut."))
         return(result)
       }
     )
   })
 
-  output$txtClusterOut <- shiny::reactive({
+  output$txtOmitOut <- shiny::reactive({
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating output$txtClusterOut. (first step in output$txtClusterOut <- shiny::reactive())"))
-        minP_Val <- 5 * 10^base::as.integer(input$sldP_Val[1]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
-        maxP_Val <- 5 * 10^base::as.integer(input$sldP_Val[2]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
-        minN <- base::as.integer(input$txtCases)
-
-        sldNumClasses <- input$sldNumClusters
-      },
-    error = function(e) {
-      message("An error occurred in shiny::reactive(output$txtClusterOut):\n", e)
-    },
-    warning = function(w) {
-      message("A warning occurred in shiny::reactive(output$txtClusterOut):\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " finished generating output$txtClusterOut. (last step in output$txtClusterOut <- shiny::reactive())"))
-
-      if(is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)
-                  && is.valid(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfP_Val)) {
-        numRowPreduce <- nrow(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()$dfP_Val)
-        numRowTraitReduce <- nrow(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfP_Val)
-        if (numRowTraitReduce > numRowPreduce) {
-          browser() #this should not happen!
+        base::print(base::paste0(sysTimePID(), " start generating output$txtOmitOut."))
+        if (is.valid(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels)) {
+          result <- updateTxtOmitTraitsOut(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels)
         }
+        else {
+          result <- NULL
+        }
+      },
+      error = function(e) {
+        base::message("An error occurred in shiny::reactive(output$txtOmitOut):\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in shiny::reactive(output$txtOmitOut):\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " finished generating output$txtOmitOut."))
+        return(result)
       }
-      return(updateTxtClusterOut(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels(),
-                                 minP_Val = minP_Val, maxP_Val = maxP_Val,
-                                 minN = minN, sldNumClasses = sldNumClasses))
-    }
     )
   })
 
-  output$plotDendrogramTraitsLong <- shiny::renderPlot(getPlot(session$userData$sessionVariables$traitDendrogram()))
+  output$plotDendrogramTraitsLong <- shiny::renderPlot(getPlot(session$userData$sessionVariables$traitReducedDataStructure()$traitDendrogram))
 
-  output$plotClustergramTraitsLong <- shiny::renderPlot(getPlot(session$userData$sessionVariables$traitClustergram()))
+  output$plotClustergramTraitsLong <- shiny::renderPlot(getPlot(session$userData$sessionVariables$traitReducedDataStructure()$traitClustergram))
 
-  output$DTTraitsMedoids <- DT::renderDataTable(as.data.frame(getMedoidsTable(session$userData$sessionVariables$traitClusterMedoids())))
+  output$DTTraitsMedoids <- DT::renderDataTable(as.data.frame(getMedoidsTable(session$userData$sessionVariables$traitReducedDataStructure()$traitClusterMedoids)))
 
-  output$DTTraitsClusters <- DT::renderDataTable(as.data.frame(getClustersTable(session$userData$sessionVariables$traitClusters(),
-                                                                                session$userData$sessionVariables$traitClusterMedoids())))
-
+  output$DTTraitsClusters <- DT::renderDataTable(as.data.frame(getClustersTable(session$userData$sessionVariables$traitReducedDataStructure()$traitClusters,
+                                                                                session$userData$sessionVariables$traitReducedDataStructure()$traitClusterMedoids)))
   shiny::observeEvent(input$save,
     ignoreInit = TRUE,
     {
@@ -776,9 +424,9 @@ server <- function(input, output, session) {
       height <- input$numHMVSize
       width <- input$numHMHSize
       if (session$userData$sessionVariables$callCounter > 1) {
-browser() #check, whether this is called initially and why plotCombinedHM is called twice
+browser() #check, whether this is called initially and why plotCombinedHM_P_Val is called twice
       }
-      plotCombinedHM(input = input, output = output, session = session)
+      plotCombinedHM_P_Val(input = input, output = output, session = session)
     },
     ignoreNULL = FALSE
   )
@@ -791,9 +439,9 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       height <- input$numHMVSize
       width <- input$numHMHSize
       if (session$userData$sessionVariables$callCounter > 1) {
-browser() #check, whether this is called initially and why plotCombinedHM is called twice
+browser() #check, whether this is called initially and why plotCombinedHM_P_Val is called twice
       }
-      plotCombinedHM(input = input, output = output, session = session)
+      plotCombinedHM_P_Val(input = input, output = output, session = session)
     },
     ignoreNULL = FALSE
   )
@@ -811,10 +459,6 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " start loading trait 1 folders."))
-          # session$userData$sessionVariables$resultDFListTrait1(NULL)
-          # session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
-          # session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
-          session <- invalidateStep1(session)
           base::print(base::paste0(sysTimePID(), " creating empty heatmap during load process."))
           combinedHMP_VAL <- emptyHM()
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
@@ -822,7 +466,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             output = output,
             session = session,
             ht_list = combinedHMP_VAL,
-            heatmap_id = "heatmap_1",
+            heatmap_id = "Heatmap_P_Val",
             show_layer_fun = FALSE,
             click_action = NULL,
             brush_action = NULL,
@@ -841,10 +485,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnLoadDir1):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnLoadDir1):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnLoadDir1):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnLoadDir1):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " end loadDir1."))
@@ -860,10 +504,6 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " start loading trait 2 folders."))
-          # session$userData$sessionVariables$resultDFListTrait2(NULL)
-          # session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
-          # session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
-          session <- invalidateStep1(session)
           base::print(base::paste0(sysTimePID(), " creating empty heatmap during load process."))
           combinedHMP_VAL <- emptyHM()
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
@@ -871,7 +511,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             output = output,
             session = session,
             ht_list = combinedHMP_VAL,
-            heatmap_id = "heatmap_1",
+            heatmap_id = "Heatmap_P_Val",
             show_layer_fun = FALSE,
             click_action = NULL,
             brush_action = NULL,
@@ -888,10 +528,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnLoadDir2):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnLoadDir2):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnLoadDir2):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnLoadDir2):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " end loadDir2."))
@@ -907,10 +547,6 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " start loading trait3 folders."))
-          # session$userData$sessionVariables$resultDFListTrait3(NULL)
-          # session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
-          # session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
-          session <- invalidateStep1(session)
           base::print(base::paste0(sysTimePID(), " creating empty heatmap during load process."))
           combinedHMP_VAL <- emptyHM()
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
@@ -918,7 +554,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             output = output,
             session = session,
             ht_list = combinedHMP_VAL,
-            heatmap_id = "heatmap_1",
+            heatmap_id = "Heatmap_P_Val",
             show_layer_fun = FALSE,
             click_action = NULL,
             brush_action = NULL,
@@ -934,10 +570,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnLoadDir3):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnLoadDir3):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnLoadDir3):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnLoadDir3):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " end loadDir3."))
@@ -953,12 +589,6 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " Step1: start loading all folders. (first step in shiny::observeEvent(btnLoadDirAll))"))
-          # session$userData$sessionVariables$resultDFListTrait1(NULL)
-          # session$userData$sessionVariables$resultDFListTrait2(NULL)
-          # session$userData$sessionVariables$resultDFListTrait3(NULL)
-          # session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
-          # session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
-          session <- invalidateStep1(session)
           base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
           combinedHMP_VAL <- emptyHM()
           InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
@@ -966,7 +596,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             output = output,
             session = session,
             ht_list = combinedHMP_VAL,
-            heatmap_id = "heatmap_1",
+            heatmap_id = "Heatmap_P_Val",
             show_layer_fun = FALSE,
             click_action = NULL,
             brush_action = NULL,
@@ -976,6 +606,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             traitDirList <-
               base::as.list(dfdD1[input$trait1DirList_rows_selected, ])
             base::print(base::paste0(sysTimePID(), " traitDirList1: ", as.character(traitDirList)))
+            session$userData$sessionVariables$resultDFListTrait1(NULL)
             session$userData$sessionVariables$resultDFListTrait1(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait1(NULL)
@@ -985,6 +616,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             traitDirList <-
               base::as.list(dfdD2[input$trait2DirList_rows_selected, ])
             base::print(base::paste0(sysTimePID(), " traitDirList2: ", as.character(traitDirList)))
+            session$userData$sessionVariables$resultDFListTrait2(NULL)
             session$userData$sessionVariables$resultDFListTrait2(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait2(NULL)
@@ -994,6 +626,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             traitDirList <-
               base::as.list(dfdD3[input$trait3DirList_rows_selected, ])
             base::print(base::paste0(sysTimePID(), " traitDirList3: ", as.character(traitDirList)))
+            session$userData$sessionVariables$resultDFListTrait3(NULL)
             session$userData$sessionVariables$resultDFListTrait3(loadDir(session = session, traitDirList = traitDirList))
           } else {
             session$userData$sessionVariables$resultDFListTrait3(NULL)
@@ -1001,10 +634,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnLoadDirAll):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnLoadDirAll):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnLoadDirAll):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnLoadDirAll):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " finished loading all folders. (last step in shiny::observeEvent(btnLoadDirAll))"))
@@ -1020,14 +653,14 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       base::tryCatch(
         {
           minN <- base::as.integer(input$txtCases)
-          output$plotDebug1 <-
-            shiny::renderPlot(session$userData$sessionVariables$clustResTraits())
+          # output$plotDebug1 <-
+          #   shiny::renderPlot(session$userData$sessionVariables$clustResTraits())
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnDebug):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnDebug):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred shiny::observeEvent(input$btnDebug):\n", w)
+          base::message("A warning occurred shiny::observeEvent(input$btnDebug):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " end debug test."))
@@ -1043,12 +676,9 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " Step 2: start merging data. (first step in shiny::observeEvent(btnMerge))"))
-          session <- invalidateStep2(session)
-          # session$userData$sessionVariables$combinedDFP_Val_Labels(NULL)
-          # session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
           base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
           # combinedHMP_VAL <- emptyHM()
-          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "heatmap_1")
+          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "Heatmap_P_Val")
           minN <- base::as.integer(input$txtCases)
           #if (session$userData$sessionVariables$LoadInitialized == TRUE) {
           if (is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3())) {
@@ -1061,14 +691,14 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3()) == FALSE."))
             result <- NULL
           }
-          session$userData$sessionVariables$combinedDFP_Val_Labels(combinedDFP_Val_Labels)
-          updateSliders(session, session$userData$sessionVariables$combinedDFP_Val_Labels())
+          session$userData$sessionVariables$combinedData(combinedDFP_Val_Labels)
+          updateSliders(session, session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels)
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnMerge):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnMerge):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnMerge):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnMerge):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " end merging data. (last step in shiny::observeEvent(btnMerge))"))
@@ -1083,9 +713,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " Step 3: start reducing data by p-value. (first step in shiny::observeEvent(btnReduce))"))
-          session <- invalidateStep3(session)
-          #session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(NULL)
+          base::print(base::paste0(sysTimePID(), " Step 3: start reducing data by p-value."))
           base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
           minP_Val <- 5 * 10^base::as.integer(input$sldP_Val[1]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
           maxP_Val <- 5 * 10^base::as.integer(input$sldP_Val[2]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
@@ -1099,112 +727,114 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           maxDM <- input$sldDM[2]
           minN <- base::as.integer(input$sldN[1])
           maxN <- base::as.integer(input$sldN[2])
-          combinedDFP_Val_Labels <- session$userData$sessionVariables$combinedDFP_Val_Labels()
+          combinedDFP_Val_Labels <- session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels
           if (is.valid(combinedDFP_Val_Labels)) {
             if (minP_Val != maxP_Val && minDM != maxDM && minN != maxN) {
-              session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(getPReducedTraitData(session = session,
-                                                                                                    combinedDFP_Val_Labels =
-                                                                                                    combinedDFP_Val_Labels,
-                                                                                                  minP_Val = minP_Val,
-                                                                                                  maxP_Val = maxP_Val,
-                                                                                                  minDM = minDM,
-                                                                                                  maxDM = maxDM,
-                                                                                                  minN = minN,
-                                                                                                  maxN = maxN,
-                                                                                                  debugMode = session$userData$config$debugMode))
+              result <- getPReducedTraitData(session = session,
+                                                       combinedDFP_Val_Labels =
+                                                         combinedDFP_Val_Labels,
+                                                       minP_Val = minP_Val,
+                                                       maxP_Val = maxP_Val,
+                                                       minDM = minDM,
+                                                       maxDM = maxDM,
+                                                       minN = minN,
+                                                       maxN = maxN,
+                                                       debugMode = session$userData$config$debugMode)
+              if (is.valid(result$dfP_Val)) {
+                maxTraits <- ncol(result$dfP_Val)
+                value <- input$sldNumClusters #maxTraits
+                if (value == 0) {value <- maxTraits}
+                shiny::updateSliderInput(session = session, inputId = "sldNumClusters", max = maxTraits, min = 1, value = value, step = 1)
+              }
             }
             else {
+              result <- NULL
               base::print(base::paste0(sysTimePID(), " minP_Val == maxP_Val && minDM == maxDM && minN == maxN."))
             }
           }
           else {
+            result <- NULL
             base::print(base::paste0(sysTimePID(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnReduce):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnReduce):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnReduce):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnReduce):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " finished reducing data by p-value. (last step in shiny::observeEvent(btnReduce))"))
+          session$userData$sessionVariables$pReducedData(result)
+          base::print(base::paste0(sysTimePID(), " finished reducing data by p-value."))
         }
       )
     },
     ignoreNULL = FALSE
   )
 
-  shiny::observeEvent(input$btnCluster,
+  shiny::observeEvent(input$btnOmitTraits,
     ignoreInit = TRUE,
     {
       base::tryCatch(
         {
-          base::print(
-            base::paste0(
-              sysTimePID(),
-              " Step 4: before making traitReducedcombinedDFP_Val_Labels. (first step in shiny::observeEvent(btnCluster))"
-            )
-          )
-          session <- invalidateStep4(session)
-          if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) &&
-              is.valid(session$userData$sessionVariables$traitClusterMedoids())) {
-            keys <- session$userData$config$keyAttributes
-            if (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) && is.valid(session$userData$sessionVariables$traitClusterMedoids())) {
-              result <- getTraitReducedcombinedDFP_Val_Labels(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(),
-                                                              session$userData$sessionVariables$traitClusterMedoids(), keys)
-              # add "number" and reorder columns
-              result$dfP_Val_w_number <- result$dfP_Val
-              nprobes <- nrow(result$dfP_Val_w_number)
-              result$dfP_Val_w_number$number <- seq(1:nprobes)
-              col_order <- c("number", colnames(result$dfP_Val_w_number))
-              result$dfP_Val_w_number <- result$dfP_Val_w_number[, col_order]
-              result$dfP_Val_w_number <- result$dfP_Val_w_number[ , -which(colnames(result$dfP_Val_w_number) %in% "number.1")]
-              result$dfDM_w_number <- result$dfDM
-              result$dfDM_w_number$number <- seq(1:nprobes)
-              col_order <- c("number", colnames(result$dfDM_w_number))
-              result$dfDM_w_number <- result$dfDM_w_number[, col_order]
-#              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
-              result$dfN_w_number <- result$dfN
-              result$dfN_w_number$number <- seq(1:nprobes)
-              col_order <- c("number", colnames(result$dfN_w_number))
-              result$dfN_w_number <- result$dfN_w_number[, col_order]
-              result$dfN_w_number <- result$dfN_w_number[ , -which(colnames(result$dfN_w_number) %in% "number.1")]
-            }
-            else {
-              base::print(base::paste0(sysTimePID(), " (is.valid(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels()) && is.valid(session$userData$sessionVariables$traitClusterMedoids())) == FALSE."))
+#browser()
+          if (is.valid(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+            if (is.valid(input$sldNumClusters)) {
+              result <- session$userData$sessionVariables$pReducedDataStructure()
+              base::print(base::paste0(sysTimePID(), " (btnOmitTraits) start generating traitClusters."))
+              if (is.valid(result$clustResTraits) && input$sldNumClusters > 1) {
+                traitClusters <- cutree(result$clustResTraits,
+                                               k = input$sldNumClusters)
+              }
+              else {
+                traitClusters <- NULL
+              }
+              base::print(base::paste0(sysTimePID(), " (btnOmitTraits) start generating traitClusterMedoids."))
+              if (is.valid(result$clustResTraits) && is.valid(result$distMatTraits)) {
+                traitClusterMedoids <- getTraitClusterMedoids(clustResTraits = result$clustResTraits,
+                                                                     distMatTraits = result$distMatTraits,
+                                                                     numClusters = input$sldNumClusters)
+              }
+              else {
+                traitClusterMedoids <- NULL
+              }
             }
           }
-          else {
+          if (is.valid(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val) &&
+              is.valid(traitClusterMedoids)) {
+            keys <- session$userData$config$keyAttributes
+            result <- getTraitReducedData(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels,
+                                          traitClusterMedoids, keys)
+          }
+          else{
             result <- NULL
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCluster):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnOmitTraits):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCluster):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnOmitTraits):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " after making traitReducedcombinedDFP_Val_Labels. (last step in shiny::observeEvent(btnCluster))"))
-          session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels(result)
+          session$userData$sessionVariables$traitReducedData(result)
+          base::print(base::paste0(sysTimePID(), " finished omitting traits."))
         }
       )
     },
     ignoreNULL = FALSE
   )
-
 
   shiny::observeEvent(input$btnCountProbesP_ValParallel,
     ignoreInit = TRUE,
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start counting probes p-value. (first step in shiny::observeEvent(btnCountProbesP_ValParallel))"))
+          base::print(base::paste0(sysTimePID(), " start counting probes p-value."))
           minN <- base::as.integer(input$txtCases)
-          if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels)) {
             P_VALNTable <-
-              getAvailNForP_VALBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfP_Val)
+              getAvailNForP_VALBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfP_Val)
             output$DTP_VALborder <- DT::renderDataTable(P_VALNTable)
             #insert scatterplot with table results
             #output$plotDendrogramP_VALborder <- plotly::renderPlotly(plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_ValBorder"))
@@ -1215,17 +845,17 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             base::print(base::paste0(sysTimePID(), " finished counting probes p-value."))
           }
           else {
-            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels()) == FALSE."))
+            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels) == FALSE."))
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " end counting probes p-value. (last step in shiny::observeEvent(btnCountProbesP_ValParallel))"))
+          base::print(base::paste0(sysTimePID(), " end counting probes p-value."))
         }
       )
     },
@@ -1237,11 +867,11 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start counting probes delta methylation. (first step in shiny::observeEvent(btnCountProbesDeltaMethParallel))"))
+          base::print(base::paste0(sysTimePID(), " start counting probes delta methylation."))
           minN <- base::as.integer(input$txtCases)
-          if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels)) {
             DMNTable <-
-              getAvailNForDMBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfDM)
+              getAvailNForDMBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfDM)
             output$DTDMborder <- DT::renderDataTable(DMNTable)
             plot <- plotly::plot_ly(x = DMNTable$DM_BORDER, y = DMNTable$'Available CpG', type = "scatter", mode = "lines+markers", name = "scatterDeltaMethylationBorder") %>%
               plotly::layout(xaxis = list(title = 'DeltaMethylation', type = "linear")) %>%
@@ -1249,17 +879,17 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             output$plotDendrogramDMborder <- plotly::renderPlotly(plot)
           }
           else {
-            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels()) == FALSE."))
+            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels) == FALSE."))
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " end counting probes delta methylation. (last step in shiny::observeEvent(btnCountProbesDeltaMethParallel))"))
+          base::print(base::paste0(sysTimePID(), " end counting probes delta methylation."))
         }
       )
     },
@@ -1271,11 +901,11 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start counting probes n. (first step in shiny::observeEvent(btnCountProbesNParallel))"))
+          base::print(base::paste0(sysTimePID(), " start counting probes n."))
           minN <- base::as.integer(input$txtCases)
-          if (is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels())) {
+          if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels)) {
             NNTable <-
-              getAvailNForNBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDFP_Val_Labels()$dfN)
+              getAvailNForNBorderParallel(session = session, wd = session$userData$packageWd, numCores = session$userData$numCores, DF = session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfN)
             output$DTNborder <- DT::renderDataTable(NNTable)
             plot <- plotly::plot_ly(x = NNTable$N_BORDER, y = NNTable$'Available CpG' , type = "scatter", mode = "lines+markers", name = "scatterNBorder") %>%
               plotly::layout(xaxis = list(title = 'n', type = "linear")) %>%
@@ -1283,17 +913,17 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             output$plotDendrogramNborder <- plotly::renderPlotly(plot)
           }
           else {
-            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDFP_Val_Labels()) == FALSE."))
+            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels) == FALSE."))
           }
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " finished counting probes n. (last step in shiny::observeEvent(btnCountProbesNParallel))"))
+          base::print(base::paste0(sysTimePID(), " finished counting probes n."))
         }
       )
     },
@@ -1305,7 +935,7 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start counting probes. (first step in shiny::observeEvent(btnCountP_ValProbes))"))
+          base::print(base::paste0(sysTimePID(), " start counting probes."))
           minN <- base::as.integer(input$txtCases)
           #if (session$userData$sessionVariables$LoadInitialized == TRUE) {
           if (is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3())) {
@@ -1323,37 +953,481 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           base::print(base::paste0(sysTimePID(), " finished counting probes."))
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnCountP_ValProbes):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnCountP_ValProbes):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnCountP_ValProbes):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnCountP_ValProbes):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " finished counting probes. (last step in shiny::observeEvent(btnCountP_ValProbes))"))
+          base::print(base::paste0(sysTimePID(), " finished counting probes."))
         }
       )
     },
     ignoreNULL = FALSE
   )
 
+  output$DTSelectedP_Val <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels()$dfP_Val), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))  #TBC()
+
+  output$DTSelectedTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+
+  output$selectHistDM <- plotly::renderPlotly(selectHistDM())
+
   output$histP_Val <- plotly::renderPlotly(histP_Val())
 
-  histP_Val <- shiny::reactive({
+  output$histMinDistance10 <- plotly::renderPlotly(histMinDistance10())
+  output$histMeanDistance10 <- plotly::renderPlotly(histMeanDistance10())
+  output$histMaxDistance10 <- plotly::renderPlotly(histMaxDistance10())
+
+  output$histMinDistance100 <- plotly::renderPlotly(histMinDistance100())
+  output$histMeanDistance100 <- plotly::renderPlotly(histMeanDistance100())
+  output$histMaxDistance100 <- plotly::renderPlotly(histMaxDistance100())
+
+  output$histMinDistance1000 <- plotly::renderPlotly(histMinDistance1000())
+  output$histMeanDistance1000 <- plotly::renderPlotly(histMeanDistance1000())
+  output$histMaxDistance1000 <- plotly::renderPlotly(histMaxDistance1000())
+
+  output$histMinDistance10000 <- plotly::renderPlotly(histMinDistance10000())
+  output$histMeanDistance10000 <- plotly::renderPlotly(histMeanDistance10000())
+  output$histMaxDistance10000 <- plotly::renderPlotly(histMaxDistance10000())
+
+  output$DTDistance10 <- DT::renderDataTable(DTDistance10(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  output$DTDistance10reduced <- DT::renderDataTable(DTDistance10reduced(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+
+  output$DTDistance100 <- DT::renderDataTable(DTDistance100(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  output$DTDistance100reduced <- DT::renderDataTable(DTDistance100reduced(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+
+  output$DTDistance1000 <- DT::renderDataTable(DTDistance1000(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  output$DTDistance1000reduced <- DT::renderDataTable(DTDistance1000reduced(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+
+  output$DTDistance10000 <- DT::renderDataTable(DTDistance10000(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  output$DTDistance10000reduced <- DT::renderDataTable(DTDistance10000reduced(), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+
+  selectHistDM <- shiny::reactive({
     base::tryCatch({
-      base::print(base::paste0(sysTimePID(), " start render plotly histP_Val(). (first step in renderPlotly(histP_Val()))"))
-      P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$traitReducedmatP_Val()))) #tbc(): here we encounter error: R character strings are limited to 2^31 bytes
-      result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_Val")
+      base::print(base::paste0(sysTimePID(), " start render plotly selectHistDM(). (first step in renderPlotly(selectHistDM()))"))
+      if(is.valid(session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels()$dfDM)) {
+        DM <- sort(as.numeric(unlist(session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels()$dfDM)))
+        result <- plotly::plot_ly(x = DM, type = "histogram", name = "selectHistDM")
+      }
+      else {
+        result <- NULL
+      }
     },
     error = function(e) {
-      message("An error occurred in histP_Val <- shiny::reactive():\n", e)
-      browser() #tbc() #check object.size() of session$userData$sessionVariables$traitReducedmatP_Val()
+      base::message("An error occurred in selectHistDM <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in selectHistDM <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly selectHistDM(). (last step in renderPlotly(selectHistDM()))"))
+      return(result)
+    })
+  })
+
+  histMinDistance10 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMeanDistance10(). (first step in renderPlotly(histMeanDistance10()))"))
+      MinDistance <- session$userData$sessionVariables$distNeigboursProbes10()[,2]
+      result <- plotly::plot_ly(x = MinDistance, type = "histogram", name = "histMinDistance10")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMinDistance10 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMinDistance10 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMinDistance10(). (last step in renderPlotly(histMinDistance10()))"))
+      return(result)
+    })
+  })
+
+  histMeanDistance10 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMeanDistance10(). (first step in renderPlotly(histMeanDistance10()))"))
+      MeanDistance <- session$userData$sessionVariables$distNeigboursProbes10()[,3]
+      result <- plotly::plot_ly(x = MeanDistance, type = "histogram", name = "histMeanDistance10")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMeanDistance10 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMeanDistance10 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMeanDistance10(). (last step in renderPlotly(histMeanDistance10()))"))
+      return(result)
+    })
+  })
+
+  histMaxDistance10 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMaxDistance10(). (first step in renderPlotly(histMaxDistance10()))"))
+      MaxDistance <- session$userData$sessionVariables$distNeigboursProbes10()[,4]
+      result <- plotly::plot_ly(x = MaxDistance, type = "histogram", name = "histMaxDistance10")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMaxDistance10 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMaxDistance10 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMaxDistance10(). (last step in renderPlotly(histMaxDistance10()))"))
+      return(result)
+    })
+  })
+
+  histMinDistance100 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMinDistance100(). (first step in renderPlotly(histMinDistance100()))"))
+      MinDistance <- session$userData$sessionVariables$distNeigboursProbes100()[,2]
+      result <- plotly::plot_ly(x = MinDistance, type = "histogram", name = "histMinDistance100")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMinDistance100 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMinDistance100 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMinDistance100(). (last step in renderPlotly(histMinDistance100()))"))
+      return(result)
+    })
+  })
+
+  histMeanDistance100 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMeanDistance100(). (first step in renderPlotly(histMeanDistance100()))"))
+      MeanDistance <- session$userData$sessionVariables$distNeigboursProbes100()[,3]
+      result <- plotly::plot_ly(x = MeanDistance, type = "histogram", name = "histMeanDistance100")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMeanDistance100 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMeanDistance100 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMeanDistance100(). (last step in renderPlotly(histMeanDistance100()))"))
+      return(result)
+    })
+  })
+
+  histMaxDistance100 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMaxDistance100(). (first step in renderPlotly(histMaxDistance100()))"))
+      MaxDistance <- session$userData$sessionVariables$distNeigboursProbes100()[,4]
+      result <- plotly::plot_ly(x = MaxDistance, type = "histogram", name = "histMaxDistance100")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMaxDistance100 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMaxDistance100 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMaxDistance100(). (last step in renderPlotly(histMaxDistance100()))"))
+      return(result)
+    })
+  })
+
+  histMinDistance1000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMinDistance1000(). (first step in renderPlotly(histMinDistance1000()))"))
+      MinDistance <- session$userData$sessionVariables$distNeigboursProbes1000()[,2]
+      result <- plotly::plot_ly(x = MinDistance, type = "histogram", name = "histMinDistance1000")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMinDistance1000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMinDistance1000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMinDistance1000(). (last step in renderPlotly(histMinDistance1000()))"))
+      return(result)
+    })
+  })
+
+  histMeanDistance1000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMeanDistance1000(). (first step in renderPlotly(histMeanDistance1000()))"))
+      MeanDistance <- session$userData$sessionVariables$distNeigboursProbes1000()[,3]
+      result <- plotly::plot_ly(x = MeanDistance, type = "histogram", name = "histMeanDistance1000")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMeanDistance1000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMeanDistance1000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMeanDistance1000(). (last step in renderPlotly(histMeanDistance1000()))"))
+      return(result)
+    })
+  })
+
+  histMaxDistance1000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMaxDistance1000(). (first step in renderPlotly(histMaxDistance1000()))"))
+      MaxDistance <- session$userData$sessionVariables$distNeigboursProbes1000()[,4]
+      result <- plotly::plot_ly(x = MaxDistance, type = "histogram", name = "histMaxDistance1000")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMaxDistance1000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMaxDistance1000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMaxDistance1000(). (last step in renderPlotly(histMaxDistance1000()))"))
+      return(result)
+    })
+  })
+
+  histMinDistance10000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMinDistance10000(). (first step in renderPlotly(histMinDistance10000()))"))
+      MinDistance <- session$userData$sessionVariables$distNeigboursProbes10000()[,2]
+      result <- plotly::plot_ly(x = MinDistance, type = "histogram", name = "histMinDistance10000")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMinDistance10000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMinDistance10000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMinDistance10000(). (last step in renderPlotly(histMinDistance10000()))"))
+      return(result)
+    })
+  })
+
+  histMeanDistance10000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMeanDistance10000(). (first step in renderPlotly(histMeanDistance10000()))"))
+      MeanDistance <- session$userData$sessionVariables$distNeigboursProbes10000()[,3]
+      result <- plotly::plot_ly(x = MeanDistance, type = "histogram", name = "histMeanDistance10000")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMeanDistance10000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMeanDistance10000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMeanDistance10000(). (last step in renderPlotly(histMeanDistance10000()))"))
+      return(result)
+    })
+  })
+
+  histMaxDistance10000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histMaxDistance10000(). (first step in renderPlotly(histMaxDistance10000()))"))
+      MaxDistance <- session$userData$sessionVariables$distNeigboursProbes10000()[,4]
+      result <- plotly::plot_ly(x = MaxDistance, type = "histogram", name = "histMaxDistance10000")
+    },
+    error = function(e) {
+      base::message("An error occurred in histMaxDistance10000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histMaxDistance10000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histMaxDistance10000(). (last step in renderPlotly(histMaxDistance10000()))"))
+      return(result)
+    })
+  })
+
+  DTDistance10 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance10()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance10 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance10 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance10()"))
+      return(result)
+    })
+  })
+
+  DTDistance10reduced <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance10()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
+      DNAdistances <- na.omit(DNAdistances)
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance10 <- shiny::reactive():\n", e)
+      browser()
       a <- object.size(session$userData$sessionVariables$traitReducedmatP_Val())
     },
     warning = function(w) {
-      message("A warning occurred in histP_Val <- shiny::reactive():\n", w)
+      base::message("A warning occurred in DTMeanDistance10 <- shiny::reactive():\n", w)
     },
     finally = {
-      base::print(base::paste0(sysTimePID(), " finished render plotly histP_Val(). (last step in renderPlotly(histP_Val()))"))
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance10()"))
+      return(result)
+    })
+  })
+
+  DTDistance100 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance100()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes100()
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance100 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance100 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance100()"))
+      return(result)
+    })
+  })
+
+  DTDistance100reduced <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance100()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes100()
+      DNAdistances <- na.omit(DNAdistances)
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance100 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance100 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance100()"))
+      return(result)
+    })
+  })
+
+  DTDistance1000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance1000()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes1000()
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance1000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance1000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance1000()"))
+      return(result)
+    })
+  })
+
+  DTDistance1000reduced <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance1000()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes1000()
+      DNAdistances <- na.omit(DNAdistances)
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance1000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance1000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance1000()"))
+      return(result)
+    })
+  })
+
+  DTDistance10000 <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance10000()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10000()
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance10000 <- shiny::reactive():\n", e)
+      browser()
+
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance10000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance10000()"))
+      return(result)
+    })
+  })
+
+  DTDistance10000reduced <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render DT DTMeanDistance10000()."))
+      DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10000()
+      DNAdistances <- na.omit(DNAdistances)
+      result <- DNAdistances
+    },
+    error = function(e) {
+      base::message("An error occurred in DTMeanDistance10000 <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in DTMeanDistance10000 <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render DT DTMeanDistance10000()"))
+      return(result)
+    })
+  })
+
+  histP_Val <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly histP_Val()."))
+      #P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$traitReducedDataStructure()$matP_Val())))
+      P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)))
+      result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_Val")
+    },
+    error = function(e) {
+      base::message("An error occurred in histP_Val <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in histP_Val <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly histP_Val()."))
       return(result)
     })
   })
@@ -1372,10 +1446,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           base::print(base::paste0(sysTimePID(), " end exporting session data to ", fileName, "."))
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnExportCombinedData):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnExportCombinedData):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnExportCombinedData):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnExportCombinedData):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " finished export combined data. (last step in shiny::observeEvent(btnExportCombinedData))"))
@@ -1396,14 +1470,6 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
             base::paste0(session$userData$config$workDir, fileNameCombinedHM) #base::paste0(globalVariables$config$workDir, fileNameCombinedHM)
           base::print(base::paste0(sysTimePID(), " start importing data from ", fileName, "."))
           if (utils::file_test("-f", fileName) == TRUE) {
-            #for whatever reason, we need to fill "session$userData$sessionVariables$resultDFListTrait1"... data structure with non-sense values (0)
-            #before reading real values in order to fire reactivity, filling with NULL is not enough...
-            session$userData$sessionVariables$resultDFListTrait1(0)
-            session$userData$sessionVariables$resultDFListTrait2(0)
-            session$userData$sessionVariables$resultDFListTrait3(0)
-            session$userData$sessionVariables$combinedDFP_Val_Labels(0)
-            session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(0)
-            session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels(0)
 
             session$userData <-
               base::readRDS(file = fileName)
@@ -1412,10 +1478,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           base::print(base::paste0(sysTimePID(), " end importing session data from ", fileName, "."))
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnImportCombinedData):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnImportCombinedData):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnImportCombinedData):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnImportCombinedData):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " finished import combined data. (last step in shiny::observeEvent(btnImportCombinedData))"))
@@ -1425,64 +1491,453 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     ignoreNULL = FALSE
   )
 
-  output$DTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfP_Val_w_number))
+  output$DTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
 
-  output$DTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfDM_w_number))
+  output$DTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
 
-  output$DTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedcombinedDFP_Val_Labels()$dfN_w_number))
+  output$DTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
 
-  session$userData$sessionVariables$traitReducedDendTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$traitReducedDendTraits. (first step in session$userData$sessionVariables$traitReducedDendTraits <- shiny::reactive())"))
-        base::print(base::paste0(sysTimePID(), " before making dendrogram for traits"))
-        result <- stats::as.dendrogram(session$userData$sessionVariables$traitReducedclustResTraits())
-        #also re-read session$userData$sessionVariables$distMatProbes()
-        #session$userData$sessionVariables$distMatProbes(...)
-        base::print(base::paste0(sysTimePID(), " after making dendrogram for traits"))
+  #this data structure holds everything (as a named list), that is needed for working wih trait reduced (by selecting a subset of traits) HM
+  session$userData$sessionVariables$combinedDataStructure <- shiny::reactive({
+
+     base::tryCatch(
+       {
+         result <- base::list(combinedDFP_Val_Labels = session$userData$sessionVariables$combinedData()
+         )
+         #numberCores <- session$userData$numCores
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitReducedDendTraits):\n", e)
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$combinedDataStructure):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitReducedDendTraits):\n", w)
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$combinedDataStructure):\n", w)
       },
       finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitReducedDendTraits. (last step in session$userData$sessionVariables$traitReducedDendTraits <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$combinedDataStructure"))
         return(result)
       }
     )
   })
 
-  session$userData$sessionVariables$dendProbes <- shiny::reactive({
+  session$userData$sessionVariables$pReducedDataStructure <- shiny::reactive({
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$dendProbes. (first step in session$userData$sessionVariables$dendProbes <- shiny::reactive())"))
-        base::print(base::paste0(sysTimePID(), " before making dendrogram for probes (takes some time)"))
-        result <- stats::as.dendrogram(session$userData$sessionVariables$clustResProbes())
-        length(unlist(result))
-        base::print(base::paste0(sysTimePID(), " after making dendrogram for probes"))
+        if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+          result <- base::list(combinedDFP_Val_Labels = session$userData$sessionVariables$pReducedData(),
+                           #                            #matP_Val = session$userData$sessionVariables$matP_Val(), #is part of combinedDFP_Val_Labels()
+                           matP_Val.t = NULL,
+                           distMatTraits = NULL,
+                           clustResTraits = NULL, #session$userData$sessionVariables$clustResTraits(),
+                           traitClusters = NULL, #session$userData$sessionVariables$traitClusters(),
+                           traitClusterMedoids = NULL, #session$userData$sessionVariables$traitClusterMedoids(),
+                           traitDendrogram = NULL, #session$userData$sessionVariables$traitDendrogram(),
+                           traitClustergram = NULL, #session$userData$sessionVariables$traitClustergram(),
+                           distMatProbes = NULL, #session$userData$sessionVariables$distMatProbes(),
+                           clustResProbes = NULL, #session$userData$sessionVariables$clustResProbes(),
+                           dendProbes = NULL #session$userData$sessionVariables$dendProbes()
+          )
+          result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
+          numberCores <- session$userData$numCores
+          base::print(paste0(sysTimePID(), " (pReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
+          if (is.valid(result$matP_Val.t)) {
+            result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matP_Val.t)
+          }
+          else {
+            result$distMatTraits <- NULL
+          }
+          base::print(paste0(sysTimePID(), " (pReducedDataStructure) after distance matrix for reduced traits."))
+          base::print(paste0(sysTimePID(), " (pReducedDataStructure) before clustering for traits.", nrow(result$matP_Val.t)))
+          if (is.valid(result$distMatTraits)) {
+            result$clustResTraits <- getClustResFast(result$distMatTraits)
+          }
+          else {
+            result$clustResTraits <- NULL
+          }
+          base::print(paste0(sysTimePID(), " after clustering results for traits."))
+
+          # if (is.valid(input$sldNumClusters)) {
+          #   base::print(base::paste0(sysTimePID(), " (pReducedDataStructure) start generating traitClusters."))
+          #   if (is.valid(result$clustResTraits) && input$sldNumClusters > 1) {
+          #     result$traitClusters <- cutree(result$clustResTraits,
+          #                                    k = input$sldNumClusters)
+          #   }
+          #   else {
+          #     result$traitClusters <- NULL
+          #   }
+          #   base::print(base::paste0(sysTimePID(), " (pReducedDataStructure) start generating traitClusterMedoids."))
+          #   if (is.valid(result$clustResTraits) && is.valid(result$distMatTraits)) {
+          #     result$traitClusterMedoids <- getTraitClusterMedoids(clustResTraits = result$clustResTraits,
+          #                                                          distMatTraits = result$distMatTraits,
+          #                                                          numClusters = input$sldNumClusters)
+          #   }
+          #   else {
+          #     result$traitClusterMedoids <- NULL
+          #   }
+          # }
+
+          # base::print(base::paste0(sysTimePID(), " (pReducedDataStructure) start generating traitDendrogram."))
+          # #do this only, if a dataset is already loaded
+          #
+          # if (is.valid(result$clustResTraits)) {
+          #   shiny::reactive({
+          #     result$traitDendrogram <- getDendTraits(clustResTraits = result$clustResTraits, traitClusters = input$sldNumClusters)
+          #   })
+          #   base::print(base::paste0(sysTimePID(), " (pReducedDataStructure) after making traitDendrogram."))
+          # }
+          # else {
+          #   result$traitDendrogram <- NULL
+          # }
+          #
+          # base::print(base::paste0(sysTimePID(), " (pReducedDataStructure) start generating traitClustergram."))
+          # if (is.valid(result$matP_Val.t) && is.valid(result$clustResTraits)) {
+          #   result$traitClustergram <- getplotClustergramTraitsLong(matP_Val.t = result$matP_Val.t,
+          #                                                           clustResTraits = result$clustResTraits,
+          #                                                           traitClusters = input$sldNumClusters)
+          # }
+          # else {
+          #   result$traitClustergram <- NULL
+          # }
+        }
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(session$userData$sessionVariables$dendProbes):\n", e)
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$pReducedDataStructure):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(session$userData$sessionVariables$dendProbes):\n", w)
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$pReducedDataStructure):\n", w)
       },
       finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$dendProbes. (last step in session$userData$sessionVariables$dendProbes <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$pReducedDataStructure"))
         return(result)
       }
     )
   })
+
+  session$userData$sessionVariables$traitReducedDataStructure <- shiny::reactive({
+    base::tryCatch(
+      {
+        if (is.valid(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+          result <- base::list(combinedDFP_Val_Labels = NULL,
+                               #matP_Val = session$userData$sessionVariables$matP_Val(), #is part of combinedDFP_Val_Labels()
+                               matP_Val.t = NULL,
+                               distMatTraits = NULL,
+                               clustResTraits = NULL,
+                               traitClusters = NULL,
+                               traitClusterMedoids = NULL,
+                               traitDendrogram = NULL,
+                               traitClustergram = NULL,
+                               distMatProbes = NULL,
+                               clustResProbes = NULL,
+                               probeDendrogram = NULL
+          )
+          if (is.valid(session$userData$sessionVariables$traitReducedData())) {
+            result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
+            result$matP_Val.t = t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
+            numberCores <- session$userData$numCores
+            base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
+            if (is.valid(result$matP_Val.t)) {
+              result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matP_Val.t)
+            }
+            else {
+              result$distMatTraits <- NULL
+            }
+            base::print(paste0(sysTimePID(), " (traitReducedDataStructure) after distance matrix for reduced traits."))
+            #for unknown reason getClustResFast() crashes, if executed without Sys.sleep in advance...
+            Sys.sleep(1)
+            base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before clustering for traits.", base::nrow(result$matP_Val.t)))
+            if (is.valid(result$distMatTraits)) {
+              result$clustResTraits <- getClustResFast(result$distMatTraits)
+            }
+            else {
+              result$clustResTraits <- NULL
+            }
+            base::print(paste0(sysTimePID(), " (traitReducedDataStructure) after clustering results for traits."))
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating traitClusters."))
+            numClusters <- length(result$clustResTraits$order)
+            if (is.valid(result$clustResTraits) && numClusters > 1) {
+              result$traitClusters <- cutree(result$clustResTraits,
+                               k = numClusters)
+            }
+            else {
+              result$traitClusters <- NULL
+            }
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating traitClusterMedoids."))
+            if (is.valid(result$clustResTraits) && is.valid(result$distMatTraits)) {
+              result$traitClusterMedoids <- getTraitClusterMedoids(clustResTraits = result$clustResTraits,
+                                             distMatTraits = result$distMatTraits,
+                                             numClusters = numClusters)
+            }
+            else {
+              result$traitClusterMedoids <- NULL
+            }
+
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating traitDendrogram."))
+            #do this only, if a dataset is already loaded
+            if (is.valid(result$clustResTraits)) {
+              result$traitDendrogram <- getDendTraits(clustResTraits = result$clustResTraits, traitClusters = numClusters)
+              base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) after making traitDendrogram."))
+            }
+            else {
+              result$traitDendrogram <- NULL
+            }
+
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating traitClustergram."))
+            if (is.valid(result$matP_Val.t) && is.valid(result$clustResTraits)) {
+              result$traitClustergram <- getplotClustergramTraitsLong(matP_Val.t = result$matP_Val.t,
+                                                   clustResTraits = result$clustResTraits,
+                                                   traitClusters = numClusters)
+            }
+            else {
+              result$traitClustergram <- NULL
+            }
+
+            # add "number" and reorder columns
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+            result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+            result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+            #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+            result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating distMatProbes."))
+            dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+            if (is.valid(dfP_Val)) {
+              dfP_Val[dfP_Val > 0.05] <- NA # 1
+              base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) calculating distance matrix with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+              base::print(base::class(dfP_Val))
+              base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
+              dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
+              base::print(Cstack_info())
+              if (base::nrow(dfP_Val) >= 5) {
+                numberCores <- session$userData$numCores
+                # clustering for rows
+                base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for n(probes) = ", base::nrow(dfP_Val), " (takes some time). Using n(cores) = ", numberCores, "."))
+                gc()
+                result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = dfP_Val)
+                base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) after distance matrix for probes.", base::nrow(dfP_Val)))
+              }
+            }
+            else {
+              result$distMatProbes <- NULL
+            }
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start clustResProbes."))
+            distMat <- result$distMatProbes
+            if (is.valid(distMat)) {
+              result$clustResProbes <- getClustResFast(distMat)
+            }
+            else {
+              result$clustResProbes <- NULL
+            }
+            if (is.valid(result$clustResProbes)) {
+              result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
+            }
+            else {
+              result$probeDendrogram <- NULL
+            }
+          }
+          ###tbc()
+        }
+      },
+      error = function(e) {
+browser()
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$traitReducedDataStructure):\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$traitReducedDataStructure):\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$traitReducedDataStructure."))
+        return(result)
+      }
+    )
+  })
+
+#   session$userData$sessionVariables$probeReducedDataStructure <- shiny::reactive({
+#     base::tryCatch(
+#       {
+#         traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructure()
+#         result <- base::list(combinedDFP_Val_Labels = traitReducedDataStructure$combinedDFP_Val_Labels,
+#                              matP_Val.t = NULL, #traitReducedDataStructure$matP_Val.t,
+#                              distMatTraits = NULL, #traitReducedDataStructure$distMatTraits,
+#                              clustResTraits = NULL, #traitReducedDataStructure$clustResTraits,
+#                              traitClusters = NULL, #traitReducedDataStructure$traitClusters,
+#                              traitClusterMedoids = NULL, #traitReducedDataStructure$traitClusterMedoids,
+#                              traitDendrogram = NULL, #traitReducedDataStructure$traitDendrogram,
+#                              traitClustergram = NULL, #traitReducedDataStructure$traitClustergram
+#                              distMatProbes = NULL,
+#                              clustResProbes = NULL,
+#                              probeDendrogram = NULL
+#                              )
+#         DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
+#         DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
+#         DNAdistances <- na.omit(DNAdistances)
+#         dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#         dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID),]
+#         result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
+#         rm(dfP_Val)
+#         dfDM <- result$combinedDFP_Val_Labels$dfDM
+#         dfDM <- dfDM[which(rownames(dfDM) %in% DNAdistances$ID),]
+#         result$combinedDFP_Val_Labels$dfDM <- dfDM
+#         rm(dfDM)
+#         dfN <- result$combinedDFP_Val_Labels$dfN
+#         dfN <- dfN[which(rownames(dfN) %in% DNAdistances$ID),]
+#         result$combinedDFP_Val_Labels$dfN <- dfN
+#         rm(dfN)
+# browser()
+#         #do this only, if session$userData$sessionVariables$matP_Val() is.valid
+#         if (is.valid(result$combinedDFP_Val_Labels$dfP_Val)) {
+#           dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#           dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
+#           result$matP_Val.t <- t(dfP_Val)
+#         }
+#         else {
+#           base::print(paste0(sysTimePID(), " is.valid(result$combinedDFP_Val_Labels$dfP_Val) == FALSE."))
+# browser()
+#           result$matP_Val.t <- NULL
+#         }
+#
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$distMatTraits."))
+#         numberCores <- session$userData$numCores
+#         if (is.valid(result$combinedDFP_Val_Labels$dfP_Val)) {
+#           base::print(paste0(sysTimePID(), " before distance matrix for n(traits) = ", base::nrow(result$matP_Val.t),  " (takes some time). Using n(cores) = ", numberCores, "."))
+#           result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matP_Val.t)
+#           base::print(paste0(sysTimePID(), " after distance matrix for traits."))
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " is.valid(result$combinedDFP_Val_Labels$dfP_Val) == FALSE"))
+# browser()
+#           result$distMatTraits <- NULL
+#         }
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$clustResTraits."))
+#         if(is.valid(result$distMatTraits)) {
+#           base::print(paste0(sysTimePID(), " before clustering for traits.", nrow(result$matP_Val.t)))
+#           result$clustResTraits <- getClustResFast(result$distMatTraits)
+# #          base::print(paste0(sysTimePID(), " after clustering results for traits.")) #, nrow(result$matP_Val.t)))
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " is.valid(result$distMatTraits) == FALSE"))
+# browser()
+#           result$clustResTraits <- NULL
+#         }
+#
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$traitClusters."))
+#         if (is.valid(result$clustResTraits) && input$sldNumClusters > 1) {
+#           result$traitClusters <- cutree(result$clustResTraits,
+#                            k = input$sldNumClusters)
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " is.valid(result$clustResTraits) == FALSE && input$sldNumClusters > 1"))
+# browser()
+#           result$traitClusters <- NULL
+#         }
+#         base::print(paste0(sysTimePID(), " after generating session$userData$sessionVariables$probeReducedGeneralDataStructure$traitClusters."))
+#
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$traitClusterMedoids."))
+#         result$traitClusterMedoids <- getTraitClusterMedoids(clustResTraits = result$clustResTraits,
+#                                          distMatTraits = result$distMatTraits,
+#                                          numClusters = input$sldNumClusters)
+#         base::print(paste0(sysTimePID(), " after generating session$userData$sessionVariables$probeReducedGeneralDataStructure$traitClusterMedoids."))
+#
+#         if (is.valid(result$clustResTraits)) {
+#           result$traitDendrogram <- getDendTraits(clustResTraits = result$clustResTraits, traitClusters = input$sldNumClusters)
+#           base::print(base::paste0(sysTimePID(), " after making traitDendrogram."))
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " is.valid(result$clustResTraits == FALSE."))
+# browser()
+#           result$traitDendrogram <- NULL
+#         }
+#
+#         base::print(base::paste0(sysTimePID(), " start session$userData$sessionVariables$probeReducedGeneralDataStructure$traitClustergram."))
+#         if (is.valid(result$matP_Val.t) && is.valid(result$clustResTraits)) {
+#           result$traitClustergram <- getplotClustergramTraitsLong(matP_Val.t = result$matP_Val.t,
+#                                                clustResTraits = result$clustResTraits,
+#                                                traitClusters = input$sldNumClusters)
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " (is.valid(result$matP_Val.t) && is.valid(result$clustResTraits)) == FALSE."))
+# browser()
+#           result$traitClustergram <- NULL
+#         }
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$distMatProbes."))
+#         dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val #session$userData$sessionVariables$traitReducedmatP_Val()
+#         if (is.valid(dfP_Val)) {
+#           dfP_Val[dfP_Val > 0.05] <- NA # 1
+#           base::print(base::paste0(sysTimePID(), " calculating distance matrix with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+#           base::print(base::class(dfP_Val))
+#           base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
+#           dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
+#           base::print(Cstack_info())
+#           if (base::nrow(dfP_Val) >= 5) {
+#             numberCores <- session$userData$numCores
+#             # clustering for rows
+#             base::print(base::paste0(sysTimePID(), " before distance matrix for n(probes) = ", base::nrow(dfP_Val), " (takes some time). Using n(cores) = ", numberCores, "."))
+#             gc()
+#             result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = dfP_Val)
+#             base::print(base::paste0(sysTimePID(), " after distance matrix for probes.", base::nrow(dfP_Val)))
+#           } else {
+#             base::message(base::paste0(sysTimePID(), " less than 5 probes remained."))
+#             result$distMatProbes <- NULL
+#           }
+#           rm(dfP_Val)
+#         }
+#         else {
+# browser()
+#           result$distMatProbes <- NULL
+#         }
+#
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$clustResProbes."))
+#         if (is.valid(result$distMatProbes)) {
+#           result$clustResProbes <- getClustResFast(result$distMatProbes)
+# #          base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$probeReducedGeneralDataStructure$clustResProbes."))
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " is.valid(result$distMatProbes) == FALSE."))
+# browser()
+#           result$clustResProbes <- NULL
+#         }
+#
+#         base::print(base::paste0(sysTimePID(), " start generating session$userData$sessionVariables$probeReducedGeneralDataStructure$dendProbes."))
+#         if(is.valid(result$clustResProbes)){
+#           result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
+#           length(unlist(result))
+#           base::print(base::paste0(sysTimePID(), " after making dendrogram for probes"))
+#         }
+#         else {
+#           base::print(base::paste0(sysTimePID(), " is.valid(result$clustResProbes) == FALSE."))
+# browser()
+#           result$probeDendrogram = NULL
+#         }
+#       },
+#       error = function(e) {
+#         base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$probeReducedGeneralDataStructure):\n", e)
+#       },
+#       warning = function(w) {
+#         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$probeReducedGeneralDataStructure):\n", w)
+#       },
+#       finally = {
+#         base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$probeReducedGeneralDataStructure. (last step in session$userData$sessionVariables$probeReducedGeneralDataStructure <- shiny::reactive())"))
+#         return(result)
+#       }
+#     )
+#   })
 
   DTProbes <- shiny::reactive({
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating DTProbes. (first step in DTProbes <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " start generating DTProbes."))
         base::print(base::paste0(sysTimePID(), " before making probe table."))
-        if (!is.null(session$userData$sessionVariables$clustResProbes())) {
-          dendProbes <- session$userData$sessionVariables$dendProbes()
+        if (!is.null(session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes)) {
+          dendProbes <- session$userData$sessionVariables$traitReducedDataStructure()$probeDendrogram
           listProbes <- (base::labels(dendProbes)) # base::as.numeric
           DTProbes <-
             base::data.frame(row.names = seq_along(listProbes))
@@ -1510,27 +1965,28 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
         }
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(DTProbes):\n", e)
+        base::message("An error occurred in shiny::reactive(DTProbes):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(DTProbes):\n", w)
+        base::message("A warning occurred in shiny::reactive(DTProbes):\n", w)
       },
       finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating DTProbes. (last step in DTProbes <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " finished generating DTProbes."))
         return(result)
       }
     )
   })
 
-  output$DTProbes <- DT::renderDataTable(as.data.frame(DTProbes()))
-
+  output$DTProbes <- DT::renderDataTable(as.data.frame(DTProbes()),
+                                         options = list(pageLength = 1000, info = FALSE,
+                                                                                   lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All")) ))
   DTTraits <- shiny::reactive({
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start generating DTTraits. (first step in DTTraits <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " start generating DTTraits."))
         base::print(base::paste0(sysTimePID(), " before making traits table."))
-        if (!is.null(session$userData$sessionVariables$traitReducedclustResTraits())) {
-          listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$traitReducedclustResTraits(), type = "rectangle")$labels$label
+        if (!is.null(session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits)) {
+          listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits, type = "rectangle")$labels$label
 
           base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
           DTTraits <-
@@ -1547,13 +2003,13 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
         }
       },
       error = function(e) {
-        message("An error occurred in shiny::reactive(DTTraits):\n", e)
+        base::message("An error occurred in shiny::reactive(DTTraits):\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in shiny::reactive(DTTraits):\n", w)
+        base::message("A warning occurred in shiny::reactive(DTTraits):\n", w)
       },
       finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating DTTraits. (last step in DTTraits <- shiny::reactive())"))
+        base::print(base::paste0(sysTimePID(), " finished generating DTTraits."))
         return(result)
       }
     )
@@ -1561,34 +2017,81 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
 
   output$DTTraits <- DT::renderDataTable(as.data.frame(DTTraits()))
 
-  output$plotDendrogramProbes <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$clustResProbes(),
+  output$plotDendrogramProbes <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes,
                                                                              rotate = TRUE, theme_dendro = FALSE))
 
-  output$plotDendrogramTraits <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$traitReducedclustResTraits(),
+  output$plotDendrogramTraits <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits,
                                                                              rotate = TRUE, theme_dendro = FALSE))
 
-  shiny::observeEvent(input$btnPlotCombinedHM,
+  shiny::observeEvent(input$btnPlotCombinedHM_P_Val,
     ignoreInit = TRUE,
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " Step 5: start plotting heatmap. (first step in shiny::observeEvent(input$btnPlotCombinedHM))"))
-          session <- invalidateStep5(session)
-          plotCombinedHM(input = input, output = output, session = session)
+          base::print(base::paste0(sysTimePID(), " Step 5: start plotting heatmap for P_Val. (first step in shiny::observeEvent(input$btnPlotCombinedHM_P_Val))"))
+#          session <- invalidateStep5(session)
+          plotCombinedHM_P_Val(input = input, output = output, session = session)
           session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$plotCombinedHM):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$plotCombinedHM_P_Val):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$plotCombinedHM):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$plotCombinedHM_P_Val):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " finished plotting heatmap. (last step in shiny::observeEvent(input$btnPlotCombinedHM))"))
+          base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedHM_P_Val))"))
         }
       )
     },
     ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val,
+    ignoreInit = TRUE,
+    {
+      base::tryCatch(
+        {
+          base::print(base::paste0(sysTimePID(), " Step 6: start plotting heatmap for distance weighted DM. (first step in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val))"))
+#          session <- invalidateStep5(session)
+          plotCombinedDWHM_P_Val(input = input, output = output, session = session)
+          #session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
+        },
+        error = function(e) {
+          base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val):\n", e)
+        },
+        warning = function(w) {
+          base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val))"))
+        }
+      )
+    },
+    ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val,
+                      ignoreInit = TRUE,
+                      {
+                        base::tryCatch(
+                          {
+                            base::print(base::paste0(sysTimePID(), " Step 6: start plotting condensed heatmap for distance weighted DM. (first step in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val))"))
+#                            session <- invalidateStep5(session)
+                            plotCombinedCondDWHM_P_Val(input = input, output = output, session = session)
+                          },
+                          error = function(e) {
+                            base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val):\n", e)
+                          },
+                          warning = function(w) {
+                            base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val):\n", w)
+                          },
+                          finally = {
+                            base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val))"))
+                          }
+                        )
+                      },
+                      ignoreNULL = FALSE
   )
 
   shiny::observeEvent(input$btnSearchCpGHM,
@@ -1596,25 +2099,25 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start searching CpG. (first step in shiny::observeEvent(input$btnSearchCpGHM))"))
+          base::print(base::paste0(sysTimePID(), " start searching CpG."))
           #find positions
           searchResult <- getSearchResultCpG(input$txtSearchCpG, session)
-          length <- length(session$userData$sessionVariables$clustResProbes()$labels)
+          length <- length(session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes$labels)
           resultText <- paste0(input$txtSearchCpG, " found at position: ", searchResult, " from ", length, " CpG.")
           #write to output
           output$txtSearchResultCpG <- shiny::renderText(resultText)
           #mark in HM
           #browser()
-          #plotCombinedHM()
+          #plotCombinedHM_P_Val()
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " finished searching CpG. (last step in shiny::observeEvent(input$btnSearchCpGHM))"))
+          base::print(base::paste0(sysTimePID(), " finished searching CpG."))
         }
       )
 
@@ -1627,61 +2130,32 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start searching trait. (first step in shiny::observeEvent(input$btnSearchTraitHM))"))
+          base::print(base::paste0(sysTimePID(), " start searching trait."))
           #find positions
           searchResult <- getSearchResultTrait(input$txtSearchTrait, session)
-          length <- length(session$userData$sessionVariables$clustResTraits()$labels)
+          length <- length(session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits$labels)
           resultText <- paste0(input$txtSearchTrait, " found at position: ", searchResult, " from ", length, " Traits.")
           #write to output
           output$txtSearchResultTrait <- shiny::renderText(resultText)
           #mark in HM
           #browser()
-          #plotCombinedHM()
+          #plotCombinedHM_P_Val()
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", e)
+          base:.warning("An error occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", w)
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " end search trait heatmap."))
-          base::print(base::paste0(sysTimePID(), " finished searching trait. (last step in shiny::observeEvent(input$btnSearchTraitHM))"))
+          base::print(base::paste0(sysTimePID(), " finished searching trait."))
         }
       )
 
     },
     ignoreNULL = FALSE
   )
-
-  # shiny::observeEvent(input$sldP_Val,
-  #   ignoreInit = FALSE,
-  #   {
-  #     base::tryCatch(
-  #       {
-  #         if (!base::is.na(base::as.integer(input$sldP_Val[1]))) {
-  #           session$userData$sessionVariables$P_ValMinBorder <-
-  #             5 * 10^-base::as.integer(input$sldP_Val[2])
-  #           session$userData$sessionVariables$P_ValMaxBorder <-
-  #             5 * 10^-base::as.integer(input$sldP_Val[1])
-  #         } else {
-  #           session$userData$sessionVariables$P_ValMinBorder <- 5 * 10^-200
-  #           session$userData$sessionVariables$P_ValMaxBorder <- 5 * 10^-18
-  #         }
-  #       },
-  #       error = function(e) {
-  #         message("An error occurred in shiny::observeEvent(input$sldP_Val):\n", e)
-  #       },
-  #       warning = function(w) {
-  #         message("A warning occurred in shiny::observeEvent(input$sldP_Val):\n", w)
-  #       },
-  #       finally = {
-  #         base::print(base::paste0(sysTimePID(), " end adaptation p-values."))
-  #       }
-  #     )
-  #   },
-  #   ignoreNULL = FALSE
-  # )
 
   shiny::observeEvent(input$chkDebug,
     ignoreInit = TRUE, #FALSE,
@@ -1702,10 +2176,10 @@ browser() #check, whether this is called initially and why plotCombinedHM is cal
           dfdD3 <- result$dfdD3
         },
         error = function(e) {
-          message("An error occurred in shiny::observeEvent(input$chkDebug):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$chkDebug):\n", e)
         },
         warning = function(w) {
-          message("A warning occurred in shiny::observeEvent(input$chkDebug):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$chkDebug):\n", w)
         },
         finally = {
         }

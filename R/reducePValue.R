@@ -29,6 +29,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         LabelsDF3 <- result$labelsDF3
         mergedOriginDF <- result$mergedOriginDF
         mergedColnames <- result$mergedColnames
+        mergedOriginalColnames <- result$mergedOriginalColnames
         mergedOriginTrait <- result$mergedOriginTrait
         mergedDFList <- result$mergedDFList
         # omit p_values from dfs - max PVal
@@ -132,7 +133,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           combinedDFP_Val_Labels <- base::list(dfP_Val = NULL, dfDM = NULL,
                                                dfN = NULL, labelsDF1 = NULL,
                                                labelsDF2 = NULL, labelsDF3 = NULL,
-                                               mergedOriginDF = NULL, mergedColnames = NULL,
+                                               mergedOriginDF = NULL, mergedColnames = NULL, mergedOriginalColnames = NULL,
                                                mergedOriginTrait = NULL, mergedDFList = NULL)
           combinedDFP_Val_Labels$dfP_Val <- dfP_Val
           combinedDFP_Val_Labels$dfDM <- dfDM
@@ -143,6 +144,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           combinedDFP_Val_Labels$labelsDF3 <- LabelsDF3
           combinedDFP_Val_Labels$mergedOriginDF <- mergedOriginDF
           combinedDFP_Val_Labels$mergedColnames <- mergedColnames
+          combinedDFP_Val_Labels$mergedOriginalColnames <- mergedOriginalColnames
           combinedDFP_Val_Labels$mergedOriginTrait <- mergedOriginTrait
           combinedDFP_Val_Labels$mergedDFList <- mergedDFList #(consists of mergedDFList$PHENODF and mergedDFList$PHENOFileName for each source file)
         }
@@ -187,10 +189,11 @@ updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
       }
     },
     error = function(e) {
-      message("An error occurred in updateTxtpReduceOut():\n", e)
+      base::message("An error occurred in updateTxtpReduceOut():\n", e)
     },
+
     warning = function(w) {
-      message("A warning occurred in updateTxtpReduceOut():\n", w)
+      base::message("A warning occurred in updateTxtpReduceOut():\n", w)
     },
     finally = {
       return(shiny::HTML(result))

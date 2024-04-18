@@ -26,10 +26,11 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
     {
       fileNameLPV <- "listResultP_Val_DeltaMeth_N.RDS"
       fileNameLPV <- base::paste0(folder, fileNameLPV)
+#browser()
       doLoadFolderDFList <- TRUE
       if (utils::file_test("-f", fileNameLPV) == TRUE && getYoungestFile(folder) == fileNameLPV) {
         if (loadRDS != FALSE) {
-          base::print(base::paste0(sysTimePID(), " read loadResultDF() from ", fileNameLPV))
+#          base::print(base::paste0(sysTimePID(), " read loadResultDF() from ", fileNameLPV))
           listResultP_Val_DeltaMeth_N <- base::readRDS(file = fileNameLPV)
           doLoadFolderDFList <- FALSE
         } else {
@@ -51,6 +52,37 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
         base::print(base::paste0(sysTimePID(), " read from loadFolderDFList()."))
         listOfResultDF <- loadFolderDFList(session = session, folder = folder) #listOfResultDF <- loadFolderDFList(folder, globalVariables)
         if (base::length(listOfResultDF) != 0) {
+          # read traitListName
+          traitListName <-
+            findInFiles(
+              "traitListName:",
+              folder,
+              in_files = "\\config.yml$",
+              recursive = FALSE
+            ) #look into data folder
+          if (base::length(traitListName) == 0 || traitListName == FALSE) {
+            traitListName <-
+              findInFiles(
+                "traitListName:",
+                paste0(folder, ".."),
+                in_files = "\\config.yml$",
+                recursive = FALSE
+              ) #look one folder up
+          }
+          if (base::length(traitListName) == 0 || traitListName == FALSE) {
+            base::message(base::paste0(sysTimePID(), " config.yml in data folder or
+                                       traitListName not found. Consider placing
+                                       a config.yml file with traitListName:
+                                       <name of trait list> in each data folder."))
+          }
+          else {
+            traitListName <-
+              stringr::str_match(traitListName, "\"(.*?)\"")[2]
+            if (base::length(traitListName) == 0) {
+              base::message(base::paste0(sysTimePID(), " traitListName in config.yml not found."))
+              traitListName <- folder
+            }
+          }
           # read original data for each member of listofResultDF
           # look in data folder into all config.yml files for PHENOFileName:
           PHENOFileNameLine <-
@@ -88,23 +120,34 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               listPrimaryKeys <- as.list(session$userData$config$keyAttributes)
               PHENOdata <- list(PHENODF = getPHENODF(PHENOFileName, listPrimaryKeys), PHENOFileName = PHENOFileName)
               listResultP_Val <- getResultDfP_D_N(listOfResultDF, "P")
-              rn <- rownames(listResultP_Val)
+              rn <- base::rownames(listResultP_Val)
+              #add traitListName to colnames
+              cn <- base::colnames(listResultP_Val)
+              OriginalColnames <- cn
+              cn <- paste0(traitListName, "_", cn)
               listResultP_Val <- base::as.data.frame(listResultP_Val)
               rownames(listResultP_Val) <- rn
+              colnames(listResultP_Val) <- cn
               listResultDeltaMeth <- getResultDfP_D_N(listOfResultDF, "D")
               rn <- rownames(listResultDeltaMeth)
               listResultDeltaMeth <- base::as.data.frame(listResultDeltaMeth)
               rownames(listResultDeltaMeth) <- rn
+              colnames(listResultDeltaMeth) <- cn
               listResultN <- getResultDfP_D_N(listOfResultDF, "N")
               rn <- rownames(listResultN)
               listResultN <- base::as.data.frame(listResultN)
               rownames(listResultN) <- rn
+              colnames(listResultN) <- cn
+
               listResultP_Val_DeltaMeth_N <-
                 list(
                   P_Val = listResultP_Val,
                   DM = listResultDeltaMeth,
                   N = listResultN,
-                  PHENOdata = PHENOdata
+                  OriginalColnames = OriginalColnames,
+                  PHENOdata = PHENOdata,
+                  traitListName = traitListName,
+                  folder = folder
                 )
             }
           }
@@ -125,6 +168,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             #        rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
             rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
             rownames(listResultP_Val_DeltaMeth_N$N) <- rn
+            listResultP_Val_DeltaMeth_N$folder <- folder
           }
           base::print(base::paste0(sysTimePID(), " saveRDS loadFolderDFList()")) # , fileNameLPV, "."))
           base::saveRDS(listResultP_Val_DeltaMeth_N, file = fileNameLPV)
@@ -150,6 +194,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
           colnames(listResultP_Val_DeltaMeth_N$P_Val) <- cn
           colnames(listResultP_Val_DeltaMeth_N$DM) <- cn
           colnames(listResultP_Val_DeltaMeth_N$N) <- cn
+          listResultP_Val_DeltaMeth_N$folder <- folder
         }
         result <- listResultP_Val_DeltaMeth_N
         base::print(base::paste0(sysTimePID(), " finished read from loadFolderDFList()", "."))
@@ -158,10 +203,10 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
       }
     },
     error = function(e) {
-      message("An error occurred in loadResultDF():\n", e)
+      base::message("An error occurred in loadResultDF():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in loadResultDF():\n", w)
+      base::message("A warning occurred in loadResultDF():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end loadResultDF()."))
@@ -198,14 +243,17 @@ loadtraitDFs <- function(traitDFs) {
           resultDFDM <- traitDFs[[i]]$DM # [[2]]
           resultDFN <- traitDFs[[i]]$N # [[3]]
           resultColnames <- base::colnames(traitDFs[[i]]$P_Val)
+          resultOriginalColnames <- traitDFs[[i]]$OriginalColnames
           resultOriginDF <- base::rep(i, length(resultColnames))
           resultDFP_Val$Row.names <- rownames(traitDFs[[i]]$P_Val)
           resultDFDM$Row.names <- rownames(traitDFs[[i]]$DM)
           resultDFN$Row.names <- rownames(traitDFs[[i]]$N)
+          resultFolder <- traitDFs[[i]]$folder
         } else {
           base::print(base::paste0(sysTimePID(), " merge trait ", i, "."))
-          OriginColnames <- base::colnames(traitDFs[[i]]$P_Val)
-          OriginDF <- base::rep(i, length(OriginColnames))
+          cn <- base::colnames(traitDFs[[i]]$P_Val)
+          OriginalColnames <- traitDFs[[i]]$OriginalColnames
+          OriginDF <- base::rep(i, length(cn))
           traitDFs[[i]]$P_Val$Row.names <-
             base::rownames(traitDFs[[i]]$P_Val)
           traitDFs[[i]]$DM$Row.names <- base::rownames(traitDFs[[i]]$DM)
@@ -242,7 +290,9 @@ loadtraitDFs <- function(traitDFs) {
               all.y = TRUE
             )
           resultOriginDF <- base::c(resultOriginDF, OriginDF)
-          resultColnames <- base::c(resultColnames, OriginColnames)
+          resultColnames <- base::c(resultColnames, cn)
+          resultOriginalColnames <- base::c(resultOriginalColnames, OriginalColnames)
+          resultFolder <- traitDFs[[i]]$folder
         }
         listPHENOdata[[i]] <- traitDFs[[i]]$PHENOdata
       }
@@ -268,12 +318,14 @@ loadtraitDFs <- function(traitDFs) {
       result$listPHENOdata <- listPHENOdata
       result$resultOriginDF <- resultOriginDF
       result$resultColnames <- resultColnames
+      result$resultOriginalColnames <- resultOriginalColnames
+      result$folder <- resultFolder
     },
     error = function(e) {
-      message("An error occurred in loadtraitDFs():\n", e)
+      base::message("An error occurred in loadtraitDFs():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in loadtraitDFs():\n", w)
+      base::message("A warning occurred in loadtraitDFs():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end loadtraitDFs()."))
@@ -376,10 +428,10 @@ getlistOfResultsDF <- function(session, folder) {
       }
     },
     error = function(e) {
-      message("An error occurred in getlistOfResultsDF():\n", e)
+      base::message("An error occurred in getlistOfResultsDF():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getlistOfResultsDF():\n", w)
+      base::message("A warning occurred in getlistOfResultsDF():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end getlistOfResultsDF()."))
@@ -422,10 +474,10 @@ loadFolderDFList <- function(session, folder) {
       }
     },
     error = function(e) {
-      message("An error occurred in loadFolderDFList():\n", e)
+      base::message("An error occurred in loadFolderDFList():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in loadFolderDFList():\n", w)
+      base::message("A warning occurred in loadFolderDFList():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end loadFolderDFList()."))
@@ -480,10 +532,10 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
       }
     },
     error = function(e) {
-      message("An error occurred in getPHENODF():\n", e)
+      base::message("An error occurred in getPHENODF():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getPHENODF():\n", w)
+      base::message("A warning occurred in getPHENODF():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end getPHENODF()."))
@@ -533,10 +585,10 @@ getAvailNForP_VALBorder <- function(DF) {
       result <- result[base::order(result[1]), ]
     },
     error = function(e) {
-      message("An error occurred in getAvailNForP_VALBorder():\n", e)
+      base::message("An error occurred in getAvailNForP_VALBorder():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getAvailNForP_VALBorder():\n", w)
+      base::message("A warning occurred in getAvailNForP_VALBorder():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorder()."))
@@ -558,7 +610,6 @@ delete.na <- function(df, n = 0) {
 
 #' getNForP_ValBorder
 #' @description counts number of remaining models below a defined n based on p-value
-#' @export
 #' @param mat matrix for which to calculate results
 #' @param n minimum n for which to calculate results
 #' @return data.frame with results
@@ -581,10 +632,10 @@ getNForP_ValBorder <- function(mat, n) {
     }
   },
   error = function(e) {
-    message("An error occurred in getNForP_ValBorder():\n", e)
+    base::message("An error occurred in getNForP_ValBorder():\n", e)
   },
   warning = function(w) {
-    message("A warning occurred in getNForP_ValBorder():\n", w)
+    base::message("A warning occurred in getNForP_ValBorder():\n", w)
   },
   finally = {
     base::print(base::paste0(sysTimePID(), " end getNForP_ValBorder()."))
@@ -593,8 +644,8 @@ getNForP_ValBorder <- function(mat, n) {
   )
 }
 
+#' getNForDMBorder
 #' @description counts number of remaining models below a defined n based on delta methylation
-#' @export
 #' @param mat matrix for which to calculate results
 #' @param n minimum n for which to calculate results
 #' @return data.frame with results
@@ -621,10 +672,10 @@ getNForDMBorder <- function(mat, DMBorder) {
     }
   },
   error = function(e) {
-    message("An error occurred in getNForDMBorder():\n", e)
+    base::message("An error occurred in getNForDMBorder():\n", e)
   },
   warning = function(w) {
-    message("A warning occurred in getNForDMBorder():\n", w)
+    base::message("A warning occurred in getNForDMBorder():\n", w)
   },
   finally = {
     base::print(base::paste0(sysTimePID(), " end getNForDMBorder()."))
@@ -632,8 +683,9 @@ getNForDMBorder <- function(mat, DMBorder) {
   }
   )
 }
+
+#' getNForNBorder
 #' @description counts number of remaining models below a defined n based on n
-#' @export
 #' @param mat matrix for which to calculate results
 #' @param n minimum n for which to calculate results
 #' @return data.frame with results
@@ -655,10 +707,10 @@ getNForNBorder <- function(mat, NBorder) {
     }
   },
   error = function(e) {
-    message("An error occurred in getNForNBorder():\n", e)
+    base::message("An error occurred in getNForNBorder():\n", e)
   },
   warning = function(w) {
-    message("A warning occurred in getNForNBorder():\n", w)
+    base::message("A warning occurred in getNForNBorder():\n", w)
   },
   finally = {
     base::print(base::paste0(sysTimePID(), " end getNForNBorder()."))
@@ -669,10 +721,12 @@ getNForNBorder <- function(mat, NBorder) {
 
 #' getAvailNForP_VALBorderParallel
 #' counts number of remaining models below a defined n; uses parallel processing for faster results
+#' @param session session
+#' @param wd working directory
 #' @param numCores number of CPU cores to use
 #' @param DF data frame for which to calculate results
 #' @return data.frame with results
-# examples getAvailNForP_VALBorderParallel(numCores, DF)
+# examples getAvailNForP_VALBorderParallel(session, wd, numCores, DF)
 getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
   base::tryCatch({
     base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
@@ -712,16 +766,18 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
       numCoresMemSize <- multiple
     }
     else {
-      base::print(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      base::message(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
+    nWorkers <- parallelly::availableCores(constraints = "connections")
+    numCores <- base::min(numCores,nWorkers)
     base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       error = function(e) {
-        message("An error occurred in future::plan():\n", e)
+        warning("An error occurred in future::plan():\n", e)
         ##extract # of available connections
         e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
         pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
@@ -738,7 +794,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       warning = function(w) {
-        message("A warning occurred future::plan():\n", w)
+        warning("A warning occurred future::plan():\n", w)
       },
       finally = {
         base::print(base::paste0(sysTimePID(), " end error handler future::plan()."))
@@ -748,7 +804,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     library(doFuture)
     result <- foreach::foreach(i = 1:numRows, .combine = rbind, #.packages = c("base"),
                                #.export = c("getNForP_ValBorder", "delete.na", "is.numeric", "nrow"),
-                               .verbose = TRUE) %dofuture% {
+                               .verbose = TRUE) %do% { #.verbose = TRUE) %dofuture% {
       #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
       base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
       result <- getNForP_ValBorder(mat = DF, n = i)
@@ -759,10 +815,10 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     result <- result[base::order(result[[1]], decreasing = TRUE), ]
     },
     error = function(e) {
-      message("An error occurred in getAvailNForP_VALBorderParallel():\n", e)
+      warning("An error occurred in getAvailNForP_VALBorderParallel():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in getAvailNForP_VALBorderParallel():\n", w)
+      warning("A warning occurred in getAvailNForP_VALBorderParallel():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorderParallel()."))
@@ -792,7 +848,8 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
       base::print(base::paste0(sysTimePID(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
       browser() #that should not be the case, please check data!
     }
-    shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
+    #shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
+    shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = 0.001)
     minDM <- as.integer(minDM * 100) #0
     maxDM <- as.integer(maxDM * 100)
     numRows <- maxDM - minDM
@@ -813,17 +870,19 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
       numCoresMemSize <- multiple
     }
     else {
-      base::print(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
+      base::message(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
+    nWorkers <- parallelly::availableCores(constraints = "connections")
+    numCores <- base::min(numCores,nWorkers)
     base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       error = function(e) {
         browser()
-        message("An error occurred in future::plan():\n", e)
+        base::message("An error occurred in future::plan():\n", e)
         ##extract # of available connections
         e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
         pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
@@ -840,7 +899,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       warning = function(w) {
-        message("A warning occurred future::plan():\n", w)
+        base::message("A warning occurred future::plan():\n", w)
       },
       finally = {
         base::print(base::paste0(sysTimePID(), " end error handler future::plan()."))
@@ -849,7 +908,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
     library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
     library(doFuture)
     result <- foreach::foreach(i = minDM:maxDM, .combine = rbind,
-                                 .verbose = TRUE) %dofuture% {
+                               .verbose = TRUE) %do% { # .verbose = TRUE) %dofuture% {
       #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
       base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
       result <- getNForDMBorder(mat = DF, DMBorder = i/100)
@@ -860,10 +919,10 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
     result <- result[base::order(result[[1]], decreasing = TRUE), ]
   },
   error = function(e) {
-    message("An error occurred in getAvailNForDMBorderParallel():\n", e)
+    base::message("An error occurred in getAvailNForDMBorderParallel():\n", e)
   },
   warning = function(w) {
-    message("A warning occurred in getAvailNForDMBorderParallel():\n", w)
+    base::message("A warning occurred in getAvailNForDMBorderParallel():\n", w)
   },
   finally = {
     base::print(base::paste0(sysTimePID(), " end getAvailNForDMBorderParallel()."))
@@ -917,13 +976,15 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
       browser()
     }
     numCores <- base::min(numCores, numCoresMemSize)
+    nWorkers <- parallelly::availableCores(constraints = "connections")
+    numCores <- base::min(numCores,nWorkers)
     base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       error = function(e) {
         browser()
-        message("An error occurred in future::plan():\n", e)
+        base::message("An error occurred in future::plan():\n", e)
         ##extract # of available connections
         e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
         pattern <- "(Cannot create) ([[:digit:]]+) (parallel PSOCK nodes. Each node needs one connection, but there are only) ([[:digit:]]+) (connections left out of the maximum) ([[:digit:]]+) (available on this R installation)"
@@ -940,7 +1001,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       warning = function(w) {
-        message("A warning occurred future::plan():\n", w)
+        base::message("A warning occurred future::plan():\n", w)
       },
       finally = {
         base::print(base::paste0(sysTimePID(), " end error handler future::plan()."))
@@ -950,7 +1011,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
     library(doFuture)
     result <- foreach::foreach(i = minN:maxN, .combine = rbind, #.packages = c("base"),
                                #.export = c("getNForNBorder", "delete.na", "is.numeric", "nrow"),
-                               .verbose = TRUE) %dofuture% {
+                               .verbose = TRUE) %do% { #.verbose = TRUE) %dofuture% {
       #for some reason neither %dopar% nor %dofuture% find getNForDMBorder(), so the solution with source() is not very elegant, but works
       base::source(paste0(wd, "/R/ResultData.R")) #this is necessary for foreach %dopar% to run properly
       result <- getNForNBorder(mat = DF, NBorder = i)
@@ -961,10 +1022,10 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
     result <- result[base::order(result[[1]], decreasing = TRUE), ]
     },
   error = function(e) {
-    message("An error occurred in getAvailNForNBorderParallel():\n", e)
+    base::message("An error occurred in getAvailNForNBorderParallel():\n", e)
   },
   warning = function(w) {
-    message("A warning occurred in getAvailNForNBorderParallel():\n", w)
+    base::message("A warning occurred in getAvailNForNBorderParallel():\n", w)
   },
   finally = {
     base::print(base::paste0(sysTimePID(), " end getAvailNForNBorderParallel()."))
@@ -1020,10 +1081,10 @@ getReducedP_Valdf <-
         base::print(dim(result_df))
       },
       error = function(e) {
-        message("An error occurred  in getReducedP_Valdf():\n", e)
+        base::message("An error occurred  in getReducedP_Valdf():\n", e)
       },
       warning = function(w) {
-        message("A warning occurred in getReducedP_Valdf():\n", w)
+        base::message("A warning occurred in getReducedP_Valdf():\n", w)
       },
       finally = {
         base::print(base::paste0(sysTimePID(), " end getReducedP_Valdf()."))
@@ -1055,6 +1116,7 @@ removeTraitsMinN <- function(dfList, minN) {
         dfDM <- dfList$dfDM
         resultOriginDF <- dfList$resultOriginDF
         resultColnames <- dfList$resultColnames
+        resultOriginalColnames <- dfList$resultOriginalColnames
         listPHENOdata <- dfList$listPHENOdata
         dfN <- base::as.data.frame(dfN)
         dfP_Val <- base::as.data.frame(dfP_Val)
@@ -1079,12 +1141,14 @@ removeTraitsMinN <- function(dfList, minN) {
         colnames(dfDM) <- cn
         resultOriginDF <- resultOriginDF[positions]
         resultColnames <- resultColnames[positions]
+        resultOriginalColnames <- resultOriginalColnames[positions]
         dfList <- base::list(
           dfP_Val = NULL,
           dfDM = NULL,
           dfN = NULL,
           resultOriginDF = NULL,
           resultColnames = NULL,
+          resultOriginalColnames = NULL,
           listPHENOdata = NULL
         )
         dfList$dfP_Val <- dfP_Val
@@ -1092,17 +1156,18 @@ removeTraitsMinN <- function(dfList, minN) {
         dfList$dfN <- dfN
         dfList$resultOriginDF <- resultOriginDF
         dfList$resultColnames <- resultColnames
+        dfList$resultOriginalColnames <- resultOriginalColnames
         dfList$listPHENOdata <- listPHENOdata
       }
       else {
-        base::print(base::paste0(sysTimePID(), " minN does not exist."))
+        base::message(base::paste0(sysTimePID(), " minN does not exist."))
       }
     },
     error = function(e) {
-      message("An error occurred in removeTraitsMinN():\n", e)
+      base::message("An error occurred in removeTraitsMinN():\n", e)
     },
     warning = function(w) {
-      message("A warning occurred in removeTraitsMinN():\n", w)
+      base::message("A warning occurred in removeTraitsMinN():\n", w)
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end removeTraitsMinN()."))
@@ -1127,12 +1192,6 @@ checklistResultP_Val_DeltaMeth_NValidity <- function(listResultP_Val_DeltaMeth_N
   if (!is.valid(listResultP_Val_DeltaMeth_N$N)) {
     result <- FALSE
   }
-  # if (!is.valid(listResultP_Val_DeltaMeth_N$resultOriginDF)) {
-  #   result <- FALSE
-  # }
-  # if (!is.valid(listResultP_Val_DeltaMeth_N$resultColnames)) {
-  #   result <- FALSE
-  # }
   if (!is.valid(listResultP_Val_DeltaMeth_N$PHENOdata$PHENODF)) {
     result <- FALSE
   }
@@ -1171,7 +1230,7 @@ checkResultP_Val_cg <- function(listResultP_Val) {
     }
     else {
       base::message(
-        base::paste0(
+        base::message(
           sysTimePID(),
           "warning: length(listResultP_Val)[1] == 0"
         )
