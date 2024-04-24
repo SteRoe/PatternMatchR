@@ -60,14 +60,14 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
       c(1, "#ef553b")
     )
     #25900x3200 is possible for dimensions
-    if (is.numeric(height)) {
-      h <- base::paste0(height, "px")
-    }
-    if (is.numeric(width)) {
-      w <- base::paste0(width, "px")
-    }
+    # if (is.numeric(height)) {
+    #   h <- base::paste0(height, "px")
+    # }
+    # if (is.numeric(width)) {
+    #   w <- base::paste0(width, "px")
+    # }
     if ("markingVar" %in% colnames(df)) {
-      df[,"markingVar"]<-as.factor(df[,"markingVar"])
+      df[, "markingVar"] <- as.factor(df[, "markingVar"])
     }
     fig <- df %>%
       plotly::plot_ly(height = height, width = width)
@@ -94,9 +94,8 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
         )
     }
     else if (is.valid(markingVar) && any(markingVar %in% colnames(df))) {
-#    if (!is.null(markingVar) && any(markingVar %in% colnames(df))) {
       fig <- fig %>%
-      plotly::add_trace(
+        plotly::add_trace(
         type = "splom",
         dimensions = dimensions,
         text = as.formula(paste0("~factor(", markingVar, ", labels=c(\"control\",\"case\"))")),
@@ -118,7 +117,7 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
     }
     else {
       fig <- fig %>%
-      plotly::add_trace(
+        plotly::add_trace(
         type = "splom",
         dimensions = dimensions,
         diagonal = list(visible = FALSE),

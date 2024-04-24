@@ -44,7 +44,7 @@ originalWd <- NULL
 }
 
 .onUnload <- function(libpath) {
-  o <<- originalWd
+  o <- originalWd
   setwd(o)
 }
 
@@ -57,11 +57,11 @@ PatternMatchRApp <- function() {
 }
 
 loadDirLists <- function(session, input, output) {
-  dfdD1 <<-
+  dfdD1 <-
     data.table::as.data.table(base::unlist(session$userData$config$dataDir1))
-  dfdD2 <<-
+  dfdD2 <-
     data.table::as.data.table(base::unlist(session$userData$config$dataDir2))
-  dfdD3 <<-
+  dfdD3 <-
     data.table::as.data.table(base::unlist(session$userData$config$dataDir3))
 
   output$trait1DirList <- DT::renderDT({DT::datatable(dfdD1, options = list(pageLength = 100))}, server = FALSE) #output$trait1DirList <- DT::renderDataTable(dfdD1)
@@ -84,11 +84,11 @@ loadObjects <- function(session) {
   annotation <- meffil::meffil.get.features("450k")
   rownames(annotation) <- annotation$name
   session$userData$annotation <- annotation
-  base::print(base::paste0(sysTimePID(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation),"."))
+  base::print(base::paste0(sysTimePID(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation), "."))
   base::print(base::paste0(sysTimePID(), " detecting cores."))
   numCores <- parallelly::availableCores() # parallel::detectCores()
   nWorkers <- parallelly::availableCores(constraints = "connections")
-  numCores <- base::min(numCores,nWorkers)
+  numCores <- base::min(numCores, nWorkers)
   if (!is.null(numCores)) {
     if (numCores >= 64) {
       #numCores <- as.integer(numCores / 2)
@@ -121,17 +121,17 @@ loadObjects <- function(session) {
     }
   }
   dataDirList <- as.list(session$userData$config$dataDir1)
-  DirFound <- lapply(dataDirList, FUN = file.exists)
+#  DirFound <- lapply(dataDirList, FUN = file.exists)
   dataDirList <- lapply(dataDirList, FUN = addInstToPath)
   session$userData$config$dataDir1 <- unlist(dataDirList)
 
   dataDirList <- as.list(session$userData$config$dataDir2)
-  DirFound <- lapply(dataDirList, FUN = file.exists)
+#  DirFound <- lapply(dataDirList, FUN = file.exists)
   dataDirList <- lapply(dataDirList, FUN = addInstToPath)
   session$userData$config$dataDir2 <- unlist(dataDirList)
 
   dataDirList <- as.list(session$userData$config$dataDir3)
-  DirFound <- lapply(dataDirList, FUN = file.exists)
+#  DirFound <- lapply(dataDirList, FUN = file.exists)
   dataDirList <- lapply(dataDirList, FUN = addInstToPath)
   session$userData$config$dataDir3 <- unlist(dataDirList)
 
@@ -160,7 +160,7 @@ loadObjects <- function(session) {
 #loadResultFile <- function(folder, fileName, globalVariables) {
 loadResultFile <- function(session, folder, fileName) {
 #tbc() insert tryCatch here or options(warn=2)
-options(warn = 2)
+  options(warn = 2)
   fileName <- base::paste0(folder, fileName, ".csv")
   base::print(base::paste0(sysTimePID(), " before fread()."))
   all.results <-
@@ -224,12 +224,14 @@ getYoungestFile <- function(folder) {
 extractMantissaExponent <-
   function(x) {
     # https://r.789695.n4.nabble.com/Built-in-function-for-extracting-mantissa-and-exponent-of-a-numeric-td4670116.html
+    # convert negative values
+    x <- base::abs(x)
     e <- ifelse(x == 0, 0, floor(log10(x)))
     m <- x / 10^e
     list(mantissa = m, exponent = e)
   }
 
-addInstToPath <- function (fileName) {
+addInstToPath <- function(fileName) {
   if(!file.exists(fileName)) {
     base::message(base::paste0(sysTimePID(), " file not found: ", fileName, ". Is your config.yml correct?"))
     fileName <- stringr::str_sub(fileName, start = 2, end = stringr::str_length(fileName))
@@ -252,7 +254,7 @@ addInstToPath <- function (fileName) {
 # examples loadDNAm(betaFileName)
 loadDNAm <- function(betaFileName, config) {
   base::print(base::paste0(sysTimePID(), " loading configuration."))
-#  config <- session$userData$config #config::get(file = "config.yml")
+  #config <- session$userData$config #config::get(file = "config.yml")
   base::print(base::paste0(sysTimePID(), " load beta."))
   #if (TRUE) {
   if (config$debugMode == FALSE) {
@@ -364,13 +366,13 @@ getEmptyPlot <- function() {
 # examples addLinkToEWASDataHub(data.frame, baseURL)
 addLinkToEWASDataHub <- function(df, baseURL, probeAttribut) {
   #provide link to EWAS data hub
-  df$EWASDataHub = base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[,probeAttribut],'</a>')
+  df$EWASDataHub <- base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[, probeAttribut], '</a>')
   return(df)
 }
 
 addLinkToEWASDataHubShort <- function(df, baseURL, probeAttribut) {
   #provide link to EWAS data hub
-  df$EWASDataHubShort = base::paste0(baseURL, df[,probeAttribut])
+  df$EWASDataHubShort <- base::paste0(baseURL, df[, probeAttribut])
   return(df)
 }
 
@@ -385,13 +387,13 @@ addLinkToEWASDataHubShort <- function(df, baseURL, probeAttribut) {
 # examples addLinkToMRCEWASCatalog(data.frame)
 addLinkToMRCEWASCatalog <- function(df, baseURL, probeAttribut) {
   #provide link to MRC EWAS catalog
-  df$MRCEWASCatalog = base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[,probeAttribut],'</a>' )
+  df$MRCEWASCatalog <- base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[, probeAttribut], '</a>' )
   return(df)
 }
 
 addLinkToMRCEWASCatalogShort <- function(df, baseURL, probeAttribut) {
   #provide link to MRC EWAS catalog
-  df$MRCEWASCatalogShort = base::paste0(baseURL, df[,probeAttribut])
+  df$MRCEWASCatalogShort <- base::paste0(baseURL, df[, probeAttribut])
   return(df)
 }
 

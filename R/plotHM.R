@@ -522,138 +522,104 @@ combinedDFInteractiveHeatMapP_Val <-
       }
     )
     #add two right second heatmap for new measures here:
-    base::tryCatch(
-      {
-        #numrows <- base::nrow(matP_Val)
-        #vec <- stats::rnorm(numrows)
-        #tbc()
-        #tbc()
-#browser()
-        vec <- session$userData$sessionVariables$distNeigboursProbes100()
-        vec <- vec[,2] #take means
-        #normalize vec to -1...1
-        hist(vec, plot = TRUE)
-        vec <-  scales::rescale(vec, to = c(-1, 1))
-        #invert vec
-        vec <- vec * -1
-        ht2 <- ComplexHeatmap::Heatmap(vec, name = "distances on DNA (100); low value: short distance.")
-        #vec <- stats::rnorm(numrows)
-        #ht3 <- ComplexHeatmap::Heatmap(vec, name = "new measure2")
-        vec <- session$userData$sessionVariables$distNeigboursProbes1000()
-        vec <- vec[,2] #take means
-        hist(vec, plot = TRUE)
-        #normalize vec to -1...1
-        vec <-  scales::rescale(vec, to = c(-1, 1))
-        #invert vec
-        vec <- vec * -1
-        ht3 <- ComplexHeatmap::Heatmap(vec, name = "distances on DNA (1000); low value: short distance.")
-        #fill nA with 1, so distances of far away CpG dont become modified
-        #other variant: fill with 0, so those become zeroes
-        #other variant: leave NA, so those become omitted
-        vec <- data.table::nafill(vec, type = "const", fill = 1)
-        library(data.table)
-browser() #check dimensions of dt and vec!!!
-        dt <- data.table(matP_Val)
-        DWP_Val <- data.table(t(t(dt)*vec))
-        # for (i in seq_along(dt[,2])) {
-        #   dt[, (i) := dt[[i]] * vec]
-        # }
-        # DWP_Val <- dt
-#browser()
-#vec has Distances of neighbouring CpG dist = 1000 up/down and becomes multiplied with p_val
-        # we here try to find trait pairs, that differ in trait colour (red, green, blue), but share high similarity
-        DWP_Val <- as.matrix(DWP_Val)
-        DWht <-
-          ComplexHeatmap::Heatmap(
-            DWP_Val,
-            rect_gp = grid::gpar(type = "none"),
-            cluster_rows = dendProbes,
-            cluster_columns = dendTraits,
-            top_annotation = ha,
-            layer_fun = function(j, i, x, y, w, h, fill) {
-              if (length(i) == base::nrow(matP_Val) * base::ncol(matP_Val)) {
-                # we are in main HM
-                subHM <- FALSE
-              } else {
-                # we are in sub HM
-                subHM <- TRUE
-              }
-              l <- labels[j] == "trait 1"
-              if (any(l)) {
-                grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
-                  fill = col1(ComplexHeatmap::pindex(matP_Val, i[l], j[l])),
-                  col = col1(ComplexHeatmap::pindex(matP_Val, i[l], j[l]))
-                ))
-              }
-              l <- labels[j] == "trait 2"
-              if (any(l)) {
-                grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
-                  fill = col2(ComplexHeatmap::pindex(matP_Val, i[l], j[l])),
-                  col = col2(ComplexHeatmap::pindex(matP_Val, i[l], j[l]))
-                ))
-              }
-              l <- labels[j] == "trait 3"
-              if (any(l)) {
-                grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
-                  fill = col3(ComplexHeatmap::pindex(matP_Val, i[l], j[l])),
-                  col = col3(ComplexHeatmap::pindex(matP_Val, i[l], j[l]))
-                ))
-              }
-              #mark selected row indices
-              labelsProbes  <- labels(dendProbes)
-              rowsToMarkYellow <- labelsProbes %in% selectedRowIndicesYellow
-              if (any(rowsToMarkYellow)) {
-                grid::grid.rect(x, y[rowsToMarkYellow], w, h[rowsToMarkYellow], gp = grid::gpar(
-                  fill = "yellow",
-                  col = "yellow"
-                ))
-              }
-              rowsToMarkOrange <- labelsProbes %in% selectedRowIndicesOrange
-              if (any(rowsToMarkOrange)) {
-                grid::grid.rect(x, y[rowsToMarkOrange], w, h[rowsToMarkOrange], gp = grid::gpar(
-                  fill = "orange",
-                  col = "orange"
-                ))
-              }
-              if (subHM == TRUE) {
-                grid::grid.text(
-                  paste0(
-                    "p:",
-                    sprintf("%.G", ComplexHeatmap::pindex(matP_Val, i, j)),
-                    "\n",
-                    "d:",
-                    sprintf("%.G", ComplexHeatmap::pindex(matDM, i, j)),
-                    "\n",
-                    "n:",
-                    ComplexHeatmap::pindex(matN, i, j)
-                  ),
-                  x,
-                  y,
-                  gp = grid::gpar(fontsize = 8)
-                )
-              }
-            },
-            show_heatmap_legend = FALSE,
-            use_raster = TRUE,
-            raster_by_magick = TRUE
-          )
-      },
-      error = function(e) {
-        base::message("An error occurred in add new measure:\n", e)
-      },
-      warning = function(w) {
-        base::message("A warning occurred in add new measure:\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " end add new measure."))
-      }
-    )
+    # base::tryCatch(
+    #   {
+    #     # if (is.valid(combinedDF_Labels$DWdfP_Val)) {
+    #       # DWP_Val <- combinedDF_Labels$DWdfP_Val
+    #       # # we here try to find trait pairs, that differ in trait colour (red, green, blue), but share high similarity
+    #       # DWP_Val <- as.matrix(DWP_Val)
+    #       # DWht <- ComplexHeatmap::Heatmap(
+    #       #   DWP_Val,
+    #       #   rect_gp = grid::gpar(type = "none"),
+    #       #   cluster_rows = dendProbes,
+    #       #   cluster_columns = dendTraits,
+    #       #   top_annotation = ha,
+    #       #   layer_fun = function(j, i, x, y, w, h, fill) {
+    #       #     if (length(i) == base::nrow(matP_Val) * base::ncol(matP_Val)) {
+    #       #       # we are in main HM
+    #       #       subHM <- FALSE
+    #       #     } else {
+    #       #       # we are in sub HM
+    #       #       subHM <- TRUE
+    #       #     }
+    #       #     l <- labels[j] == "trait 1"
+    #       #     if (any(l)) {
+    #       #       grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
+    #       #         fill = col1(ComplexHeatmap::pindex(matP_Val, i[l], j[l])),
+    #       #         col = col1(ComplexHeatmap::pindex(matP_Val, i[l], j[l]))
+    #       #       ))
+    #       #     }
+    #       #     l <- labels[j] == "trait 2"
+    #       #     if (any(l)) {
+    #       #       grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
+    #       #         fill = col2(ComplexHeatmap::pindex(matP_Val, i[l], j[l])),
+    #       #         col = col2(ComplexHeatmap::pindex(matP_Val, i[l], j[l]))
+    #       #       ))
+    #       #     }
+    #       #     l <- labels[j] == "trait 3"
+    #       #     if (any(l)) {
+    #       #       grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
+    #       #         fill = col3(ComplexHeatmap::pindex(matP_Val, i[l], j[l])),
+    #       #         col = col3(ComplexHeatmap::pindex(matP_Val, i[l], j[l]))
+    #       #       ))
+    #       #     }
+    #       #     #mark selected row indices
+    #       #     labelsProbes  <- labels(dendProbes)
+    #       #     rowsToMarkYellow <- labelsProbes %in% selectedRowIndicesYellow
+    #       #     if (any(rowsToMarkYellow)) {
+    #       #       grid::grid.rect(x, y[rowsToMarkYellow], w, h[rowsToMarkYellow], gp = grid::gpar(
+    #       #         fill = "yellow",
+    #       #         col = "yellow"
+    #       #       ))
+    #       #     }
+    #       #     rowsToMarkOrange <- labelsProbes %in% selectedRowIndicesOrange
+    #       #     if (any(rowsToMarkOrange)) {
+    #       #       grid::grid.rect(x, y[rowsToMarkOrange], w, h[rowsToMarkOrange], gp = grid::gpar(
+    #       #         fill = "orange",
+    #       #         col = "orange"
+    #       #       ))
+    #       #     }
+    #       #     if (subHM == TRUE) {
+    #       #       grid::grid.text(
+    #       #         paste0(
+    #       #           "p:",
+    #       #           sprintf("%.G", ComplexHeatmap::pindex(matP_Val, i, j)),
+    #       #           "\n",
+    #       #           "d:",
+    #       #           sprintf("%.G", ComplexHeatmap::pindex(matDM, i, j)),
+    #       #           "\n",
+    #       #           "n:",
+    #       #           ComplexHeatmap::pindex(matN, i, j)
+    #       #         ),
+    #       #         x,
+    #       #         y,
+    #       #         gp = grid::gpar(fontsize = 8)
+    #       #       )
+    #       #     }
+    #       #   },
+    #       #   show_heatmap_legend = FALSE,
+    #       #   use_raster = TRUE,
+    #       #   raster_by_magick = TRUE
+    #       # )
+    #     # }
+    #   },
+    #   error = function(e) {
+    #     base::message("An error occurred in add new measure:\n", e)
+    #   },
+    #   warning = function(w) {
+    #     base::message("A warning occurred in add new measure:\n", w)
+    #   },
+    #   finally = {
+    #     base::print(base::paste0(sysTimePID(), " end add new measure."))
+    #   }
+    # )
     base::tryCatch(
       {
         base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw()"))
         # with huge heatmaps, the following error occurs:
         # Error in Cairo: Failed to create Cairo backend!
-        ht <- ComplexHeatmap::draw(ht + ht2 + ht3, annotation_legend_list = lgd)
+        # ht <- ComplexHeatmap::draw(ht + ht2 + ht3, annotation_legend_list = lgd)
+        ht <- ComplexHeatmap::draw(ht, annotation_legend_list = lgd)
       },
       error = function(err) {
         base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", err$message))
@@ -668,7 +634,9 @@ browser() #check dimensions of dt and vec!!!
         l <- base::list()
         base::print(base::paste0(sysTimePID(), " l$combinedHMP_VAL <- ht"))
         l$combinedHMP_VAL <- ht
-        l$DWcombinedHMP_VAL <- DWht
+        # if (is.valid(DWht)) {
+        #   l$DWcombinedHMP_VAL <- DWht
+        # }
         endTime <- Sys.time()
         elapsedTime <- endTime - startTime
         base::print(base::paste0(sysTimePID(), " end combinedDFInteractiveHeatMapP_Val()"))
@@ -748,8 +716,8 @@ plotCombinedHM_P_Val <- function(input, output, session) {
   base::print(base::class(dfP_Val))
   if (nrow(dfP_Val) > 5) {
     startTime <- Sys.time()
-    output$txtResultingN <-
-      shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
+    # output$txtResultingN <-
+    #   shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
     base::print(base::paste0(sysTimePID(), " gc()"))
     base::tryCatch({
       # check clustResProbes > 8
@@ -842,7 +810,7 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
     grDevices::dev.off()
   }
   base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
-  combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels
+  combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels
 
   dfP_Val <- combinedDFP_Val_Labels$dfP_Val
   #browser() #if step 3 was omitted, we see an error here...
@@ -887,7 +855,7 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
       l <-
         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
       base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
-      combinedHMP_VAL <- l$DWcombinedHMP_VAL #l$combinedHMP_VAL
+      combinedHMP_VAL <- l$combinedHMP_VAL
 
       endTime <- Sys.time()
       elapsedTime <- endTime - startTime
@@ -955,30 +923,12 @@ plotCombinedCondDWHM_P_Val <- function(input, output, session) {
       grDevices::dev.off()
     }
     base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
-    combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels
+    #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure(numNeighbours = 10)$combinedDFP_Val_Labels
+    combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels
     dfP_Val <- combinedDFP_Val_Labels$dfP_Val
     #browser() #if step 3 was omitted, we see an error here...
-###tbc()
-    ### delete CpG with no neighbours here...
-    ### see, whether dfP_Val has CpG names
-    ### take only those, which have counterparts in DNAdistances:
-#    DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
-#    DNAdistances <- na.omit(DNAdistances)
-browser() # for whatever reason there is no reduction here....
-#we need either to write this back to session$userData$sessionVariables$traitReducedDataStructure()
-#or write the following function based on dfP_Val...
-#we need to create dendProbes and dendTraits also new for the reduced variant...
 
-
-    base::print(
-      base::paste0(
-        sysTimePID(),
-        " calculating combined heatmap with rows= ",
-        nrow(dfP_Val),
-        " cols= ",
-        ncol(dfP_Val)
-      )
-    )
+    base::print(base::paste0(sysTimePID(), " calculating combined heatmap with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
     base::print(base::class(dfP_Val))
     if (nrow(dfP_Val) > 5) {
       startTime <- Sys.time()
@@ -986,20 +936,16 @@ browser() # for whatever reason there is no reduction here....
       gc()
       # check clustResProbes > 8
       base::options(expressions = 500000)
-      dendProbes <- session$userData$sessionVariables$traitReducedDataStructure()$probeDendrogram
-browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
-      dendProbes <-
-        dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
-      dendTraits <- session$userData$sessionVariables$traitReducedDataStructure()$traitDendrogram
-browser()
-#dendTraits <- dendTraits[which(rownames(dendTraits) %in% DNAdistances$ID),]
 
+#      if (is.valid(combinedDF_Labels$dfP_Val)) {
+      dendProbes <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$probeDendrogram
+#browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
+      dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      dendTraits <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$traitDendrogram
+#browser()
       base::print(base::paste0(sysTimePID(), " before calculating condensed DW heatmap"))
-
       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-#      length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
-#      length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
       selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchCpG, split = " "))
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
       selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
@@ -1010,7 +956,7 @@ browser()
       l <-
         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
       base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
-      combinedHMP_VAL <- l$DWcombinedHMP_VAL #l$combinedHMP_VAL
+      combinedHMP_VAL <- l$combinedHMP_VAL
 
       endTime <- Sys.time()
       elapsedTime <- endTime - startTime
