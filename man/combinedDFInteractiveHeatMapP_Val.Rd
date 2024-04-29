@@ -8,8 +8,10 @@ combinedDFInteractiveHeatMapP_Val(
   combinedDF_Labels,
   dendProbes = NA,
   dendTraits = NA,
-  selectedRowIndices = NA,
-  selectedColIndices = NA
+  selectedRowIndicesYellow = NA,
+  selectedColIndices = NA,
+  selectedRowIndicesOrange = NA,
+  session = session
 )
 }
 \arguments{
@@ -18,6 +20,14 @@ combinedDFInteractiveHeatMapP_Val(
 \item{dendProbes}{dendrogram (without labels) for probes (rows), generated externally and providing information for clustering of heatmap}
 
 \item{dendTraits}{dendrogram (without labels) result for traits (columns), generated externally and providing information for clustering of heatmap}
+
+\item{selectedRowIndicesYellow}{indicies of HM rows to mark in yellow color}
+
+\item{selectedColIndices}{indicies of HM cols to mark (not used so far)}
+
+\item{selectedRowIndicesOrange}{indicies of HM rows to mark in orange color}
+
+\item{session}{session object for reference}
 }
 \value{
 heatmap object for InteractiveComplexHeatmap::makeInteractiveComplexHeatmap

@@ -110,9 +110,9 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           if (debugMode == TRUE && base::nrow(dfP_Val) > session$userData$sessionVariables$debugNumber) {
             base::print(base::paste0(sysTimePID(), " debug mode n probes=session$userData$sessionVariables$debugNumber"))
             #dfP_Val <- dfP_Val[1:session$userData$sessionVariables$debugNumber, ]
-            dfP_Val <- head(dfP_Val,session$userData$sessionVariables$debugNumber)
-            dfDM <- head(dfDM,session$userData$sessionVariables$debugNumber)
-            dfN <- head(dfN,session$userData$sessionVariables$debugNumber)
+            dfP_Val <- head(dfP_Val, session$userData$sessionVariables$debugNumber)
+            dfDM <- head(dfDM, session$userData$sessionVariables$debugNumber)
+            dfN <- head(dfN, session$userData$sessionVariables$debugNumber)
           }
           base::print(base::paste0(
             sysTimePID(),

@@ -4,7 +4,7 @@
 \alias{updateTxtMergeOut}
 \title{updateTxtMergeOut}
 \usage{
-updateTxtMergeOut(combinedDFP_Val_Labels)
+updateTxtMergeOut(combinedDataStructure)
 }
 \arguments{
 \item{combinedDFP_Val_Labels}{data.frame containing merged results}

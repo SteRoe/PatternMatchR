@@ -16,7 +16,7 @@ getTraitSubsetcombinedDFP_Val_Labels(combinedDFP_Val_Labels, traits, keys)
 }
 \value{
 combinedDFP_Val_Labels structure list()
-examples loadResultDF(combinedDFP_Val_Labels, traits)
+examples getTraitSubsetcombinedDFP_Val_Labels(combinedDFP_Val_Labels, traits, keys)
 }
 \description{
 getTraitSubsetcombinedDFP_Val_Labels

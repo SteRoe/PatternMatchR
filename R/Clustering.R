@@ -94,25 +94,26 @@ calculateDistanceNeigboursProbes <- function(wd, clustResProbes, annotation, dis
       base::print(base::paste0(sysTimePID(), " start calculateDistanceNeigboursProbes() with max distance (distanceToLook) = ", distanceToLook, "."))
       #get chr and location from annotation
       maxDistanceToLook <- distanceToLook
-      annotation <- subset(annotation,select = c("name", "chromosome","position"))
+      annotation <- subset(annotation, select = c("name", "chromosome", "position"))
       #merge annotation
       CpG <- as.data.frame(clustResProbes$labels[clustResProbes$order])
       colnames(CpG)[1] <- "label"
-      CpG$order <- seq(1:nrow(CpG))
+      #CpG$order <- seq(1:nrow(CpG))
+      CpG$order <- seq_len(base::nrow(CpG))
       distances <- base::merge(CpG, annotation, by.x = "label", by.y = "name")
-      DNAdistancesUp <- base::data.frame(seq_along(distances[,2]), 2)
-      DNAdistances <- base::data.frame(seq_along(distances[,2]), 5)
+      DNAdistancesUp <- base::data.frame(seq_along(distances[, 2]), 2)
+      DNAdistances <- base::data.frame(seq_along(distances[, 2]), 5)
       #sort order given by clustering
       distances <- distances[base::order(distances$order),]
-#      library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
-#      library(doFuture)
-#      future::plan(strategy = future::multisession, workers = numCores)
+      #library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
+      #library(doFuture)
+      #future::plan(strategy = future::multisession, workers = numCores)
       #calculate mean distance to distanceToLook next probes in given order, omit probes with different chr
-      #      foreach::foreach(i = seq_along(distances[,2]), .combine = rbind, .verbose = TRUE) %dofuture% { #for all objects in distances
-      foreach::foreach(i = seq_along(distances[,2])) %do% { #for all objects in distances
+      #      foreach::foreach(i = seq_along(distances[, 2]), .combine = rbind, .verbose = TRUE) %dofuture% { #for all objects in distances
+      foreach::foreach(i = seq_along(distances[, 2])) %do% { #for all objects in distances
       #for(i in seq_along(distances[,2])) { #for all objects in distances
-#        base::source(paste0(wd, "/R/Clustering.R")) #this is necessary for foreach %dopar% to run properly
-        currentCpG <- distances[i,]
+        #base::source(paste0(wd, "/R/Clustering.R")) #this is necessary for foreach %dopar% to run properly
+        currentCpG <- distances[i, ]
         #cut out defined number of probes (up- and downstream from CpG)
         lowerBorder <- i-distanceToLook
         if (lowerBorder < 1) {lowerBorder <- 1}#
@@ -128,42 +129,42 @@ calculateDistanceNeigboursProbes <- function(wd, clustResProbes, annotation, dis
           #upstream
           foreach::foreach(j = 1:distanceToLook) %do% { #max. distance given by distanceToLook
           #for(j in 1:distanceToLook) { #max. distance given by distanceToLook
-            CpG <- distances[j,]
+            CpG <- distances[j, ]
             if (currentCpG$label != CpG$label) {
-              DNAdistancesUp[j,2] <- base::abs(currentCpG$position - CpG$position)
+              DNAdistancesUp[j, 2] <- base::abs(currentCpG$position - CpG$position)
             }
             else {
-              DNAdistancesUp[j,2] <- NA
+              DNAdistancesUp[j, 2] <- NA
             }
-            DNAdistancesUp[j,1] <- currentCpG$label
+            DNAdistancesUp[j, 1] <- currentCpG$label
           }
 #browser() #check number of nearby CpG
-          if(is.numeric(DNAdistancesUp[j,2])) {
-            DNAdistances[i,2] <- base::min((DNAdistancesUp[,2]), na.rm = TRUE)
-            DNAdistances[i,3] <- base::mean((DNAdistancesUp[,2]), na.rm = TRUE)
-            DNAdistances[i,4] <- base::max((DNAdistancesUp[,2]), na.rm = TRUE)
-            DNAdistances[i,5] <- base::length(na.omit(DNAdistancesUp[,2]))
+          if (is.numeric(DNAdistancesUp[j, 2])) {
+            DNAdistances[i, 2] <- base::min((DNAdistancesUp[, 2]), na.rm = TRUE)
+            DNAdistances[i, 3] <- base::mean((DNAdistancesUp[, 2]), na.rm = TRUE)
+            DNAdistances[i, 4] <- base::max((DNAdistancesUp[, 2]), na.rm = TRUE)
+            DNAdistances[i, 5] <- base::length(na.omit(DNAdistancesUp[, 2]))
           }
           else {
-            DNAdistances[i,2] <- NA
-            DNAdistances[i,3] <- NA
-            DNAdistances[i,4] <- NA
-            DNAdistances[i,5] <- NA
+            DNAdistances[i, 2] <- NA
+            DNAdistances[i, 3] <- NA
+            DNAdistances[i, 4] <- NA
+            DNAdistances[i, 5] <- NA
           }
-          DNAdistances[i,1] <- currentCpG$label
+          DNAdistances[i, 1] <- currentCpG$label
         }
         else {
           #no near CpG on the same chromosome found
-          DNAdistances[i,2] <- NA
-          DNAdistances[i,3] <- NA
-          DNAdistances[i,4] <- NA
-          DNAdistances[i,5] <- NA
+          DNAdistances[i, 2] <- NA
+          DNAdistances[i, 3] <- NA
+          DNAdistances[i, 4] <- NA
+          DNAdistances[i, 5] <- NA
         }
-        DNAdistances[i,1] <- currentCpG$label
+        DNAdistances[i, 1] <- currentCpG$label
       }
       colnames(DNAdistances) <- c("ID", "minDistance", "meanDistance", "maxDistance", "number")
       distances <- na.omit(DNAdistances)
-      base::message(base::paste0(sysTimePID(), " found n = ", nrow(distances) , " neigbouring CpG with distance <=", maxDistanceToLook,""))
+      base::message(base::paste0(sysTimePID(), " found n = ", nrow(distances), " neigbouring CpG with distance <=", maxDistanceToLook, ""))
 #tbc(): list works, but tibble not
 #      DNAdistances <- tibble::rownames_to_column(as.data.frame(DNAdistances), var = "rowname")
     },

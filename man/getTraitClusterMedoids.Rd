@@ -3,7 +3,7 @@
 \name{getTraitClusterMedoids}
 \alias{getTraitClusterMedoids}
 \title{getTraitClusterMedoids
-gets Medoids of earlier produced clusters}
+gets Medoids of earlier produced clusters; select trait with lowest (square) sum of distances as cluster medoid}
 \usage{
 getTraitClusterMedoids(clustResTraits, distMatTraits, numClusters)
 }
@@ -20,5 +20,5 @@ examples getTraitClusterMedoids(clustResTraits, distMatTraits, numClusters)
 }
 \description{
 getTraitClusterMedoids
-gets Medoids of earlier produced clusters
+gets Medoids of earlier produced clusters; select trait with lowest (square) sum of distances as cluster medoid
 }

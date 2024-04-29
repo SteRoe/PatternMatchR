@@ -26,11 +26,9 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
     {
       fileNameLPV <- "listResultP_Val_DeltaMeth_N.RDS"
       fileNameLPV <- base::paste0(folder, fileNameLPV)
-#browser()
       doLoadFolderDFList <- TRUE
       if (utils::file_test("-f", fileNameLPV) == TRUE && getYoungestFile(folder) == fileNameLPV) {
         if (loadRDS != FALSE) {
-#          base::print(base::paste0(sysTimePID(), " read loadResultDF() from ", fileNameLPV))
           listResultP_Val_DeltaMeth_N <- base::readRDS(file = fileNameLPV)
           doLoadFolderDFList <- FALSE
         } else {
@@ -46,7 +44,6 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
           doLoadFolderDFList <- TRUE
         }
       }
-#      else {
       if (doLoadFolderDFList == TRUE) {
         # load or generate list of DFs with results
         base::print(base::paste0(sysTimePID(), " read from loadFolderDFList()."))
@@ -183,11 +180,11 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
           rn <- head(base::rownames(listResultP_Val_DeltaMeth_N$P_Val),session$userData$sessionVariables$debugNumber)
           cn <- base::colnames(listResultP_Val_DeltaMeth_N$P_Val)
           listResultP_Val_DeltaMeth_N$P_Val <-
-            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$P_Val,session$userData$sessionVariables$debugNumber))
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$P_Val, session$userData$sessionVariables$debugNumber))
           listResultP_Val_DeltaMeth_N$DM <-
-            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$DM,session$userData$sessionVariables$debugNumber))
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$DM, session$userData$sessionVariables$debugNumber))
           listResultP_Val_DeltaMeth_N$N <-
-            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$N,session$userData$sessionVariables$debugNumber))
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$N, session$userData$sessionVariables$debugNumber))
           rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
           rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
           rownames(listResultP_Val_DeltaMeth_N$N) <- rn
@@ -504,9 +501,7 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
           header = TRUE,
           quote = ""
         )
-#try different primary keys for rownames^and take the first
-        #foreach::foreach(key = seq_along(listPrimaryKeys)) %do% {
-        #foreach::foreach(key in listPrimaryKeys) %do% {
+        #try different primary keys for rownames and take the first matching
         found <- FALSE
         for (key in listPrimaryKeys) {
           if (key %in% colnames(PHENO)) {
@@ -732,7 +727,6 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     i <- NULL
     DF <- as.matrix(DF)
-    #minP <- base::min(DF, na.rm = TRUE)
     minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
     minP <- base::min(minP)
     minP <- extractMantissaExponent(minP)$exponent
@@ -771,7 +765,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     }
     numCores <- base::min(numCores, numCoresMemSize)
     nWorkers <- parallelly::availableCores(constraints = "connections")
-    numCores <- base::min(numCores,nWorkers)
+    numCores <- base::min(numCores, nWorkers)
     base::tryCatch(
       {
         future::plan(strategy = future::multisession, workers = numCores)

@@ -8,6 +8,10 @@ counts number of remaining models below a defined n; uses parallel processing fo
 getAvailNForP_VALBorderParallel(session, wd, numCores, DF)
 }
 \arguments{
+\item{session}{session}
+
+\item{wd}{working directory}
+
 \item{numCores}{number of CPU cores to use}
 
 \item{DF}{data frame for which to calculate results}

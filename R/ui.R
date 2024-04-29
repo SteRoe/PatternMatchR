@@ -18,7 +18,7 @@ generate_ui <- function() {
           "PatternMatchR",
           shinyBS::bsCollapse(
             id = "clpMain",
-            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Trait Reduced Data", "Condensed Distance Weighted Data (contains only CpG with nearby neighbours)", "Full Distance Weighted Data"),
+            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data", "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)"),
             multiple = TRUE,
             # shinyBS::bsCollapsePanel(
             #   "session",
@@ -363,26 +363,162 @@ generate_ui <- function() {
               )
             )),
             shinyjs::disabled(shinyBS::bsCollapsePanel(
-              "Trait Reduced Data",
+              "Full Trait-reduced Data",
               shiny::fluidRow(
                 shiny::tabsetPanel(
                   shiny::tabPanel(
-                    "HeatMap P_Val",
+##full non-modified data start
+                    "Non-modified Data",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5: Plot Heatmap P_Val")),
-                        shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE),
+                        shiny::tabsetPanel(
+                          shiny::tabPanel(
+                            "HeatMap P_Val",
+                            shinyjs::disabled(shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5a: Plot Heatmap P_Val")),
+                            shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE),
+                            shiny::column(
+                              width = 6,
+                              shinyjs::disabled(shiny::numericInput(inputId = "numHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                            ),
+                            shiny::column(
+                              width = 6,
+                              shinyjs::disabled(shiny::numericInput(inputId = "numHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                            ),
+                            InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                              "Heatmap_P_Val",
+                              height1 = 4000,
+                              width1 = 4000,
+                              height2 = 4000,
+                              width2 = 4000,
+                              inline = FALSE
+                            )
+                          ),
+                          shiny::tabPanel(
+                            "Search for CpG in Heatmap",
+                            shiny::textAreaInput(inputId = "txtSearchCpG", label = "Search CpG", value = ""),
+                            shiny::verbatimTextOutput(outputId = "txtSearchResultCpG"),
+                            shiny::actionButton("btnSearchCpGHM", label = "Search CpG"),
+                            "Search for Trait in Heatmap",
+                            shiny::textAreaInput(inputId = "txtSearchTrait", label = "Search Trait", value = ""),
+                            shiny::verbatimTextOutput(outputId = "txtSearchResultTrait"),
+                            shiny::actionButton("btnSearchTraitHM", label = "Search Trait")
+                          ),
+                          shiny::tabPanel(
+                            "SPLOM of Original Data",
+                            shiny::selectizeInput("markingVar",
+                              label = "select variable for color marking",
+                              choices = NULL,
+                              width = "100%"
+                            ),
+                            shiny::column(
+                              width = 6,
+                              shiny::numericInput(inputId = "numSPLOMHSize", label = "Width (checked max 3000)", value = 2500, min = 1000, max = 3000)
+                            ),
+                            shiny::column(
+                              width = 6,
+                              shiny::numericInput(inputId = "numSPLOMVSize", label = "Height (checked max 12000)", value = 8000, min = 1000, max = 12000)
+                            ),
+                            shiny::tabsetPanel(
+                              shiny::tabPanel(
+                                "SPLOM from selected area in heatmap",
+                                plotly::plotlyOutput("SPLOM",
+                                                 height = 2000, #height = "100%",
+                                                 width = 1500, #width = "100%",
+                                                 inline = TRUE)
+                              ),
+                              shiny::tabPanel(
+                                "SPLOM trait/trait",
+                                plotly::plotlyOutput("SPLOMTrait",
+                                                     height = 2000, #height = "100%",
+                                                     width = 1500, #width = "100%",
+                                                     inline = TRUE)
+                              ),
+                              shiny::tabPanel(
+                                "SPLOM probe/probe",
+                                plotly::plotlyOutput("SPLOMProbe",
+                                                     height = 2000, #height = "100%",
+                                                     width = 1500, #width = "100%",
+                                                     inline = TRUE)
+                              )
+                            )
+                          ),
+                          shiny::tabPanel(
+                            "Selected CpG",
+                            DT::dataTableOutput("DTSelectedCpG")
+                          ),
+                          shiny::tabPanel(
+                            "Selected trait",
+                            DT::dataTableOutput("DTSelectedTrait")
+                          ),
+                          shiny::tabPanel(
+                            "Selected p-value",
+                            DT::dataTableOutput("DTSelectedP_Val")
+                          ),
+                          shiny::tabPanel(
+                            "Selected Histogram on Delta Methylation",
+                            shiny::verbatimTextOutput("txtselectDMTraits", placeholder = TRUE),
+                            plotly::plotlyOutput("selectHistDM", inline = TRUE)
+                          )
+                        )
+                      ),
+                      shiny::tabPanel(
+                        "Table P_VAL",
+                        # DT tableout
+                        DT::dataTableOutput("traitReducedDTP_VAL")
+                      ),
+                      shiny::tabPanel(
+                        "Table Delta Methylation",
+                        # DT tableout
+                        DT::dataTableOutput("traitReducedDTDM")
+                      ),
+                      shiny::tabPanel(
+                        "Table N",
+                        # DT tableout
+                        DT::dataTableOutput("traitReducedDTN")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Probes",
+                        plotly::plotlyOutput("traitReducedPlotDendrogramProbes", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Annotated Table Probes",
+                        DT::dataTableOutput("traitReducedDTProbes")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Traits",
+                        plotly::plotlyOutput("traitReducedPlotDendrogramTraits", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Table Traits",
+                        DT::dataTableOutput("traitReducedDTTraits")
+                      ),
+                      shiny::tabPanel(
+                        "Histogram P_Val",
+                        "Histogram of all p-values in heatmap",
+                        plotly::plotlyOutput("traitReducedHistP_Val", inline = TRUE)
+                      )
+                    )
+##full non-modified data end
+                  ),
+                  shiny::tabPanel(
+##full DW data start
+                    "Distance weighted Data (negative p-values due to distance weighting)",
+                    shiny::tabsetPanel(
+                      shiny::tabPanel(
+                        "HeatMap P_Val",
+                        shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 5b: Plot distance weighted Heatmap P_Val"),
+                        shiny::verbatimTextOutput("txtDWHMDescription_P_Val", placeholder = TRUE),
                         shiny::column(
                           width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                          shinyjs::disabled(shiny::numericInput(inputId = "numDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
                         ),
                         shiny::column(
                           width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                          shinyjs::disabled(shiny::numericInput(inputId = "numDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
                         ),
                         InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "Heatmap_P_Val",
+                          "DWHeatmap_P_Val",
                           height1 = 4000,
                           width1 = 4000,
                           height2 = 4000,
@@ -391,234 +527,182 @@ generate_ui <- function() {
                         )
                       ),
                       shiny::tabPanel(
-                        "Search for CpG in Heatmap",
-                        shiny::textAreaInput(inputId = "txtSearchCpG", label = "Search CpG", value = ""),
-                        shiny::verbatimTextOutput(outputId = "txtSearchResultCpG"),
-                        shiny::actionButton("btnSearchCpGHM", label = "Search CpG"),
-                        "Search for Trait in Heatmap",
-                        shiny::textAreaInput(inputId = "txtSearchTrait", label = "Search Trait", value = ""),
-                        shiny::verbatimTextOutput(outputId = "txtSearchResultTrait"),
-                        shiny::actionButton("btnSearchTraitHM", label = "Search Trait")
+                        "Table P_Val",
+                        DT::dataTableOutput("fullDWDTP_VAL")
                       ),
                       shiny::tabPanel(
-                        "SPLOM of Original Data",
-                        shiny::selectizeInput("markingVar",
-                          label = "select variable for color marking",
-                          choices = NULL,
-                          width = "100%"
+                        "Table Delta Methylation",
+                        DT::dataTableOutput("fullDWDTDM")
+                      ),
+                      shiny::tabPanel(
+                        "Table N",
+                        DT::dataTableOutput("fullDWDTN")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Probes",
+                        plotly::plotlyOutput("fullDWPlotDendrogramProbes", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Annotated Table Probes",
+                        DT::dataTableOutput("fullDWDTProbes")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Traits",
+                        plotly::plotlyOutput("fullDWPlotDendrogramTraits", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Table Traits",
+                        DT::dataTableOutput("fullDWDTTraits")
+                      ),
+                      shiny::tabPanel(
+                        "Histogram P_Val",
+                        plotly::plotlyOutput("fullDWHistP_Val", inline = TRUE)
+                      )
+                    )
+##full DW data end
+                  )
+                )
+              )
+            )),
+            shinyjs::disabled(shinyBS::bsCollapsePanel(
+              "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)",
+              shiny::fluidRow(
+                shiny::column(
+                  width = 4,
+                  shinyjs::disabled(shiny::sliderInput(
+                    "sld_NumNeighbours",
+                    "minimum number of neighbours",
+                    min = 10,
+                    max = 10000,
+                    step = 10,
+                    value = 10
+                  ))
+                )
+              ),
+              shiny::fluidRow(
+                shiny::tabsetPanel(
+                  shiny::tabPanel(
+                    "Non-modified Data",
+                    shiny::tabsetPanel(
+                      shiny::tabPanel(
+                        "HeatMap P_Val",
+                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_P_Val", label = "Step 6a: Plot condensed Heatmap P_Val")),
+                        shiny::verbatimTextOutput("txtCondHMDescription_P_Val", placeholder = TRUE),
+                        shiny::column(
+                          width = 6,
+                          shinyjs::disabled(shiny::numericInput(inputId = "numCondHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
                         ),
                         shiny::column(
                           width = 6,
-                          shiny::numericInput(inputId = "numSPLOMHSize", label = "Width (checked max 3000)", value = 2500, min = 1000, max = 3000)
+                          shinyjs::disabled(shiny::numericInput(inputId = "numCondHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
                         ),
-                        shiny::column(
-                          width = 6,
-                          shiny::numericInput(inputId = "numSPLOMVSize", label = "Height (checked max 12000)", value = 8000, min = 1000, max = 12000)
-                        ),
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "SPLOM from selected area in heatmap",
-                            plotly::plotlyOutput("SPLOM",
-                                             height = 2000, #height = "100%",
-                                             width = 1500, #width = "100%",
-                                             inline = TRUE)
-                          ),
-                          shiny::tabPanel(
-                            "SPLOM trait/trait",
-                            plotly::plotlyOutput("SPLOMTrait",
-                                                 height = 2000, #height = "100%",
-                                                 width = 1500, #width = "100%",
-                                                 inline = TRUE)
-                          ),
-                          shiny::tabPanel(
-                            "SPLOM probe/probe",
-                            plotly::plotlyOutput("SPLOMProbe",
-                                                 height = 2000, #height = "100%",
-                                                 width = 1500, #width = "100%",
-                                                 inline = TRUE)
-                          )
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "condHeatmap_P_Val",
+                          height1 = 4000,
+                          width1 = 4000,
+                          height2 = 4000,
+                          width2 = 4000,
+                          inline = FALSE
                         )
                       ),
                       shiny::tabPanel(
-                        "Selected CpG",
-                        DT::dataTableOutput("DTSelectedCpG")
+                        "Table P_Val",
+                        DT::dataTableOutput("condDTP_VAL")
                       ),
                       shiny::tabPanel(
-                        "Selected trait",
-                        DT::dataTableOutput("DTSelectedTrait")
+                        "Table Delta Methylation",
+                        DT::dataTableOutput("condDTDM")
                       ),
                       shiny::tabPanel(
-                        "Selected p-value",
-                        DT::dataTableOutput("DTSelectedP_Val")
+                        "Table N",
+                        DT::dataTableOutput("condDTN")
                       ),
                       shiny::tabPanel(
-                        "Selected Histogram on Delta Methylation",
-                        shiny::verbatimTextOutput("txtselectDMTraits", placeholder = TRUE),
-                        plotly::plotlyOutput("selectHistDM", inline = TRUE)
+                        "Dendrogram Probes",
+                        plotly::plotlyOutput("condPlotDendrogramProbes", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Annotated Table Probes",
+                        DT::dataTableOutput("condDTProbes")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Traits",
+                        plotly::plotlyOutput("condPlotDendrogramTraits", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Table Traits",
+                        DT::dataTableOutput("condDTTraits")
+                      ),
+                      shiny::tabPanel(
+                        "Histogram P_Val",
+                        "Histogram of all p-values in heatmap",
+                        plotly::plotlyOutput("condHistP_Val", inline = TRUE)
                       )
                     )
                   ),
                   shiny::tabPanel(
-                    "Table P_VAL",
-                    # DT tableout
-                    DT::dataTableOutput("traitReducedDTP_VAL")
-                  ),
-                  shiny::tabPanel(
-                    "Table Delta Methylation",
-                    # DT tableout
-                    DT::dataTableOutput("traitReducedDTDM")
-                  ),
-                  shiny::tabPanel(
-                    "Table N",
-                    # DT tableout
-                    DT::dataTableOutput("traitReducedDTN")
-                  ),
-                  shiny::tabPanel(
-                    "Dendrogram Probes",
-                    plotly::plotlyOutput("traitReducedPlotDendrogramProbes", height = "80%")
-                  ),
-                  shiny::tabPanel(
-                    "Annotated Table Probes",
-                    DT::dataTableOutput("traitReducedDTProbes")
-                  ),
-                  shiny::tabPanel(
-                    "Dendrogram Traits",
-                    plotly::plotlyOutput("traitReducedPlotDendrogramTraits", height = "80%")
-                  ),
-                  shiny::tabPanel(
-                    "Table Traits",
-                    DT::dataTableOutput("traitReducedDTTraits")
-                  ),
-                  shiny::tabPanel(
-                    "Histogram P_Val",
-                    "Histogram of all p-values in heatmap",
-                    plotly::plotlyOutput("traitReducedHistP_Val", inline = TRUE)
-                  )
-                )
-              )
-            )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
-              "Condensed Distance Weighted Data (contains only CpG with nearby neighbours)",
-              shiny::fluidRow(
-                shiny::tabsetPanel(
-                  shiny::tabPanel(
-                    "HeatMap P_Val",
-                    shiny::actionButton("btnPlotCombinedCondDWHM_P_Val", label = "Step 6a: Plot condensed distance weighted Heatmap P_Val"),
-                    shiny::verbatimTextOutput("txtCondDWHMDescription_P_Val", placeholder = TRUE),
-                    shiny::column(
-                      width = 6,
-                      shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                    ),
-                    shiny::column(
-                      width = 6,
-                      shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                    ),
-                    InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                      "condDWHeatmap_P_Val",
-                      height1 = 4000,
-                      width1 = 4000,
-                      height2 = 4000,
-                      width2 = 4000,
-                      inline = FALSE
+                    "Distance Weighted Data (negative p-values due to distance weighting)",
+                    shiny::tabsetPanel(
+                      shiny::tabPanel(
+                        "HeatMap P_Val",
+                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondDWHM_P_Val", label = "Step 6b: Plot condensed distance weighted Heatmap P_Val")),
+                        shiny::verbatimTextOutput("txtCondDWHMDescription_P_Val", placeholder = TRUE),
+                        shiny::column(
+                          width = 6,
+                          shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                        ),
+                        shiny::column(
+                          width = 6,
+                          shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                        ),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "condDWHeatmap_P_Val",
+                          height1 = 4000,
+                          width1 = 4000,
+                          height2 = 4000,
+                          width2 = 4000,
+                          inline = FALSE
+                        )
+                      ),
+                      shiny::tabPanel(
+                        "Table P_Val",
+                        DT::dataTableOutput("condDWDTP_VAL")
+                      ),
+                      shiny::tabPanel(
+                        "Table Delta Methylation",
+                        DT::dataTableOutput("condDWDTDM")
+                      ),
+                      shiny::tabPanel(
+                        "Table N",
+                        DT::dataTableOutput("condDWDTN")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Probes",
+                        plotly::plotlyOutput("condDWPlotDendrogramProbes", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Annotated Table Probes",
+                        DT::dataTableOutput("condDWDTProbes")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Traits",
+                        plotly::plotlyOutput("condDWPlotDendrogramTraits", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Table Traits",
+                        DT::dataTableOutput("condDWDTTraits")
+                      ),
+                      shiny::tabPanel(
+                        "Histogram P_Val",
+                        "Histogram of all p-values in heatmap",
+                        plotly::plotlyOutput("condDWHistP_Val", inline = TRUE)
+                      )
                     )
-                  ),
-                  shiny::tabPanel(
-                    "Table P_Val",
-                    DT::dataTableOutput("condDWDTP_VAL")
-                  ),
-                  shiny::tabPanel(
-                    "Table Delta Methylation",
-                    DT::dataTableOutput("condDWDTDM")
-                  ),
-                  shiny::tabPanel(
-                    "Table N",
-                    DT::dataTableOutput("condDWDTN")
-                  ),
-                  shiny::tabPanel(
-                    "Dendrogram Probes",
-                    plotly::plotlyOutput("condDWPlotDendrogramProbes", height = "80%")
-                  ),
-                  shiny::tabPanel(
-                    "Annotated Table Probes",
-                    DT::dataTableOutput("condDWDTProbes")
-                  ),
-                  shiny::tabPanel(
-                    "Dendrogram Traits",
-                    plotly::plotlyOutput("condDWPlotDendrogramTraits", height = "80%")
-                  ),
-                  shiny::tabPanel(
-                    "Table Traits",
-                    DT::dataTableOutput("condDWDTTraits")
-                  ),
-                  shiny::tabPanel(
-                    "Histogram P_Val",
-                    "Histogram of all p-values in heatmap",
-                    plotly::plotlyOutput("condDWHistP_Val", inline = TRUE)
                   )
                 )
               )
-            )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
-              "Full Distance Weighted Data",
-              shiny::fluidRow(
-                shiny::tabsetPanel(
-                  shiny::tabPanel(
-                    "HeatMap P_Val",
-                    shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 6b: Plot distance weighted Heatmap P_Val"),
-                    shiny::verbatimTextOutput("txtDWHMDescription_P_Val", placeholder = TRUE),
-                    shiny::column(
-                      width = 6,
-                      shinyjs::disabled(shiny::numericInput(inputId = "numDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                    ),
-                    shiny::column(
-                      width = 6,
-                      shinyjs::disabled(shiny::numericInput(inputId = "numDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                    ),
-                    InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                      "DWHeatmap_P_Val",
-                      height1 = 4000,
-                      width1 = 4000,
-                      height2 = 4000,
-                      width2 = 4000,
-                      inline = FALSE
-                    )
-                  ),
-                  shiny::tabPanel(
-                    "Table P_Val",
-                    DT::dataTableOutput("fullDWDTP_VAL")
-                  ),
-                  shiny::tabPanel(
-                    "Table Delta Methylation",
-                    DT::dataTableOutput("fullDWDTDM")
-                  ),
-                  shiny::tabPanel(
-                    "Table N",
-                    DT::dataTableOutput("fullDWDTN")
-                  ),
-                  shiny::tabPanel(
-                    "Dendrogram Probes",
-                    plotly::plotlyOutput("fullDWPlotDendrogramProbes", height = "80%")
-                  ),
-                  shiny::tabPanel(
-                    "Annotated Table Probes",
-                    DT::dataTableOutput("fullDWDTProbes")
-                  ),
-                  shiny::tabPanel(
-                    "Dendrogram Traits",
-                    plotly::plotlyOutput("fullDWPlotDendrogramTraits", height = "80%")
-                  ),
-                  shiny::tabPanel(
-                    "Table Traits",
-                    DT::dataTableOutput("fullDWDTTraits")
-                  ),
-                  shiny::tabPanel(
-                    "Histogram P_Val",
-                    plotly::plotlyOutput("fullDWHistP_Val", inline = TRUE)
-                  )
-                )
-              )
-            )
-          ))
+            ))
+          )
         ),
         shiny::tabPanel(
           "Settings",

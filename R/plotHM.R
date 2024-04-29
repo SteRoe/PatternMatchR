@@ -3,14 +3,14 @@ getSelectedTraitReducedcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels
   base::tryCatch(
     {
       colInd <- which(combinedDFP_Val_Labels$mergedColnames %in% column_index)
-      rowInd <- which(combinedDFP_Val_Labels$mergedRownames %in% row_index)
+      #rowInd <- which(combinedDFP_Val_Labels$mergedRownames %in% row_index)
       #selectedColnames <- combinedDFP_Val_Labels$mergedColnames[colInd] # we here have the colnames of the selected traits
       selectedColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[colInd] # we here have the colnames of the selected traits
       selectedColnames <- removeAdjFromColname(selectedColnames)
       result <- list()
-      result$dfP_Val <- combinedDFP_Val_Labels$dfP_Val[row_index,]
-      result$dfDM <- combinedDFP_Val_Labels$dfDM[row_index,]
-      result$dfN <- combinedDFP_Val_Labels$dfN[row_index,]
+      result$dfP_Val <- combinedDFP_Val_Labels$dfP_Val[row_index, ]
+      result$dfDM <- combinedDFP_Val_Labels$dfDM[row_index, ]
+      result$dfN <- combinedDFP_Val_Labels$dfN[row_index, ]
       result$labelsDF1 <- combinedDFP_Val_Labels$labelsDF1
       result$labelsDF2 <- combinedDFP_Val_Labels$labelsDF2
       result$labelsDF3 <- combinedDFP_Val_Labels$labelsDF3
@@ -246,9 +246,9 @@ getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, row_index, col
       traits$id <- rownames(traits)
       Vars <- c("id", markingVar)
       if (all(Vars %in% colnames(traits))) {
-        traits <- traits[,Vars]
-        traits$markingVar <- traits[,markingVar]
-        traits[,markingVar] <- NULL
+        traits <- traits[, Vars]
+        traits$markingVar <- traits[, markingVar]
+        traits[, markingVar] <- NULL
         #merge
         selectedBeta$id <- rownames(selectedBeta)
         selectedBeta <- merge(selectedBeta, traits, by.x = "id", by.y = "id")
@@ -266,7 +266,7 @@ getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, row_index, col
                                    " that might be too much for fast processing!"))
       }
       #remove row.names from selectedDF
-      if("Row.names" %in% colnames(selectedBeta)) {
+      if ("Row.names" %in% colnames(selectedBeta)) {
         selectedBeta$Row.names <- NULL
       }
     },
@@ -319,7 +319,7 @@ combinedDFInteractiveHeatMapP_Val <-
            selectedRowIndicesYellow = NA,
            selectedColIndices = NA,
            selectedRowIndicesOrange = NA,
-           session) {
+           session = session) {
     #function is not called twice (check caller function), if so, check here
     base::tryCatch(
       {
@@ -696,10 +696,6 @@ plotCombinedHM_P_Val <- function(input, output, session) {
     grDevices::dev.off()
   }
   base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
-  # combinedHMP_VAL <- emptyHM()
-  # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input = input, output = output,
-  #                                                          session = session, ht_list = combinedHMP_VAL,
-  #                                                          heatmap_id = "heatmap_1")
   combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels
   dfP_Val <- combinedDFP_Val_Labels$dfP_Val
   #browser() #if step 3 was omitted, we see an error here...
@@ -716,8 +712,6 @@ plotCombinedHM_P_Val <- function(input, output, session) {
   base::print(base::class(dfP_Val))
   if (nrow(dfP_Val) > 5) {
     startTime <- Sys.time()
-    # output$txtResultingN <-
-    #   shiny::renderText(paste0("number of resulting probes: ", nrow(dfP_Val)))
     base::print(base::paste0(sysTimePID(), " gc()"))
     base::tryCatch({
       # check clustResProbes > 8
@@ -725,7 +719,6 @@ plotCombinedHM_P_Val <- function(input, output, session) {
       dendProbes <- session$userData$sessionVariables$traitReducedDataStructure()$probeDendrogram
       dendProbes <-
         dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
-      #dendTraits <- session$userData$sessionVariables$traitReducedDendTraits()
       dendTraits <- session$userData$sessionVariables$traitReducedDataStructure()$traitDendrogram
 
       base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
@@ -739,7 +732,7 @@ plotCombinedHM_P_Val <- function(input, output, session) {
       #selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
       selectedRowIndicesOrange <- NULL
       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
-#browser() #check, whether this is called twice
+      #browser() #check, whether this is called twice
       l <-
         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
       base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
@@ -834,10 +827,10 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
       #base::length(session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes)
       #base::options(expression = 500000)
       base::options(expressions = 500000)
-      dendProbes <- session$userData$sessionVariables$traitReducedDataStructure()$probeDendrogram
+      dendProbes <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$probeDendrogram
       dendProbes <-
         dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
-      dendTraits <- session$userData$sessionVariables$traitReducedDataStructure()$traitDendrogram
+      dendTraits <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$traitDendrogram
 
       base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
 
@@ -907,6 +900,102 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
   }
 }
 
+#' plotCombinedCondHM_P_Val
+#' plots condensed heatmap
+#' @param input shiny input
+#' @param output shiny output
+#' @param session shiny session
+#' @return nothing
+#' examples plotCombinedCondHM_P_Val(input, output, session)
+plotCombinedCondHM_P_Val <- function(input, output, session) {
+  base::tryCatch({
+    base::print(base::paste0(sysTimePID(), " start plotting condensed heatmap for P_Val."))
+    output$txtCondHMDescription_P_Val <-
+      shiny::renderText(base::paste0("calculating condensed heatmap..., current plot is not valid"))
+    while (!is.null(grDevices::dev.list())) {
+      grDevices::dev.off()
+    }
+    base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
+    #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure(numNeighbours = 10)$combinedDFP_Val_Labels
+    combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels
+    dfP_Val <- combinedDFP_Val_Labels$dfP_Val
+    #browser() #if step 3 was omitted, we see an error here...
+
+    base::print(base::paste0(sysTimePID(), " calculating combined heatmap with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+    base::print(base::class(dfP_Val))
+    if (nrow(dfP_Val) > 5) {
+      startTime <- Sys.time()
+      base::print(base::paste0(sysTimePID(), " gc()"))
+      gc()
+      # check clustResProbes > 8
+      base::options(expressions = 500000)
+
+      #      if (is.valid(combinedDF_Labels$dfP_Val)) {
+      dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
+      #browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
+      dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      dendTraits <- session$userData$sessionVariables$probeReducedDataStructure()$traitDendrogram
+      base::print(base::paste0(sysTimePID(), " before calculating condensed heatmap"))
+      base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+      base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchCpG, split = " "))
+      base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
+      selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
+      base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
+      base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
+      #browser() #check, whether this is called twice
+      l <-
+        combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
+      base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
+      combinedHMP_VAL <- l$combinedHMP_VAL
+
+      endTime <- Sys.time()
+      elapsedTime <- endTime - startTime
+      base::print(base::paste0(sysTimePID(), " after calculating condensed heatmap. Elapsed time: ", elapsedTime, " sec."))
+      base::print(base::paste0(sysTimePID(), " before plotting condensed heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
+      while (!base::is.null(grDevices::dev.list())) {
+        grDevices::dev.off()
+      }
+      startTime <- Sys.time()
+      InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+        input = input,
+        output = output,
+        session = session,
+        ht_list = combinedHMP_VAL,
+        heatmap_id = "condHeatmap_P_Val",
+        show_layer_fun = TRUE
+      )
+    }
+  },
+  error = function(e) {
+    base::message("An error occurred in plotCombinedHM_P_Val():\n", e)
+    Cstack_info()
+    browser()
+  },
+  warning = function(w) {
+    base::message("A warning occurred in plotCombinedHM_P_Val():\n", w)
+    browser()
+  },
+  finally = {
+    endTime <- Sys.time()
+    elapsedTime <- endTime - startTime
+    base::print(base::paste0(sysTimePID(), " after plotting heatmap for P_Val; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
+    output$txtCondHMDescription_P_Val <-
+      shiny::renderText(
+        base::paste0(
+          sysTimePID(),
+          " done plotting heatmap for condensed P_Val..., current plot is valid. n(probe) = ",
+          base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+          "; n(trait) = ",
+          base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+          "; elapsed time: ",
+          elapsedTime, " sec."
+        )
+      )
+  })
+}
+
 #' plotCombinedCondDWHM_P_Val
 #' plots condensed distance weighted heatmap
 #' @param input shiny input
@@ -942,7 +1031,6 @@ plotCombinedCondDWHM_P_Val <- function(input, output, session) {
 #browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
       dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
       dendTraits <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$traitDendrogram
-#browser()
       base::print(base::paste0(sysTimePID(), " before calculating condensed DW heatmap"))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
@@ -1068,7 +1156,7 @@ brush_action_HM_P_Val <- function(df, input, output, session) {
       selectedAnnotation <- addLinkToEWASDataHub(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
       selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
       selectedAnnotation$probeID <- NULL
-      mergedOriginDF <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginDF[column_index]
+      #mergedOriginDF <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginDF[column_index]
       originTrait <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginTrait[column_index]
       traitLabels <- colnames(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[column_index]
       selectedTrait <- cbind(traitLabels, originTrait)

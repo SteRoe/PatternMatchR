@@ -52,7 +52,6 @@ originalWd <- NULL
 #' @description function to start the app
 #' @export
 PatternMatchRApp <- function() {
-  #shiny::shinyApp(ui, server)
   shiny::shinyApp(generate_ui(), server)
 }
 
@@ -121,17 +120,14 @@ loadObjects <- function(session) {
     }
   }
   dataDirList <- as.list(session$userData$config$dataDir1)
-#  DirFound <- lapply(dataDirList, FUN = file.exists)
   dataDirList <- lapply(dataDirList, FUN = addInstToPath)
   session$userData$config$dataDir1 <- unlist(dataDirList)
 
   dataDirList <- as.list(session$userData$config$dataDir2)
-#  DirFound <- lapply(dataDirList, FUN = file.exists)
   dataDirList <- lapply(dataDirList, FUN = addInstToPath)
   session$userData$config$dataDir2 <- unlist(dataDirList)
 
   dataDirList <- as.list(session$userData$config$dataDir3)
-#  DirFound <- lapply(dataDirList, FUN = file.exists)
   dataDirList <- lapply(dataDirList, FUN = addInstToPath)
   session$userData$config$dataDir3 <- unlist(dataDirList)
 
@@ -157,9 +153,7 @@ loadObjects <- function(session) {
 #' @param session session object
 #' @return data.frame with regression results from file
 # examples loadResultFile(folder, fileName)
-#loadResultFile <- function(folder, fileName, globalVariables) {
 loadResultFile <- function(session, folder, fileName) {
-#tbc() insert tryCatch here or options(warn=2)
   options(warn = 2)
   fileName <- base::paste0(folder, fileName, ".csv")
   base::print(base::paste0(sysTimePID(), " before fread()."))
@@ -232,11 +226,11 @@ extractMantissaExponent <-
   }
 
 addInstToPath <- function(fileName) {
-  if(!file.exists(fileName)) {
+  if (!file.exists(fileName)) {
     base::message(base::paste0(sysTimePID(), " file not found: ", fileName, ". Is your config.yml correct?"))
     fileName <- stringr::str_sub(fileName, start = 2, end = stringr::str_length(fileName))
     fileName <- paste0("./inst", fileName)
-    if(file.exists(fileName)) {
+    if (file.exists(fileName)) {
       base::message(base::paste0(sysTimePID(), " file now found: ", fileName, "."))
     }
     else {
@@ -387,7 +381,7 @@ addLinkToEWASDataHubShort <- function(df, baseURL, probeAttribut) {
 # examples addLinkToMRCEWASCatalog(data.frame)
 addLinkToMRCEWASCatalog <- function(df, baseURL, probeAttribut) {
   #provide link to MRC EWAS catalog
-  df$MRCEWASCatalog <- base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[, probeAttribut], '</a>' )
+  df$MRCEWASCatalog <- base::paste0('<a target=_blank rel="noopener noreferrer" href=', baseURL, df$probeID, '>', df[, probeAttribut], '</a>')
   return(df)
 }
 

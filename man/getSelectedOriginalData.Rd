@@ -2,14 +2,7 @@
 % Please edit documentation in R/plotHM.R
 \name{getSelectedOriginalData}
 \alias{getSelectedOriginalData}
-\title{structure of sessionVariables:
-result data for/from clustering
-session$userData$sessionVariables$distMatProbes - distance matrix for probes out of p-value results of regression
-session$userData$sessionVariables$clustResProbes - clustering reusult for probes out of p-value results of regression
-session$userData$sessionVariables$distMatTraits - distance matrix for traits out of p-value results of regression
-session$userData$sessionVariables$clustResTraits - clustering reusult for traits out of p-value results of regression
-session$userData$sessionVariables$combinedHMP_Val - data structure for combined heatmap
-getSelectedOriginalData}
+\title{getSelectedOriginalData}
 \usage{
 getSelectedOriginalData(
   combinedDFP_Val_Labels,
@@ -31,12 +24,5 @@ getSelectedOriginalData(
 df with merged original data
 }
 \description{
-structure of sessionVariables:
-result data for/from clustering
-session$userData$sessionVariables$distMatProbes - distance matrix for probes out of p-value results of regression
-session$userData$sessionVariables$clustResProbes - clustering reusult for probes out of p-value results of regression
-session$userData$sessionVariables$distMatTraits - distance matrix for traits out of p-value results of regression
-session$userData$sessionVariables$clustResTraits - clustering reusult for traits out of p-value results of regression
-session$userData$sessionVariables$combinedHMP_Val - data structure for combined heatmap
 getSelectedOriginalData
 }
