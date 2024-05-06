@@ -120,8 +120,9 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               rn <- base::rownames(listResultP_Val)
               #add traitListName to colnames
               cn <- base::colnames(listResultP_Val)
-              OriginalColnames <- cn
-              cn <- paste0(traitListName, "_", cn)
+browser()
+              OriginalColnames <- cn #OriginalColnames are without traitListName!!!
+              cn <- paste0(traitListName, "_", cn) #colnames are with traitListName!!!
               listResultP_Val <- base::as.data.frame(listResultP_Val)
               rownames(listResultP_Val) <- rn
               colnames(listResultP_Val) <- cn
@@ -174,7 +175,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
         }
       }
       if (loadRDS != FALSE) {
-        if (session$userData$config$debugMode == TRUE) { #if (globalVariables$config$debugMode == TRUE) {
+        if (session$userData$config$debugMode == TRUE) {
           # it is mandatory to reassign rownames and also colnames... Thanks R!
           #rn <- base::rownames(listResultP_Val_DeltaMeth_N$P_Val)[1:session$userData$sessionVariables$debugNumber]
           rn <- head(base::rownames(listResultP_Val_DeltaMeth_N$P_Val),session$userData$sessionVariables$debugNumber)

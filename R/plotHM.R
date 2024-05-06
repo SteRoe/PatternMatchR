@@ -2,11 +2,12 @@ getSelectedTraitReducedcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels
   base::print(base::paste0(sysTimePID(), " start getSelectedTraitReducedcombinedDFP_Val_Labels()"))
   base::tryCatch(
     {
-      colInd <- which(combinedDFP_Val_Labels$mergedColnames %in% column_index)
-      #rowInd <- which(combinedDFP_Val_Labels$mergedRownames %in% row_index)
-      #selectedColnames <- combinedDFP_Val_Labels$mergedColnames[colInd] # we here have the colnames of the selected traits
-      selectedColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[colInd] # we here have the colnames of the selected traits
-      selectedColnames <- removeAdjFromColname(selectedColnames)
+browser()
+#      colInd <- which(combinedDFP_Val_Labels$mergedColnames %in% column_index)
+#      #rowInd <- which(combinedDFP_Val_Labels$mergedRownames %in% row_index)
+#      selectedColnames <- combinedDFP_Val_Labels$mergedColnames[colInd] # we here have the colnames of the selected traits
+#      #selectedColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[colInd] # we here have the colnames of the selected traits
+#      selectedColnames <- removeAdjFromColname(selectedColnames)
       result <- list()
       result$dfP_Val <- combinedDFP_Val_Labels$dfP_Val[row_index, ]
       result$dfDM <- combinedDFP_Val_Labels$dfDM[row_index, ]
@@ -98,7 +99,9 @@ getSelectedOriginalData <- function(combinedDFP_Val_Labels, row_index, column_in
       selectedRownames <- rownames(combinedDFP_Val_Labels$dfP_Val)[rowInd]
       #subset selectedRownames to only keep those, that are loaded in $Beta_tDF
       selectedRownames <- intersect(colnames(session$userData$Beta_tDF), selectedRownames)
-      selectedBeta <- session$userData$Beta_tDF[, selectedRownames] #if error
+      selectedBeta <- as.data.frame(session$userData$Beta_tDF[, selectedRownames]) #if error
+      colnames(selectedBeta) <- selectedRownames
+      rownames(selectedBeta) <- rownames(session$userData$Beta_tDF)
       #"nicht definierte Spalten gewählt" occurs, this is due to debug mode,
       #where most columns in Beta_tDF are not loaded.
       #... and merge with already merged trait data
@@ -224,7 +227,7 @@ getSelectedOriginalDataTraits <- function(combinedDFP_Val_Labels, row_index, col
   )
 }
 
-getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, row_index, column_index, session) {
+getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, traits, markingVar, row_index, column_index, session) {
   base::print(base::paste0(sysTimePID(), " start getSelectedOriginalDataProbes()"))
   base::tryCatch(
     {
@@ -238,10 +241,6 @@ getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, row_index, col
       #"nicht definierte Spalten gewählt" occurs, this is due to debug mode,
       #where most columns in Beta_tDF are not loaded.
       #... and merge with trait data from markingVar
-      #get Values of markingVar from traits table associated with ID#
-#browser()
-      markingVar <- session$userData$sessionVariables$markingVar()
-      traits <- session$userData$sessionVariables$selectedOriginalDataTraits()
       #select only ID# and markingVar
       traits$id <- rownames(traits)
       Vars <- c("id", markingVar)
@@ -646,13 +645,13 @@ combinedDFInteractiveHeatMapP_Val <-
     )
   }
 
-getSearchResultCpG <- function(txtSearchCpG, session) {
+getSearchResultCpG <- function(txtSearchCpG, dataStructure) {
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " searching CpG"))
       #look into clustResProbes and find position of CpG
-      CpG <- session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes$labels[session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes$order]
-      positions <- base::which(CpG %in% unlist(strsplit(txtSearchCpG, " ")))
+      CpG <- dataStructure$clustResProbes$labels[dataStructure$clustResProbes$order]
+      positions <- base::which(CpG %in% unlist(base::strsplit(base::trimws(txtSearchCpG), " ")))
     },
     error = function(e) {
       base::message("An error occurred in getSearchResultCpG():\n", e)
@@ -667,13 +666,13 @@ getSearchResultCpG <- function(txtSearchCpG, session) {
   )
 }
 
-getSearchResultTrait <- function(txtSearchTrait, session) {
+getSearchResultTrait <- function(txtSearchTrait, dataStructure) {
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " searching Trait"))
       #look into clustResTraits and find position of Trait
-      Trait <- session$userData$sessionVariables$clustResTraits()$labels[session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits()$order]
-      positions <- base::which(Trait %in% unlist(strsplit(txtSearchTrait, " ")))
+      Trait <- dataStructure$clustResTraits$labels[dataStructure$clustResTraits$order]
+      positions <- base::which(Trait %in% unlist(base::strsplit(base::trimws(txtSearchTrait), " ")))
     },
     error = function(e) {
       base::message("An error occurred in getSearchResultTrait():\n", e)
@@ -727,8 +726,8 @@ plotCombinedHM_P_Val <- function(input, output, session) {
       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
       length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
       length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
-      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchCpG, split = " ")) #is a list of cg-numbers from search field "txtSearchCpG"
-      selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " ")) #is a list of cg-numbers from search field "txtSearchCpG"
+      selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
       #selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
       selectedRowIndicesOrange <- NULL
       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
@@ -753,11 +752,10 @@ plotCombinedHM_P_Val <- function(input, output, session) {
         ht_list = combinedHMP_VAL,
         heatmap_id = "Heatmap_P_Val",
         show_layer_fun = TRUE,
-        click_action = click_action_HM_P_Val,
-        brush_action = brush_action_HM_P_Val,
-        hover_action = hover_action_HM_P_Val
+        click_action = click_action_fullHM_P_Val,
+        brush_action = brush_action_fullHM_P_Val,
+        hover_action = hover_action_fullHM_P_Val
       )
-#      session$userData$sessionVariables$SPLOM <- FALSE
     },
     error = function(e) {
       base::message("An error occurred in plotCombinedHM_P_Val():\n", e)
@@ -838,9 +836,9 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
       length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
       length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
-      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchCpG, split = " "))
+      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
-      selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
@@ -869,7 +867,6 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
 #        brush_action = brush_action_HM_P_Val,
 #        hover_action = hover_action_HM_P_Val
       )
-      #      session$userData$sessionVariables$SPLOM <- FALSE
     },
     error = function(e) {
       base::message("An error occurred in plotCombinedDWHM_P_Val():\n", e)
@@ -938,9 +935,9 @@ plotCombinedCondHM_P_Val <- function(input, output, session) {
       base::print(base::paste0(sysTimePID(), " before calculating condensed heatmap"))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchCpG, split = " "))
+      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
-      selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
@@ -964,7 +961,10 @@ plotCombinedCondHM_P_Val <- function(input, output, session) {
         session = session,
         ht_list = combinedHMP_VAL,
         heatmap_id = "condHeatmap_P_Val",
-        show_layer_fun = TRUE
+        show_layer_fun = TRUE,
+        click_action = click_action_condHM_P_Val,
+        brush_action = brush_action_condHM_P_Val,
+        hover_action = hover_action_condHM_P_Val
       )
     }
   },
@@ -1034,9 +1034,9 @@ plotCombinedCondDWHM_P_Val <- function(input, output, session) {
       base::print(base::paste0(sysTimePID(), " before calculating condensed DW heatmap"))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchCpG, split = " "))
+      selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
-      selectedColIndices <- unlist(strsplit(input$txtSearchTrait, split = " "))
+      selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
@@ -1092,58 +1092,188 @@ plotCombinedCondDWHM_P_Val <- function(input, output, session) {
   })
 }
 
-#' click_action_HM_P_Val
+#' click_action_fullHM_P_Val
 #' @param df data.frame containing data which is enclosed by brush action
 #' @param input shiny input object
 #' @param output shiny output object
 #' @param session shiny session object
 #' @return nothing; function info label for click action in HM
-# examples click_action_HM_P_Val(df, input, output, session)
-click_action_HM_P_Val <- function(df, input, output, session) {
+# examples click_action_fullHM_P_Val(df, input, output, session)
+click_action_fullHM_P_Val <- function(df, input, output, session) {
   base::tryCatch(
     {
-      base::print(base::paste0(sysTimePID(), " start click_action_HM_P_Val()."))
-      output[["info_HM_P_Val"]] <- shiny::renderUI({
-        if (!is.null(df)) {
-          htmltools::HTML(
-            GetoptLong::qq(
-              "<p style='background-color:#FF8080;color:white;padding:5px;'>
-              row_label: @{df$row_label}, col_label: @{df$column_label},
-              row: @{df$row_index}, column: @{df$column_index}</p>"
-            )
-          )
-        }
-      })
+      base::print(base::paste0(sysTimePID(), " start click_action_fullHM_P_Val()."))
+      # output[["info_HM_P_Val"]] <- shiny::renderUI({
+      #   if (!is.null(df)) {
+      #     htmltools::HTML(
+      #       GetoptLong::qq(
+      #         "<p style='background-color:#FF8080;color:white;padding:5px;'>
+      #         row_label: @{df$row_label}, col_label: @{df$column_label},
+      #         row: @{df$row_index}, column: @{df$column_index}</p>"
+      #       )
+      #     )
+      #   }
+      # })
     },
   error = function(e) {
-    base::message("An error occurred in click_action_HM_P_Val():\n", e)
+    base::message("An error occurred in click_action_fullHM_P_Val():\n", e)
   },
   warning = function(w) {
-    base::message("A warning occurred in click_action_HM_P_Val():\n", w)
+    base::message("A warning occurred in click_action_fullHM_P_Val():\n", w)
   },
   finally = {
-    base::print(base::paste0(sysTimePID(), " end click_action_HM_P_Val()."))
+    base::print(base::paste0(sysTimePID(), " end click_action_fullHM_P_Val()."))
   }
   )
 }
 
-#' brush_action_HM_P_Val
+#' brush_action_fullHM_P_Val
 #' @param df data.frame containing data which is enclosed by brush action
 #' @param input shiny input object
 #' @param output shiny output object
 #' @param session shiny session object
 #' @return nothing; function creates SPLOM
-# examples brush_action_HM_P_Val(df, input, output, session)
-brush_action_HM_P_Val <- function(df, input, output, session) {
+# examples brush_action_fullHM_P_Val(df, input, output, session)
+brush_action_fullHM_P_Val <- function(df, input, output, session) {
   base::tryCatch(
     if (!is.null(df)) {
       row_index <- collapse::funique(unlist(df$row_index)) #row_index <- unique(unlist(df$row_index))
       column_index <- collapse::funique(unlist(df$column_index))
       #feed in selected CpG here
-      session$userData$sessionVariables$selectedCpG(rownames(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[row_index])
+      session$userData$sessionVariables$selectedFullCpG(rownames(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[row_index])
       #add annotation
       rownames(session$userData$annotation) <- session$userData$annotation$name
-      selectedAnnotation <- session$userData$annotation[session$userData$sessionVariables$selectedCpG(),]
+      selectedAnnotation <- session$userData$annotation[session$userData$sessionVariables$selectedFullCpG(),]
+      nprobes <- nrow(selectedAnnotation)
+      selectedAnnotation$number <- seq(1:nprobes)
+      selectedAnnotation$probeID <- selectedAnnotation$name
+      col_order <- c("number", "probeID", "type", "target",	"name", "chromosome",	"position", "meth.dye", "gene.symbol", "gene.accession", "gene.region", "cpg.island.name", "relation.to.island", "snp.exclude", "450k", "common", "epic", "epic2")
+      selectedAnnotation <- selectedAnnotation[, col_order]
+      #add links to EWAS data hub
+      selectedAnnotation <- addLinkToEWASDataHubShort(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+      selectedAnnotation <- addLinkToMRCEWASCatalogShort(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+
+      selectedAnnotation <- addLinkToEWASDataHub(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+      selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+      selectedAnnotation$probeID <- NULL
+      originTrait <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginTrait[column_index]
+      traitLabels <- colnames(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[column_index]
+      selectedTrait <- cbind(traitLabels, originTrait)
+      colnames(selectedTrait) <- c("traitName", "traitSource")
+      session$userData$sessionVariables$selectedFullTrait(selectedTrait)
+      #create DT from selectedAnnotation
+      output$DTSelectedFullCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+      session$userData$sessionVariables$selectedFullOriginalData(getSelectedOriginalData(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels, session$userData$sessionVariables$selectedFullCpG(), session$userData$sessionVariables$selectedFullTrait(), session))
+      session$userData$sessionVariables$selectedFullOriginalDataTraits(getSelectedOriginalDataTraits(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels, session$userData$sessionVariables$selectedFullCpG(), session$userData$sessionVariables$selectedFullTrait(), session))
+      session$userData$sessionVariables$selectedFullOriginalDataProbes(getSelectedOriginalDataProbes(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels, traits = session$userData$sessionVariables$selectedFullOriginalDataTraits(), markingVar = session$userData$sessionVariables$FullMarkingVar(), session$userData$sessionVariables$selectedFullCpG(), session$userData$sessionVariables$selectedFullTrait(), session))
+      if (!is.null(session$userData$sessionVariables$selectedFullOriginalData())) {
+        FactorialVars <- getBinaryFactorialVars(session$userData$sessionVariables$selectedFullOriginalData())
+        #if (!is.null(FactorialVars)) {
+        if (is.valid(FactorialVars)) {
+          shiny::updateSelectizeInput(
+            session = session,
+            inputId = "FullMarkingVar",
+            choices = FactorialVars,
+            server = TRUE
+          )
+          message(session$userData$sessionVariables$fullMarkingVar())
+        } else {
+          shiny::updateSelectizeInput(
+            session = session,
+            inputId = "fullMarkingVar",
+            choices = NULL,
+            server = TRUE
+          )
+        }
+      } else {
+        shiny::updateSelectizeInput(
+          session = session,
+          inputId = "fullMarkingVar",
+          choices = NULL,
+          server = TRUE
+        )
+      }
+    },
+    error = function(e) {
+      base::message("An error occurred in brush_action_fullHM_P_Val():\n", e)
+    },
+    warning = function(w) {
+      base::message("A warning occurred in brush_action_fullHM_P_Val():\n", w)
+    },
+    finally = {
+    }
+  )
+}
+
+#' hover_action_fullHM_P_Val
+#' @param df data.frame containing data which is enclosed by brush action
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#' @return nothing; function info label for click action in HM
+# examples click_action_fullHM_P_Val(df, input, output, session)
+hover_action_fullHM_P_Val <- function(df, input, output, session) {
+  base::tryCatch(
+    {
+      base::print(base::paste0(sysTimePID(), " hover_action_fullHM_P_Val.", as.character(head(df))))
+    },
+    error = function(e) {
+      base::message("An error occurred in hover_action_fullHM_P_Val():\n", e)
+    },
+    warning = function(w) {
+      base::message("A warning occurred in hover_action_fullHM_P_Val():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end hover_action_fullHM_P_Val()."))
+    }
+  )
+}
+
+click_action_condHM_P_Val <- function(df, input, output, session) {
+  base::tryCatch(
+    {
+      base::print(base::paste0(sysTimePID(), " start click_action_condHM_P_Val()."))
+      # output[["info_HM_P_Val"]] <- shiny::renderUI({
+      #   if (!is.null(df)) {
+      #     htmltools::HTML(
+      #       GetoptLong::qq(
+      #         "<p style='background-color:#FF8080;color:white;padding:5px;'>
+      #         row_label: @{df$row_label}, col_label: @{df$column_label},
+      #         row: @{df$row_index}, column: @{df$column_index}</p>"
+      #       )
+      #     )
+      #   }
+      # })
+    },
+    error = function(e) {
+      base::message("An error occurred in click_action_condHM_P_Val():\n", e)
+    },
+    warning = function(w) {
+      base::message("A warning occurred in click_action_condHM_P_Val():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end click_action_condHM_P_Val()."))
+    }
+  )
+}
+
+#' brush_action_condHM_P_Val
+#' @param df data.frame containing data which is enclosed by brush action
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#' @return nothing; function creates SPLOM
+# examples brush_action_CondHM_P_Val(df, input, output, session)
+brush_action_condHM_P_Val <- function(df, input, output, session) {
+  base::tryCatch(
+    if (!is.null(df)) {
+      row_index <- collapse::funique(unlist(df$row_index)) #row_index <- unique(unlist(df$row_index))
+      column_index <- collapse::funique(unlist(df$column_index))
+      #feed in selected CpG here
+      session$userData$sessionVariables$selectedCondCpG(rownames(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[row_index])
+      #add annotation
+      rownames(session$userData$annotation) <- session$userData$annotation$name
+      selectedAnnotation <- session$userData$annotation[session$userData$sessionVariables$selectedCondCpG(),]
       nprobes <- nrow(selectedAnnotation)
       selectedAnnotation$number <- seq(1:nprobes)
       selectedAnnotation$probeID <- selectedAnnotation$name
@@ -1157,40 +1287,32 @@ brush_action_HM_P_Val <- function(df, input, output, session) {
       selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
       selectedAnnotation$probeID <- NULL
       #mergedOriginDF <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginDF[column_index]
-      originTrait <- session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginTrait[column_index]
-      traitLabels <- colnames(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[column_index]
+      originTrait <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$mergedOriginTrait[column_index]
+      traitLabels <- colnames(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[column_index]
       selectedTrait <- cbind(traitLabels, originTrait)
       colnames(selectedTrait) <- c("traitName", "traitSource")
-      session$userData$sessionVariables$selectedTrait(selectedTrait)
+      session$userData$sessionVariables$selectedCondTrait(selectedTrait)
       #create DT from selectedAnnotation
-      output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+      output$DTSelectedCondCpG <- DT::renderDataTable(as.data.frame(selectedAnnotation), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
       #output$DTSelectedTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
-
-      #session$userData$sessionVariables$selectedOriginalData(getSelectedOriginalData(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session))
-      session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels(getSelectedTraitReducedcombinedDFP_Val_Labels(session$userData$sessionVariables$traitReducedDataStructure()$dfP_Val_Labels, session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
-      session$userData$sessionVariables$selectedOriginalData(getSelectedOriginalData(session$userData$sessionVariables$traitReducedDataStructure()$dfP_Val_Labels, session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
-
-      #session$userData$sessionVariables$selectedOriginalDataTraits(getSelectedOriginalDataTraits(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session))
-      session$userData$sessionVariables$selectedOriginalDataTraits(getSelectedOriginalDataTraits(session$userData$sessionVariables$traitReducedDataStructure()$dfP_Val_Labels, session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
-      #session$userData$sessionVariables$selectedOriginalDataProbes(getSelectedOriginalDataProbes(session$userData$sessionVariables$pReducedcombinedDFP_Val_Labels(), row_index, column_index, session))
-      session$userData$sessionVariables$selectedOriginalDataProbes(getSelectedOriginalDataProbes(session$userData$sessionVariables$traitReducedDataStructure()$dfP_Val_Labels, session$userData$sessionVariables$selectedCpG(), session$userData$sessionVariables$selectedTrait(), session))
-      if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
-        FactorialVars <- getBinaryFactorialVars(session$userData$sessionVariables$selectedOriginalData())
+      session$userData$sessionVariables$selectedCondOriginalData(getSelectedOriginalData(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels, session$userData$sessionVariables$selectedCondCpG(), session$userData$sessionVariables$selectedCondTrait(), session))
+      session$userData$sessionVariables$selectedCondOriginalDataTraits(getSelectedOriginalDataTraits(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels, session$userData$sessionVariables$selectedCondCpG(), session$userData$sessionVariables$selectedCondTrait(), session))
+      session$userData$sessionVariables$selectedCondOriginalDataProbes(getSelectedOriginalDataProbes(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels, traits = session$userData$sessionVariables$selectedCondOriginalDataTraits(), markingVar = session$userData$sessionVariables$CondMarkingVar(), session$userData$sessionVariables$selectedCondCpG(), session$userData$sessionVariables$selectedCondTrait(), session))
+      if (!is.null(session$userData$sessionVariables$selectedCondOriginalData())) {
+        FactorialVars <- getBinaryFactorialVars(session$userData$sessionVariables$selectedCondOriginalData())
         #if (!is.null(FactorialVars)) {
         if (is.valid(FactorialVars)) {
           shiny::updateSelectizeInput(
             session = session,
-            inputId = "markingVar",
+            inputId = "condMarkingVar",
             choices = FactorialVars,
             server = TRUE
           )
-          #session$userData$sessionVariables$markingVar <- unlist(FactorialVars[1])
-          #session$userData$sessionVariables$markingVar(unlist(FactorialVars[1]))
-          message(session$userData$sessionVariables$markingVar())
+          message(session$userData$sessionVariables$condMarkingVar())
         } else {
           shiny::updateSelectizeInput(
             session = session,
-            inputId = "markingVar",
+            inputId = "condMarkingVar",
             choices = NULL,
             server = TRUE
           )
@@ -1198,47 +1320,36 @@ brush_action_HM_P_Val <- function(df, input, output, session) {
       } else {
         shiny::updateSelectizeInput(
           session = session,
-          inputId = "markingVar",
+          inputId = "condMarkingVar",
           choices = NULL,
           server = TRUE
         )
       }
     },
     error = function(e) {
-      base::message("An error occurred in brush_action_HM_P_Val():\n", e)
+      base::message("An error occurred in brush_action_condHM_P_Val():\n", e)
     },
     warning = function(w) {
-      base::message("A warning occurred in brush_action_HM_P_Val():\n", w)
+      base::message("A warning occurred in brush_action_condHM_P_Val():\n", w)
     },
     finally = {
     }
   )
 }
 
-#' hover_action_HM_P_Val
-#' @param df data.frame containing data which is enclosed by brush action
-#' @param input shiny input object
-#' @param output shiny output object
-#' @param session shiny session object
-#' @return nothing; function info label for click action in HM
-# examples click_action_HM(df, input, output, session)
-hover_action_HM_P_Val <- function(df, input, output, session) {
+hover_action_condHM_P_Val <- function(df, input, output, session) {
   base::tryCatch(
     {
-      base::print(base::paste0(sysTimePID(), " hover_action_HM_P_Val.", as.character(head(df))))
+      base::print(base::paste0(sysTimePID(), " hover_action_condHM_P_Val.", as.character(head(df))))
     },
     error = function(e) {
-      base::message("An error occurred in hover_action_HM():\n", e)
+      base::message("An error occurred in hover_action_condHM_P_Val():\n", e)
     },
     warning = function(w) {
-      base::message("A warning occurred in hover_action_HM():\n", w)
+      base::message("A warning occurred in hover_action_condHM_P_Val():\n", w)
     },
     finally = {
-      base::print(base::paste0(sysTimePID(), " end hover_action_HM_P_Val()."))
+      base::print(base::paste0(sysTimePID(), " end hover_action_condHM_P_Val()."))
     }
   )
 }
-
-# click_action_HM_DM <- function(df, input, output, session) {}
-# brush_action_HM_DM <- function(df, input, output, session) {}
-# hover_action_HM_DM <- function(df, input, output, session) {}

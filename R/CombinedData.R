@@ -332,7 +332,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
             )
           mergedOriginDF <- c(mergedOriginDF, OriginDF3)
           mergedColnames <- c(mergedColnames, Colnames3)
-          mergedOriginalColnames <- c(mergedOriginalColnames, Colnames3)
+          mergedOriginalColnames <- c(mergedOriginalColnames, OriginalColnames3)
           mergedOriginTrait <- c(mergedOriginTrait, originTrait3)
           mergedDFList <- c(mergedDFList, DFList3)
           if ("Row.names" %in% base::colnames(dfP_Val3)) {

@@ -1,8 +1,8 @@
 #' structure of sessionVariables for SPLOM:
 #' detailed original data for SPLOM analysis
-#' session$userData$sessionVariables$SPLOM - data structure for scatter plot matrix
-#' session$userData$sessionVariables$selectedOriginalData - merged original data for creation of SPLOM
-#' session$userData$sessionVariables$markingVar - variable, which should be marked (stratified for) in SPLOM
+#' session$userData$sessionVariables$fullSPLOM - data structure for scatter plot matrix
+#' session$userData$sessionVariables$selectedFullOriginalData - merged original data for creation of SPLOM
+#' session$userData$sessionVariables$fullMarkingVar - variable, which should be marked (stratified for) in SPLOM
 
 #' getDimensionsForPlotlySPLOM
 #' @param df data frame
@@ -50,7 +50,8 @@ getBinaryFactorialVars <- function(df) {
 #' @param markingVar variable inside the data frame, which will be not drawn in SPLOM, instead it will be used for visual stratification
 #' @return a plotly figure, which can be drawn using renderPlotly
 # examples getSPLOM(df, markingVar)
-getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
+getSPLOM <- function(df, XVars, YVars, markingVar) {
+#getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
   if (!is.null(df)) {
     dimensions <- getDimensionsForPlotlySPLOM(df, markingVar)
     pl_colorscale <- list(
@@ -70,7 +71,8 @@ getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
       df[, "markingVar"] <- as.factor(df[, "markingVar"])
     }
     fig <- df %>%
-      plotly::plot_ly(height = height, width = width)
+      #plotly::plot_ly(height = height, width = width)
+      plotly::plot_ly()
     if ("markingVar" %in% colnames(df)) {
       fig <- fig %>%
         plotly::add_trace(

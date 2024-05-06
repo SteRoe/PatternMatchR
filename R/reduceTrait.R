@@ -192,6 +192,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       result$dfDM <- combinedDFP_Val_Labels$dfDM[, traitNos]
       result$dfN <- combinedDFP_Val_Labels$dfN[, traitNos]
       result$mergedOriginDF <- combinedDFP_Val_Labels$mergedOriginDF[traitNos]
+      result$mergedOriginalColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[traitNos]
       result$mergedColnames <- combinedDFP_Val_Labels$mergedColnames[traitNos]
       result$mergedOriginTrait <- combinedDFP_Val_Labels$mergedOriginTrait[traitNos]
       #result$mergedDFList <- combinedDFP_Val_Labels$mergedDFList[traitNos]
@@ -279,9 +280,26 @@ getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitCluste
       if (traitClusters > 1) {
         Clusters <- dendextend::cutree(clustResTraits, k = traitClusters) # Clusters <- cutree(clustResTraits, k = traitClusters)
         mycolors <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(traitClusters)
-        p <- factoextra::fviz_cluster(list(data = matP_Val.t, cluster = Clusters),
-                                      palette = mycolors, #palette = "jco",
-                                    ggtheme = ggplot2::theme_classic())
+        base::tryCatch(
+          {
+          p <- factoextra::fviz_cluster(list(data = matP_Val.t, cluster = Clusters),
+                                        palette = mycolors, #palette = "jco",
+                                        ggtheme = ggplot2::theme_classic())
+          },
+          error = function(e) {
+            base::message("An error occurred in p <- factoextra::fviz_cluster():\n", e)
+            browser()
+            return(NULL)
+          },
+          warning = function(w) {
+            base::message("An warning occurred in p <- factoextra::fviz_cluster():\n", w)
+            browser()
+            return(NULL)
+          },
+          finally = {
+            return(p)
+          }
+        )
         # p <- factoextra::fviz_mclust(list(data = matP_Val.t, cluster = Clusters),
         #                               palette = "jco",
         #                               ggtheme = ggplot2::theme_classic())
@@ -303,17 +321,17 @@ getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitCluste
   )
 }
 
-updateTxtOmitTraitsOut <- function(traitReducedcombinedDFP_Val_Labels) {
+updateTxtOmitTraitsOut <- function(combinedDFP_Val_Labels) {
   base::tryCatch(
     {
       result <- NULL
-      if (is.valid(traitReducedcombinedDFP_Val_Labels)) {
+      if (is.valid(combinedDFP_Val_Labels)) {
         result <- base::paste0("omit trait successful. result table is: nrow (CpG): ",
-                               nrow(traitReducedcombinedDFP_Val_Labels$dfP_Val),
-                               "; ncol (trait): ", ncol(traitReducedcombinedDFP_Val_Labels$dfP_Val), " (if # is less than defined number of clusters, then duplicate variable names have been omitted)")
+                               nrow(combinedDFP_Val_Labels$dfP_Val),
+                               "; ncol (trait): ", ncol(combinedDFP_Val_Labels$dfP_Val), " (if # is less than defined number of clusters, then duplicate variable names have been omitted)")
       }
       else {
-        base::message(base::paste0(sysTimePID(), " is.valid(traitReducedcombinedDFP_Val_Labels) == FALSE."))
+        base::message(base::paste0(sysTimePID(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
       }
     },
     error = function(e) {

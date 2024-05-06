@@ -7,6 +7,7 @@
 #' examples getDistMat(numberCores, matrix)
 getDistMat <- function(numberCores, matrix) {
   #distMat <- spam::as.spam.dist(
+  if (length(matrix) > 100000) {
   distMat <- stats::as.dist(
     parallelDist::parallelDist(
       base::as.matrix(matrix),
@@ -15,6 +16,13 @@ getDistMat <- function(numberCores, matrix) {
       threads = numberCores
     )
   )
+  if (all(is.na(distMat))) {
+    browser() #this should not happen, if dist(matrix) delivers a result, then something is wrong with parallelDist
+  }
+  }
+  else {
+    distMat <- stats::dist(base::as.matrix(matrix), method = "euclidean")
+  }
   return(distMat)
 }
 

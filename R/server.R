@@ -29,12 +29,12 @@ server <- function(input, output, session) {
   if (is.valid(session$userData$config$knownCpGs)) {
     #load CpG from txt file to search input
     knownCpG <- paste(unlist(data.table::fread(file = session$userData$config$knownCpGs, header = FALSE)), collapse = " ")
-    shiny::updateTextInput(session, inputId = "txtSearchCpG", value = knownCpG)
+    shiny::updateTextInput(session, inputId = "txtSearchFullCpG", value = knownCpG)
   }
   if (is.valid(session$userData$config$knownTraits)) {
     #load Traits from txt file to search input
     knownTrait <- paste(unlist(data.table::fread(file = session$userData$config$knownTraits, header = FALSE)), collapse = " ")
-    shiny::updateTextInput(session, inputId = "txtSearchTrait", value = knownTrait)
+    shiny::updateTextInput(session, inputId = "txtSearchFullTrait", value = knownTrait)
   }
   #base::options(spam.force64 = TRUE)
 
@@ -92,14 +92,20 @@ server <- function(input, output, session) {
   session$userData$sessionVariables$distNeigboursProbes100 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes100")
   session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes10")
 
-  session$userData$sessionVariables$selectedOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedOriginalData")
-  session$userData$sessionVariables$selectedOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataTraits")
-  session$userData$sessionVariables$selectedOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataProbes")
-  session$userData$sessionVariables$selectedCpG <- shiny::reactiveVal(value = NULL, label = "selectedCpG")
-  session$userData$sessionVariables$selectedTrait <- shiny::reactiveVal(value = NULL, label = "selectedTrait")
-  session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels <- shiny::reactiveVal(value = NULL, label = "selectedTraitReducedcombinedDFP_Val_Labels")
+  session$userData$sessionVariables$selectedFullOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedFullOriginalData")
+  session$userData$sessionVariables$selectedFullOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedFullOriginalDataTraits")
+  session$userData$sessionVariables$selectedFullOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedFullOriginalDataProbes")
+  session$userData$sessionVariables$selectedFullCpG <- shiny::reactiveVal(value = NULL, label = "selectedFullCpG")
+  session$userData$sessionVariables$selectedFullTrait <- shiny::reactiveVal(value = NULL, label = "selectedFullTrait")
 
-  session$userData$sessionVariables$markingVar <- shiny::reactiveVal(value = NULL, label = "markingVar")
+  session$userData$sessionVariables$selectedCondOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedCondOriginalData")
+  session$userData$sessionVariables$selectedCondOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedCondOriginalDataTraits")
+  session$userData$sessionVariables$selectedCondOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedCondOriginalDataProbes")
+  session$userData$sessionVariables$selectedCondCpG <- shiny::reactiveVal(value = NULL, label = "selectedCondCpG")
+  session$userData$sessionVariables$selectedCondTrait <- shiny::reactiveVal(value = NULL, label = "selectedCondTrait")
+
+  session$userData$sessionVariables$fullMarkingVar <- shiny::reactiveVal(value = NULL, label = "fullMarkingVar")
+  session$userData$sessionVariables$condMarkingVar <- shiny::reactiveVal(value = NULL, label = "condMarkingVar")
 
   shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = 0, max = 0, value = c(0, 0))
   shiny::updateSliderInput(session = session, inputId = "sldDM", min = 0, max = 0, value = c(0, 0))
@@ -184,11 +190,13 @@ server <- function(input, output, session) {
 
   shiny::observe({
     if (!is.valid(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+      shinyjs::disable("Full Trait-reduced Data")
       shinyjs::disable("Trait Reduced Data")
       shinyjs::disable("btnPlotCombinedHM_P_Val")
       shinyjs::disable("numHMHSize")
       shinyjs::disable("numHMVSize")
     } else {
+      shinyjs::enable("Full Trait-reduced Data")
       shinyjs::enable("Trait Reduced Data")
       shinyjs::enable("btnPlotCombinedHM_P_Val")
       shinyjs::enable("numHMHSize")
@@ -347,38 +355,60 @@ server <- function(input, output, session) {
     )
   })
 
-  session$userData$sessionVariables$markingVar <- shiny::reactive({
-
-    return(input$markingVar)
+  session$userData$sessionVariables$fullMarkingVar <- shiny::reactive({
+    return(input$fullMarkingVar)
   })
 
-  output$SPLOM <- plotly::renderPlotly({
-    if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
-      height <- input$numSPLOMVSize
-      width <- input$numSPLOMHSize
-      base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedOriginalData()))) #thats sum of probes and traits
-      base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedOriginalData()))) #thats number of cases in data set
-      base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedOriginalDataTraits())))
-      base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedOriginalDataProbes())))
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedOriginalDataProbes()), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
+  session$userData$sessionVariables$condMarkingVar <- shiny::reactive({
+    return(input$condMarkingVar)
+  })
+
+  output$fullSPLOM <- plotly::renderPlotly({
+      if (!is.null(session$userData$sessionVariables$selectedFullOriginalData())) {
+        base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedFullOriginalData()))) #thats sum of probes and traits
+        base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedFullOriginalData()))) #thats number of cases in data set
+        base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedFullOriginalDataTraits())))
+        base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedFullOriginalDataProbes())))
+        fig <- getSPLOM(session$userData$sessionVariables$selectedFullOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedFullOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedFullOriginalDataProbes()), markingVar = session$userData$sessionVariables$fullMarkingVar())
+        return(fig)
+      }
+  })
+
+  output$fullSPLOMTrait <- plotly::renderPlotly({
+      if (!is.null(session$userData$sessionVariables$selectedFullOriginalDataTraits())) {
+        fig <- getSPLOM(session$userData$sessionVariables$selectedFullOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedFullOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedFullOriginalDataTraits(), markingVar = session$userData$sessionVariables$fullMarkingVar())
+        return(fig)
+      }
+  })
+
+  output$fullSPLOMProbe <- plotly::renderPlotly({
+      if (!is.null(session$userData$sessionVariables$selectedFullOriginalDataProbes())) {
+        fig <- getSPLOM(session$userData$sessionVariables$selectedFullOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedFullOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedFullOriginalDataProbes(), markingVar = session$userData$sessionVariables$fullMarkingVar())
+        return(fig)
+      }
+  })
+
+  output$condSPLOM <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedCondOriginalData())) {
+      base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedCondOriginalData()))) #thats sum of probes and traits
+      base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedCondOriginalData()))) #thats number of cases in data set
+      base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedCondOriginalDataTraits())))
+      base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedCondOriginalDataProbes())))
+      fig <- getSPLOM(session$userData$sessionVariables$selectedCondOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedCondOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedCondOriginalDataProbes()), markingVar = session$userData$sessionVariables$condMarkingVar())
       return(fig)
     }
   })
 
-  output$SPLOMTrait <- plotly::renderPlotly({
-    if (!is.null(session$userData$sessionVariables$selectedOriginalDataTraits())) {
-      height <- input$numSPLOMVSize
-      width <- input$numSPLOMHSize
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedOriginalDataTraits(), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
+  output$condSPLOMTrait <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedCondOriginalDataTraits())) {
+      fig <- getSPLOM(session$userData$sessionVariables$selectedCondOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedCondOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedCondOriginalDataTraits(), markingVar = session$userData$sessionVariables$condMarkingVar())
       return(fig)
     }
   })
 
-  output$SPLOMProbe <- plotly::renderPlotly({
-    if (!is.null(session$userData$sessionVariables$selectedOriginalDataProbes())) {
-      height <- input$numSPLOMVSize
-      width <- input$numSPLOMHSize
-      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedOriginalDataProbes(), markingVar = session$userData$sessionVariables$markingVar(), height = height, width = width)
+  output$condSPLOMProbe <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedCondOriginalDataProbes())) {
+      fig <- getSPLOM(session$userData$sessionVariables$selectedCondOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedCondOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedCondOriginalDataProbes(), markingVar = session$userData$sessionVariables$condMarkingVar())
       return(fig)
     }
   })
@@ -493,6 +523,30 @@ server <- function(input, output, session) {
     )
   })
 
+  output$txtCondOut <- shiny::reactive({
+    base::tryCatch(
+      {
+        base::print(base::paste0(sysTimePID(), " start generating output$txtCondOut"))
+        if (is.valid(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels)) {
+          result <- updateTxtOmitTraitsOut(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels)
+        }
+        else {
+          result <- NULL
+        }
+      },
+      error = function(e) {
+        base::message("An error occurred in shiny::reactive(output$txtCondOut):\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in shiny::reactive(output$txtCondOut):\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " finished generating output$txtCondOut"))
+        return(result)
+      }
+    )
+  })
+
   output$plotDendrogramTraitsLong <- shiny::renderPlot(getPlot(session$userData$sessionVariables$traitReducedDataStructure()$traitDendrogram))
 
   output$plotClustergramTraitsLong <- shiny::renderPlot(getPlot(session$userData$sessionVariables$traitReducedDataStructure()$traitClustergram))
@@ -541,6 +595,8 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
       if (session$userData$sessionVariables$callCounter > 1) {
 browser() #check, whether this is called initially and why plotCombinedHM_P_Val is called twice
       }
+      output$Heatmap_P_Val$width <- width
+
       plotCombinedHM_P_Val(input = input, output = output, session = session)
     },
     ignoreNULL = FALSE
@@ -1057,9 +1113,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     ignoreNULL = FALSE
   )
 
-  output$DTSelectedP_Val <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels()$dfP_Val), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))  #TBC()
+#  output$DTSelectedP_Val <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels()$dfP_Val), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))  #TBC()
 
-  output$DTSelectedTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  output$DTSelectedFullTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedFullTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  output$DTSelectedCondTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedCondTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
 
   output$selectHistDM <- plotly::renderPlotly(selectHistDM())
 
@@ -1724,6 +1781,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   session$userData$sessionVariables$pReducedDataStructure <- shiny::reactive({
     base::tryCatch(
       {
+#browser() #look for mergedOriginalColnames here... and also in the subsequent data structures
         if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
           result <- base::list(combinedDFP_Val_Labels = session$userData$sessionVariables$pReducedData(),
                            #                            #matP_Val = session$userData$sessionVariables$matP_Val(), #is part of combinedDFP_Val_Labels()
@@ -1738,6 +1796,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                            clustResProbes = NULL,
                            dendProbes = NULL
           )
+
           result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
           numberCores <- session$userData$numCores
           base::print(paste0(sysTimePID(), " (pReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
@@ -1790,6 +1849,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           )
           if (is.valid(session$userData$sessionVariables$traitReducedData())) {
             result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
+
             result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
             numberCores <- session$userData$numCores
             base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
@@ -1848,7 +1908,6 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             else {
               result$traitClustergram <- NULL
             }
-
             # add "number" and reorder columns
             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
             nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
@@ -2703,30 +2762,30 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                       ignoreNULL = FALSE
   )
 
-  shiny::observeEvent(input$btnSearchCpGHM,
+  shiny::observeEvent(input$btnSearchFullCpGHM,
     ignoreInit = TRUE,
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start searching CpG."))
+          base::print(base::paste0(sysTimePID(), " start searching CpG full."))
           #find positions
-          searchResult <- getSearchResultCpG(input$txtSearchCpG, session)
+          searchResult <- getSearchResultCpG(input$txtSearchFullCpG, session$userData$sessionVariables$traitReducedDataStructure())
           length <- length(session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes$labels)
-          resultText <- paste0(input$txtSearchCpG, " found at position: ", searchResult, " from ", length, " CpG.")
+          resultText <- paste0(base::trimws(input$txtSearchFullCpG), " found at position: ", searchResult, " from ", length, " CpG.")
           #write to output
-          output$txtSearchResultCpG <- shiny::renderText(resultText)
+          output$txtSearchResultFullCpG <- shiny::renderText(resultText)
           #mark in HM
           #browser()
           #plotCombinedHM_P_Val()
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", e)
+          base::message("An error occurred in shiny::observeEvent(input$btnSearchFullCpGHM):\n", e)
         },
         warning = function(w) {
-          base::message("A warning occurred in shiny::observeEvent(input$btnSearchCpGHM):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnSearchFullCpGHM):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " finished searching CpG."))
+          base::print(base::paste0(sysTimePID(), " finished searching CpG full."))
         }
       )
 
@@ -2734,36 +2793,97 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     ignoreNULL = FALSE
   )
 
-  shiny::observeEvent(input$btnSearchTraitHM,
+  shiny::observeEvent(input$btnSearchFullTraitHM,
     ignoreInit = TRUE,
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " start searching trait."))
+          base::print(base::paste0(sysTimePID(), " start searching trait full."))
           #find positions
-          searchResult <- getSearchResultTrait(input$txtSearchTrait, session)
+          searchResult <- getSearchResultTrait(input$txtSearchFullTrait, session$userData$sessionVariables$traitReducedDataStructure())
           length <- length(session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits$labels)
-          resultText <- paste0(input$txtSearchTrait, " found at position: ", searchResult, " from ", length, " Traits.")
+          resultText <- paste0(base::trimws(input$txtSearchFullTrait), " found at position: ", searchResult, " from ", length, " traits.")
           #write to output
-          output$txtSearchResultTrait <- shiny::renderText(resultText)
+          output$txtSearchResultFullTrait <- shiny::renderText(resultText)
           #mark in HM
           #browser()
           #plotCombinedHM_P_Val()
         },
         error = function(e) {
-          base::warning("An error occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", e)
+          base::warning("An error occurred in shiny::observeEvent(input$btnSearchFullTraitHM):\n", e)
         },
         warning = function(w) {
-          base::message("A warning occurred in shiny::observeEvent(input$btnSearchTraitHM):\n", w)
+          base::message("A warning occurred in shiny::observeEvent(input$btnSearchFullTraitHM):\n", w)
         },
         finally = {
-          base::print(base::paste0(sysTimePID(), " end search trait heatmap."))
-          base::print(base::paste0(sysTimePID(), " finished searching trait."))
+          base::print(base::paste0(sysTimePID(), " end search trait heatmap full."))
+          base::print(base::paste0(sysTimePID(), " finished searching trait full."))
         }
       )
-
     },
     ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnSearchCondCpGHM,
+                      ignoreInit = TRUE,
+                      {
+                        base::tryCatch(
+                          {
+                            base::print(base::paste0(sysTimePID(), " start searching CpG condensed."))
+                            #find positions
+                            searchResult <- getSearchResultCpG(input$txtSearchCondCpG, session$userData$sessionVariables$probeReducedDataStructure())
+                            length <- length(session$userData$sessionVariables$probeReducedDataStructure()$clustResProbes$labels)
+                            resultText <- paste0(base::trimws(input$txtSearchCondCpG), " found at position: ", searchResult, " from ", length, " CpG.")
+                            #write to output
+                            output$txtSearchResultCondCpG <- shiny::renderText(resultText)
+                            #mark in HM
+                            #browser()
+                            #plotCombinedHM_P_Val()
+                          },
+                          error = function(e) {
+                            base::message("An error occurred in shiny::observeEvent(input$btnSearchCondCpGHM):\n", e)
+                          },
+                          warning = function(w) {
+                            base::message("A warning occurred in shiny::observeEvent(input$btnSearchCondCpGHM):\n", w)
+                          },
+                          finally = {
+                            base::print(base::paste0(sysTimePID(), " finished searching CpG condensed."))
+                          }
+                        )
+
+                      },
+                      ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnSearchCondTraitHM,
+                      ignoreInit = TRUE,
+                      {
+                        base::tryCatch(
+                          {
+                            base::print(base::paste0(sysTimePID(), " start searching trait cond."))
+                            #find positions
+                            searchResult <- getSearchResultTrait(input$txtSearchCondTrait, session$userData$sessionVariables$probeReducedDataStructure())
+                            length <- length(session$userData$sessionVariables$probeReducedDataStructure()$clustResTraits$labels)
+                            resultText <- paste0(base::trimws(input$txtSearchCondTrait), " found at position: ", searchResult, " from ", length, " traits.")
+                            #write to output
+                            output$txtSearchResultCondTrait <- shiny::renderText(resultText)
+                            #mark in HM
+                            #browser()
+                            #plotCombinedHM_P_Val()
+                          },
+                          error = function(e) {
+                            base::warning("An error occurred in shiny::observeEvent(input$btnSearchCondTraitHM):\n", e)
+                          },
+                          warning = function(w) {
+                            base::message("A warning occurred in shiny::observeEvent(input$btnSearchCondTraitHM):\n", w)
+                          },
+                          finally = {
+                            base::print(base::paste0(sysTimePID(), " end search trait heatmap cond."))
+                            base::print(base::paste0(sysTimePID(), " finished searching trait cond."))
+                          }
+                        )
+                      },
+                      ignoreNULL = FALSE
   )
 
   shiny::observeEvent(input$chkDebug,
@@ -2796,4 +2916,15 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     },
     ignoreNULL = FALSE
   )
+
+  # output$plotTest <- plotly::renderPlotly(pt())
+  # #output$plotTest <- shiny::renderPlot(pt(), height = 200, width = 200)
+  #
+  # pt <- function(){
+  #   dt <- data.table::data.table(a=c(1,2,3,4),b=c(4,3,2,1))
+  #   plot <- plotly::plot_ly(x = dt$a, y = dt$b , type = "scatter", mode = "lines+markers", name = "dt")
+  #   return(plot)
+  # }
+
 }
+
