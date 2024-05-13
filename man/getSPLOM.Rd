@@ -4,7 +4,7 @@
 \alias{getSPLOM}
 \title{getSPLOM}
 \usage{
-getSPLOM(df, XVars, YVars, markingVar, height, width)
+getSPLOM(df, XVars, YVars, markingVar)
 }
 \arguments{
 \item{df}{data frame, from which the SPLOM will be drawn}

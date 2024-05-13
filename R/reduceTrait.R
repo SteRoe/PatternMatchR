@@ -326,7 +326,7 @@ updateTxtOmitTraitsOut <- function(combinedDFP_Val_Labels) {
     {
       result <- NULL
       if (is.valid(combinedDFP_Val_Labels)) {
-        result <- base::paste0("omit trait successful. result table is: nrow (CpG): ",
+        result <- base::paste0("reduce data successful. result table is: nrow (CpG): ",
                                nrow(combinedDFP_Val_Labels$dfP_Val),
                                "; ncol (trait): ", ncol(combinedDFP_Val_Labels$dfP_Val), " (if # is less than defined number of clusters, then duplicate variable names have been omitted)")
       }

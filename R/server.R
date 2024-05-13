@@ -142,7 +142,8 @@ server <- function(input, output, session) {
     if (!is.valid(session$userData$sessionVariables$resultDFListTrait1()) && !is.valid(session$userData$sessionVariables$resultDFListTrait2()) && !is.valid(session$userData$sessionVariables$resultDFListTrait3())){
       shinyjs::disable("Merge")
       shinyjs::disable("btnMerge")
-    } else {
+    }
+    else {
       shinyjs::enable("Merge")
       shinyjs::enable("btnMerge")
     }
@@ -161,7 +162,8 @@ server <- function(input, output, session) {
       shinyjs::disable("sldDM")
       shinyjs::disable("sldN")
       shinyjs::disable("btnReduce")
-    } else {
+    }
+    else {
       shinyjs::enable("Count Borders")
       shinyjs::enable("btnCountP_ValProbes")
       shinyjs::enable("btnCountProbesP_ValParallel")
@@ -181,10 +183,13 @@ server <- function(input, output, session) {
       shinyjs::disable("Omit Traits")
       shinyjs::disable("sldNumClusters")
       shinyjs::disable("btnOmitTraits")
-    } else {
+      shinyjs::disable("sld_NumNeighbours")
+    }
+    else {
       shinyjs::enable("Omit Traits")
       shinyjs::enable("sldNumClusters")
       shinyjs::enable("btnOmitTraits")
+      shinyjs::enable("sld_NumNeighbours")
     }
   })
 
@@ -195,7 +200,8 @@ server <- function(input, output, session) {
       shinyjs::disable("btnPlotCombinedHM_P_Val")
       shinyjs::disable("numHMHSize")
       shinyjs::disable("numHMVSize")
-    } else {
+    }
+    else {
       shinyjs::enable("Full Trait-reduced Data")
       shinyjs::enable("Trait Reduced Data")
       shinyjs::enable("btnPlotCombinedHM_P_Val")
@@ -210,13 +216,12 @@ server <- function(input, output, session) {
       shinyjs::disable("btnPlotCombinedCondHM_P_Val")
       shinyjs::disable("numCondHMHSize")
       shinyjs::disable("numCondHMVSize")
-      shinyjs::disable("sld_NumNeighbours")
-    } else {
+    }
+    else {
       shinyjs::enable("Condensed Trait-reduced Data (contains only CpG with nearby neighbours)")
       shinyjs::enable("btnPlotCombinedCondHM_P_Val")
       shinyjs::enable("numCondHMHSize")
       shinyjs::enable("numCondHMVSize")
-      shinyjs::enable("sld_NumNeighbours")
     }
   })
 
@@ -226,7 +231,8 @@ server <- function(input, output, session) {
       shinyjs::disable("btnPlotCombinedDWHM_P_Val")
       shinyjs::disable("numDWHMHSize")
       shinyjs::disable("numDWHMVSize")
-    } else {
+    }
+    else {
       #shinyjs::enable("Full Distance Weighted Data")
       shinyjs::enable("btnPlotCombinedDWHM_P_Val")
       shinyjs::enable("numDWHMHSize")
@@ -240,7 +246,8 @@ server <- function(input, output, session) {
       shinyjs::disable("btnPlotCombinedCondDWHM_P_Val")
       shinyjs::disable("numCondDWHMHSize")
       shinyjs::disable("numCondDWHMVSize")
-    } else {
+    }
+    else {
       #shinyjs::enable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
       shinyjs::enable("btnPlotCombinedCondDWHM_P_Val")
       shinyjs::enable("numCondDWHMHSize")
@@ -1845,7 +1852,8 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                                traitClustergram = NULL,
                                distMatProbes = NULL,
                                clustResProbes = NULL,
-                               probeDendrogram = NULL
+                               probeDendrogram = NULL,
+                               DNAdistances = NULL
           )
           if (is.valid(session$userData$sessionVariables$traitReducedData())) {
             result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
@@ -1961,6 +1969,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             else {
               result$probeDendrogram <- NULL
             }
+            Distance <- input$sld_NumNeighbours
+            DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = result$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
+            result$DNAdistances <- DNAdistances
+            #DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
+            #          DNAdistances <- na.omit(DNAdistances)
+            #dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+            #dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
           }
         }
       },
@@ -1992,11 +2007,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                               traitClustergram = NULL,
                               distMatProbes = NULL,
                               clustResProbes = NULL,
-                              probeDendrogram = NULL
+                              probeDendrogram = NULL,
+                              DNAdistances = NULL
           )
           #          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
-          DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
+          DNAdistances <- traitReducedDataStructure$DNAdistances
           DNAdistances <- na.omit(DNAdistances)
+          result$DNAdistances <- DNAdistances
           dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
           dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
@@ -2154,12 +2171,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                               traitClustergram = NULL,
                               distMatProbes = NULL,
                               clustResProbes = NULL,
-                              probeDendrogram = NULL
+                              probeDendrogram = NULL,
+                              DNAdistances = NULL
           )
-          Distance <- input$sld_NumNeighbours
-          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
-          #DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
-          #          DNAdistances <- na.omit(DNAdistances)
+#          Distance <- input$sld_NumNeighbours
+#          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
+          DNAdistances <- session$userData$sessionVariables$traitReducedDataStructure()$DNAdistances
+          result$DNAdistances <- DNAdistances
           dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
           dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
@@ -2236,11 +2254,12 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                                traitClustergram = NULL,
                                distMatProbes = NULL,
                                clustResProbes = NULL,
-                               probeDendrogram = NULL
+                               probeDendrogram = NULL,
+                               DNAdistances = NULL
           )
-          # DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
-          DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
+          DNAdistances <- probeReducedDataStructure$DNAdistances
           DNAdistances <- na.omit(DNAdistances)
+          result$DNAdistances <- DNAdistances
           dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
           dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
@@ -2677,8 +2696,9 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " Step 5: start plotting heatmap for P_Val. (first step in shiny::observeEvent(input$btnPlotCombinedHM_P_Val))"))
+          base::print(base::paste0(sysTimePID(), " Step 5a: start plotting heatmap for P_Val. (first step in shiny::observeEvent(input$btnPlotCombinedHM_P_Val))"))
           plotCombinedHM_P_Val(input = input, output = output, session = session)
+#          plotHMDNADistances(input = input, output = output, session = session)
           session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
         error = function(e) {

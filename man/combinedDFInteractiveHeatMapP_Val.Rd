@@ -8,6 +8,7 @@ combinedDFInteractiveHeatMapP_Val(
   combinedDF_Labels,
   dendProbes = NA,
   dendTraits = NA,
+  Distances = NA,
   selectedRowIndicesYellow = NA,
   selectedColIndices = NA,
   selectedRowIndicesOrange = NA,

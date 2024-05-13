@@ -13,6 +13,12 @@ generate_ui <- function() {
       )),
       "Hostname / PID",
       shiny::verbatimTextOutput(outputId = "Sys.PID", placeholder = TRUE),
+      # shiny::fluidRow(
+      #   plotly::plotlyOutput("plotTest",
+      #                        height = '90vh', #height = "100%", #height = '200', #height = "100%", #height = 'auto', #height = "100%",
+      #                        width = '90%' #width = "100%", #width = '200', #width = "100%", #width = 'auto', #width = "100%",
+      #                        )#inline = TRUE)
+      # ),
       shiny::tabsetPanel(
         shiny::tabPanel(
           "PatternMatchR",
@@ -168,7 +174,7 @@ generate_ui <- function() {
                   ))
                 )
               ),
-              shinyjs::disabled(shiny::actionButton("btnReduce", label = "Step 3: Reduce data (omit CpGs) by p-value, DM or n limit")),
+              shinyjs::disabled(shiny::actionButton("btnReduce", label = "Step 3: Reduce data (omit CpGs) by applying thresholds for p-value, DM or n limit")),
               shiny::verbatimTextOutput("txtPReduceOut", placeholder = TRUE)
             )),
             shinyjs::disabled(shinyBS::bsCollapsePanel(
@@ -183,6 +189,19 @@ generate_ui <- function() {
                     max = 0,
                     step = 0,
                     value = 0 # value = c(1, 10)
+                  ))
+                )
+              ),
+              shiny::fluidRow(
+                shiny::column(
+                  width = 4,
+                  shinyjs::disabled(shiny::sliderInput(
+                    "sld_NumNeighbours",
+                    "distance to look for neighbours",
+                    min = 10,
+                    max = 10000,
+                    step = 10,
+                    value = 10
                   ))
                 )
               ),
@@ -362,7 +381,8 @@ generate_ui <- function() {
                 )
               )
             )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
+#            shinyjs::disabled
+            (shinyBS::bsCollapsePanel(
               "Full Trait-reduced Data",
               shiny::fluidRow(
                 shiny::tabsetPanel(
@@ -377,89 +397,93 @@ generate_ui <- function() {
                             "HeatMap P_Val",
                             shinyjs::disabled(shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5a: Plot Heatmap P_Val")),
                             shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE),
-                            shiny::column(
-                              width = 6,
-                              shinyjs::disabled(shiny::numericInput(inputId = "numHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                            ),
-                            shiny::column(
-                              width = 6,
-                              shinyjs::disabled(shiny::numericInput(inputId = "numHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                            ),
+                            # shiny::column(
+                            #   width = 6,
+                            #   shinyjs::disabled(shiny::numericInput(inputId = "numHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                            # ),
+                            # shiny::column(
+                            #   width = 6,
+                            #   shinyjs::disabled(shiny::numericInput(inputId = "numHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                            # ),
                             InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
                               "Heatmap_P_Val",
-                              height1 = 4000,
-                              width1 = 4000,
-                              height2 = 4000,
-                              width2 = 4000,
+                              height1 = '95vh', #1200,
+                              width1 = 950,
+                              height2 = '95vh', #1200,
+                              width2 = 950,
                               inline = FALSE
                             )
                           ),
+                          # shiny::tabPanel(
+                          #   "DNADistances",
+                          #   InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          #     "Heatmap_DNADistances",
+                          #     height1 = '95vh', #1200,
+                          #     width1 = 950,
+                          #     height2 = '95vh', #1200,
+                          #     width2 = 950,
+                          #     inline = FALSE
+                          #   )
+                          # ),
                           shiny::tabPanel(
-                            "Search for CpG in Heatmap",
-                            shiny::textAreaInput(inputId = "txtSearchCpG", label = "Search CpG", value = ""),
-                            shiny::verbatimTextOutput(outputId = "txtSearchResultCpG"),
-                            shiny::actionButton("btnSearchCpGHM", label = "Search CpG"),
-                            "Search for Trait in Heatmap",
-                            shiny::textAreaInput(inputId = "txtSearchTrait", label = "Search Trait", value = ""),
-                            shiny::verbatimTextOutput(outputId = "txtSearchResultTrait"),
-                            shiny::actionButton("btnSearchTraitHM", label = "Search Trait")
+                            "Search for CpG in Full Heatmap",
+                            shiny::textAreaInput(inputId = "txtSearchFullCpG", label = "Search CpG", value = ""),
+                            shiny::verbatimTextOutput(outputId = "txtSearchResultFullCpG"),
+                            shiny::actionButton("btnSearchFullCpGHM", label = "Search CpG"),
+                            "Search for Trait in Full Heatmap",
+                            shiny::textAreaInput(inputId = "txtSearchFullTrait", label = "Search Trait", value = ""),
+                            shiny::verbatimTextOutput(outputId = "txtSearchResultFullTrait"),
+                            shiny::actionButton("btnSearchFullTraitHM", label = "Search Trait")
                           ),
                           shiny::tabPanel(
                             "SPLOM of Original Data",
-                            shiny::selectizeInput("markingVar",
-                              label = "select variable for color marking",
+                            shiny::selectizeInput("fullmarkingVar",
+                              label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
                               choices = NULL,
                               width = "100%"
-                            ),
-                            shiny::column(
-                              width = 6,
-                              shiny::numericInput(inputId = "numSPLOMHSize", label = "Width (checked max 3000)", value = 2500, min = 1000, max = 3000)
-                            ),
-                            shiny::column(
-                              width = 6,
-                              shiny::numericInput(inputId = "numSPLOMVSize", label = "Height (checked max 12000)", value = 8000, min = 1000, max = 12000)
                             ),
                             shiny::tabsetPanel(
                               shiny::tabPanel(
                                 "SPLOM from selected area in heatmap",
-                                plotly::plotlyOutput("SPLOM",
-                                                 height = 2000, #height = "100%",
-                                                 width = 1500, #width = "100%",
+                                plotly::plotlyOutput("fullSPLOM",
+                                                 height = '95vh', #1200, #height = "100%",
+                                                 width = '95%', #100, #width = "100%",
                                                  inline = TRUE)
                               ),
                               shiny::tabPanel(
                                 "SPLOM trait/trait",
-                                plotly::plotlyOutput("SPLOMTrait",
-                                                     height = 2000, #height = "100%",
-                                                     width = 1500, #width = "100%",
+                                plotly::plotlyOutput("fullSPLOMTrait",
+                                                     height = '95vh', #1200, #height = "100%",
+                                                     width = '95%', #100, #width = "100%",
                                                      inline = TRUE)
                               ),
                               shiny::tabPanel(
                                 "SPLOM probe/probe",
-                                plotly::plotlyOutput("SPLOMProbe",
-                                                     height = 2000, #height = "100%",
-                                                     width = 1500, #width = "100%",
+                                shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
+                                plotly::plotlyOutput("fullSPLOMProbe",
+                                                     height = '95vh', #1200, #height = "100%",
+                                                     width = '95%', #1000, #width = "100%",
                                                      inline = TRUE)
                               )
                             )
                           ),
                           shiny::tabPanel(
                             "Selected CpG",
-                            DT::dataTableOutput("DTSelectedCpG")
+                            DT::dataTableOutput("DTSelectedFullCpG")
                           ),
                           shiny::tabPanel(
                             "Selected trait",
-                            DT::dataTableOutput("DTSelectedTrait")
-                          ),
-                          shiny::tabPanel(
-                            "Selected p-value",
-                            DT::dataTableOutput("DTSelectedP_Val")
-                          ),
-                          shiny::tabPanel(
-                            "Selected Histogram on Delta Methylation",
-                            shiny::verbatimTextOutput("txtselectDMTraits", placeholder = TRUE),
-                            plotly::plotlyOutput("selectHistDM", inline = TRUE)
+                            DT::dataTableOutput("DTSelectedFullTrait")
                           )
+                          # shiny::tabPanel(
+                          #   "Selected p-value",
+                          #   DT::dataTableOutput("DTSelectedP_Val")
+                          # ),
+                          # shiny::tabPanel(
+                          #   "Selected Histogram on Delta Methylation",
+                          #   shiny::verbatimTextOutput("txtselectDMTraits", placeholder = TRUE),
+                          #   plotly::plotlyOutput("selectHistDM", inline = TRUE)
+                          # )
                         )
                       ),
                       shiny::tabPanel(
@@ -495,7 +519,7 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Histogram P_Val",
-                        "Histogram of all p-values in heatmap",
+                        "Histogram of all p-values in full heatmap (number of p-values = number probes * number traits)",
                         plotly::plotlyOutput("traitReducedHistP_Val", inline = TRUE)
                       )
                     )
@@ -503,26 +527,26 @@ generate_ui <- function() {
                   ),
                   shiny::tabPanel(
 ##full DW data start
-                    "Distance weighted Data (negative p-values due to distance weighting)",
+                    "Distance weighted Data (negative p-values due to distance weighting) - experimental",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
                         shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 5b: Plot distance weighted Heatmap P_Val"),
                         shiny::verbatimTextOutput("txtDWHMDescription_P_Val", placeholder = TRUE),
-                        shiny::column(
-                          width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                        ),
-                        shiny::column(
-                          width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                        ),
+                        # shiny::column(
+                        #   width = 6,
+                        #   shinyjs::disabled(shiny::numericInput(inputId = "numDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                        # ),
+                        # shiny::column(
+                        #   width = 6,
+                        #   shinyjs::disabled(shiny::numericInput(inputId = "numDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                        # ),
                         InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
                           "DWHeatmap_P_Val",
-                          height1 = 4000,
-                          width1 = 4000,
-                          height2 = 4000,
-                          width2 = 4000,
+                          height1 = '95vh',
+                          width1 = 950,
+                          height2 = '95vh',
+                          width2 = 950,
                           inline = FALSE
                         )
                       ),
@@ -556,6 +580,7 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Histogram P_Val",
+                        "Histogram of all p-values in condensed heatmap (number of p-values = number probes * number traits)",
                         plotly::plotlyOutput("fullDWHistP_Val", inline = TRUE)
                       )
                     )
@@ -564,20 +589,11 @@ generate_ui <- function() {
                 )
               )
             )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
+#            shinyjs::disabled
+            (shinyBS::bsCollapsePanel(
               "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)",
               shiny::fluidRow(
-                shiny::column(
-                  width = 4,
-                  shinyjs::disabled(shiny::sliderInput(
-                    "sld_NumNeighbours",
-                    "minimum number of neighbours",
-                    min = 10,
-                    max = 10000,
-                    step = 10,
-                    value = 10
-                  ))
-                )
+                shiny::verbatimTextOutput("txtCondOut", placeholder = TRUE),
               ),
               shiny::fluidRow(
                 shiny::tabsetPanel(
@@ -586,23 +602,72 @@ generate_ui <- function() {
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_P_Val", label = "Step 6a: Plot condensed Heatmap P_Val")),
-                        shiny::verbatimTextOutput("txtCondHMDescription_P_Val", placeholder = TRUE),
-                        shiny::column(
-                          width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numCondHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                        ),
-                        shiny::column(
-                          width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numCondHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                        ),
-                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "condHeatmap_P_Val",
-                          height1 = 4000,
-                          width1 = 4000,
-                          height2 = 4000,
-                          width2 = 4000,
-                          inline = FALSE
+                        shiny::tabsetPanel(
+                          shiny::tabPanel(
+                            "HeatMap P_Val",
+                            shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_P_Val", label = "Step 6a: Plot condensed Heatmap P_Val")),
+                            shiny::verbatimTextOutput("txtCondHMDescription_P_Val", placeholder = TRUE),
+                            InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                              "condHeatmap_P_Val",
+                              height1 = '95vh',
+                              width1 = 950,
+                              height2 = '95vh',
+                              width2 = 950,
+                              inline = FALSE
+                            )
+                          ),
+                          shiny::tabPanel(
+                            "Search for CpG in Condensed Heatmap",
+                            shiny::textAreaInput(inputId = "txtSearchCondCpG", label = "Search CpG", value = ""),
+                            shiny::verbatimTextOutput(outputId = "txtSearchResultCondCpG"),
+                            shiny::actionButton("btnSearchCondCpGHM", label = "Search CpG"),
+                            "Search for Trait in Condensed Heatmap",
+                            shiny::textAreaInput(inputId = "txtSearchCondTrait", label = "Search Trait", value = ""),
+                            shiny::verbatimTextOutput(outputId = "txtSearchResultCondTrait"),
+                            shiny::actionButton("btnSearchCondTraitHM", label = "Search Trait")
+                          ),
+                          shiny::tabPanel(
+                            "SPLOM of Original Data",
+                            shiny::selectizeInput("condMarkingVar",
+                                                  label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
+                                                  choices = NULL,
+                                                  width = "100%"
+                            ),
+                            shiny::tabsetPanel(
+                              shiny::tabPanel(
+                                "SPLOM from selected area in heatmap",
+                                plotly::plotlyOutput("condSPLOM",
+                                                     height = '95vh', #1200, #height = "100%",
+                                                     width = '95%', #100, #width = "100%",
+                                                     inline = TRUE)
+                              ),
+                              shiny::tabPanel(
+                                "SPLOM trait/trait",
+                                plotly::plotlyOutput("condSPLOMTrait",
+                                                     height = '95vh', #1200, #height = "100%",
+                                                     width = '95%', #100, #width = "100%",
+                                                     inline = TRUE)
+                              ),
+                              shiny::tabPanel(
+                                "SPLOM probe/probe",
+                                shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
+                                plotly::plotlyOutput("condSPLOMProbe",
+                                                     height = '95vh', #1200, #height = "100%",
+                                                     width = '95%', #1000, #width = "100%",
+                                                     inline = TRUE)
+                              )
+                            )
+                          ),
+
+                          shiny::tabPanel(
+                            "Selected CpG",
+                            DT::dataTableOutput("DTSelectedCondCpG")
+                          ),
+                          shiny::tabPanel(
+                            "Selected trait",
+                            DT::dataTableOutput("DTSelectedCondTrait")
+                          )
+
                         )
                       ),
                       shiny::tabPanel(
@@ -635,32 +700,32 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Histogram P_Val",
-                        "Histogram of all p-values in heatmap",
+                        "Histogram of all p-values in condensed heatmap (number of p-values = number probes * number traits)",
                         plotly::plotlyOutput("condHistP_Val", inline = TRUE)
                       )
                     )
                   ),
                   shiny::tabPanel(
-                    "Distance Weighted Data (negative p-values due to distance weighting)",
+                    "Distance Weighted Data (negative p-values due to distance weighting) - experimental",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
                         shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondDWHM_P_Val", label = "Step 6b: Plot condensed distance weighted Heatmap P_Val")),
                         shiny::verbatimTextOutput("txtCondDWHMDescription_P_Val", placeholder = TRUE),
-                        shiny::column(
-                          width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                        ),
-                        shiny::column(
-                          width = 6,
-                          shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                        ),
+                        # shiny::column(
+                        #   width = 6,
+                        #   shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                        # ),
+                        # shiny::column(
+                        #   width = 6,
+                        #   shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                        # ),
                         InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
                           "condDWHeatmap_P_Val",
-                          height1 = 4000,
-                          width1 = 4000,
-                          height2 = 4000,
-                          width2 = 4000,
+                          height1 = '95vh',
+                          width1 = 950,
+                          height2 = '95vh',
+                          width2 = 950,
                           inline = FALSE
                         )
                       ),
@@ -694,7 +759,7 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Histogram P_Val",
-                        "Histogram of all p-values in heatmap",
+                        "Histogram of all p-values in condensed heatmap",
                         plotly::plotlyOutput("condDWHistP_Val", inline = TRUE)
                       )
                     )
@@ -709,7 +774,7 @@ generate_ui <- function() {
           shiny::fluidRow(
             shiny::column(
               width = 12,
-              shiny::checkboxInput("chkDebug", "DEBUG mode", TRUE),
+              shiny::checkboxInput("chkDebug", "DEBUG mode", FALSE),
               shiny::actionButton(inputId = "btnBrowser", label = "Break to Browser()"),
               shiny::actionButton(inputId = "btnDebug", label = "Debug"),
               shiny::verbatimTextOutput("txtDebugOut", placeholder = TRUE)
