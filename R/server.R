@@ -198,6 +198,7 @@ server <- function(input, output, session) {
       shinyjs::disable("Full Trait-reduced Data")
       shinyjs::disable("Trait Reduced Data")
       shinyjs::disable("btnPlotCombinedHM_P_Val")
+      shinyjs::disable("btnPlotCombinedCondHM_DM")
       shinyjs::disable("numHMHSize")
       shinyjs::disable("numHMVSize")
     }
@@ -205,6 +206,7 @@ server <- function(input, output, session) {
       shinyjs::enable("Full Trait-reduced Data")
       shinyjs::enable("Trait Reduced Data")
       shinyjs::enable("btnPlotCombinedHM_P_Val")
+      shinyjs::enable("btnPlotCombinedCondHM_DM")
       shinyjs::enable("numHMHSize")
       shinyjs::enable("numHMVSize")
     }
@@ -1750,6 +1752,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   #("Condensed Data (contains only CpG with nearby neighbours)")
   output$condDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
   output$condDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
+  output$condDTDMlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDMlogFC_w_number))
   output$condDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
   output$condDTProbes <- DT::renderDataTable(as.data.frame(condDTProbes()),
                                      options = list(pageLength = 1000, info = FALSE,
@@ -1857,6 +1860,11 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           )
           if (is.valid(session$userData$sessionVariables$traitReducedData())) {
             result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
+            dfDM <- result$combinedDFP_Val_Labels$dfP_Val
+            dfDMlogFC <- log(dfDM) #log 10 of delta methylations
+            result$combinedDFP_Val_Labels$dfDMlogFC <- dfDMlogFC
+            rm(dfDM)
+            rm(dfDMlogFC)
 
             result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
             numberCores <- session$userData$numCores
@@ -1927,7 +1935,12 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
-            #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+
+            result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC
+            result$combinedDFP_Val_Labels$dfDMlogFC_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDMlogFC_w_number))
+            result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC_w_number[, col_order]
+
             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
             result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
@@ -2022,7 +2035,12 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           dfDM <- result$combinedDFP_Val_Labels$dfDM
           dfDM <- dfDM[which(rownames(dfDM) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfDM <- dfDM
+
+          dfDMlogFC <- log(dfDM) #log 10 of delta methylations
+          result$combinedDFP_Val_Labels$dfDMlogFC <- dfDMlogFC
           rm(dfDM)
+          rm(dfDMlogFC)
+
           dfN <- result$combinedDFP_Val_Labels$dfN
           dfN <- dfN[which(rownames(dfN) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfN <- dfN
@@ -2100,6 +2118,12 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+
+          result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC
+          result$combinedDFP_Val_Labels$dfDMlogFC_w_number$number <- seq(1:nprobes)
+          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDMlogFC_w_number))
+          result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC_w_number[, col_order]
+
           #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
           result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
@@ -2690,6 +2714,34 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
       }
     )
   })
+
+
+###tbc()
+  #"btnPlotCombinedCondHM_DM"
+  #"txtCondHMDescription_DM"
+  #"condHeatmap_DM"
+  shiny::observeEvent(input$btnPlotCombinedCondHM_DM,
+    ignoreInit = TRUE,
+    {
+      base::tryCatch(
+        {
+          base::print(base::paste0(sysTimePID(), " Step 6b: start plotting heatmap for Delta Methylation (logFC). (first step in shiny::observeEvent(input$btnPlotCombinedCondHM_DM))"))
+          plotCombinedHM_DMlogFC(input = input, output = output, session = session)
+          #session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
+        },
+        error = function(e) {
+          base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_DM):\n", e)
+        },
+        warning = function(w) {
+          base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_DM):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(sysTimePID(), " finished plotting heatmap for Delta Methylation (logFC). (last step in shiny::observeEvent(input$btnPlotCombinedCondHM_DM))"))
+        }
+      )
+    },
+    ignoreNULL = FALSE
+  )
 
   shiny::observeEvent(input$btnPlotCombinedHM_P_Val,
     ignoreInit = TRUE,

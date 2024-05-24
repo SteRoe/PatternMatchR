@@ -104,13 +104,13 @@ calculateDistanceNeigboursProbes <- function(wd, clustResProbes, annotation, dis
       maxDistanceToLook <- distanceToLook
       annotation <- subset(annotation, select = c("name", "chromosome", "position"))
       #merge annotation
-      CpG <- as.data.frame(clustResProbes$labels[clustResProbes$order])
+      CpG <- data.table::as.data.table(clustResProbes$labels[clustResProbes$order]) #as.data.frame(clustResProbes$labels[clustResProbes$order])
       colnames(CpG)[1] <- "label"
       #CpG$order <- seq(1:nrow(CpG))
       CpG$order <- seq_len(base::nrow(CpG))
       distances <- base::merge(CpG, annotation, by.x = "label", by.y = "name")
-      DNAdistancesUp <- base::data.frame(seq_along(distances[, 2]), 2)
-      DNAdistances <- base::data.frame(seq_along(distances[, 2]), 5)
+      #DNAdistancesUp <- data.table::as.data.table(seq_along(distances[, 2]), 2) #base::data.frame(seq_along(distances[, 2]), 2)
+      DNAdistances <- data.table::as.data.table(seq_along(distances[, 2]), 5) #base::data.frame(seq_along(distances[, 2]), 5)
       #sort order given by clustering
       distances <- distances[base::order(distances$order),]
       #library(future) #we have this already in DESCRIPTION file, but without "library(future)" here, it won't work. Strange.
@@ -133,7 +133,7 @@ calculateDistanceNeigboursProbes <- function(wd, clustResProbes, annotation, dis
         distancesToLook <- distancesToLook[distancesToLook$chr == chr,]
         distanceToLook <- nrow(distancesToLook)
         if (distanceToLook > 1) {
-          DNAdistancesUp <- base::data.frame(seq_along(1:distanceToLook), 2)
+          DNAdistancesUp <- data.table::as.data.table(seq_along(1:distanceToLook), 2) #base::data.frame(seq_along(1:distanceToLook), 2)
           #upstream
           foreach::foreach(j = 1:distanceToLook) %do% { #max. distance given by distanceToLook
           #for(j in 1:distanceToLook) { #max. distance given by distanceToLook

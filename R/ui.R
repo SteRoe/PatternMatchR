@@ -601,6 +601,16 @@ generate_ui <- function() {
                     "Non-modified Data",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
+                        "Search for CpG in Condensed Heatmap (p-val)",
+                        shiny::textAreaInput(inputId = "txtSearchCondCpG", label = "Search CpG", value = ""),
+                        shiny::verbatimTextOutput(outputId = "txtSearchResultCondCpG"),
+                        shiny::actionButton("btnSearchCondCpGHM", label = "Search CpG"),
+                        "Search for Trait in Condensed Heatmap",
+                        shiny::textAreaInput(inputId = "txtSearchCondTrait", label = "Search Trait", value = ""),
+                        shiny::verbatimTextOutput(outputId = "txtSearchResultCondTrait"),
+                        shiny::actionButton("btnSearchCondTraitHM", label = "Search Trait")
+                      ),
+                      shiny::tabPanel(
                         "HeatMap P_Val",
                         shiny::tabsetPanel(
                           shiny::tabPanel(
@@ -615,16 +625,6 @@ generate_ui <- function() {
                               width2 = 950,
                               inline = FALSE
                             )
-                          ),
-                          shiny::tabPanel(
-                            "Search for CpG in Condensed Heatmap",
-                            shiny::textAreaInput(inputId = "txtSearchCondCpG", label = "Search CpG", value = ""),
-                            shiny::verbatimTextOutput(outputId = "txtSearchResultCondCpG"),
-                            shiny::actionButton("btnSearchCondCpGHM", label = "Search CpG"),
-                            "Search for Trait in Condensed Heatmap",
-                            shiny::textAreaInput(inputId = "txtSearchCondTrait", label = "Search Trait", value = ""),
-                            shiny::verbatimTextOutput(outputId = "txtSearchResultCondTrait"),
-                            shiny::actionButton("btnSearchCondTraitHM", label = "Search Trait")
                           ),
                           shiny::tabPanel(
                             "SPLOM of Original Data",
@@ -667,7 +667,6 @@ generate_ui <- function() {
                             "Selected trait",
                             DT::dataTableOutput("DTSelectedCondTrait")
                           )
-
                         )
                       ),
                       shiny::tabPanel(
@@ -675,8 +674,27 @@ generate_ui <- function() {
                         DT::dataTableOutput("condDTP_VAL")
                       ),
                       shiny::tabPanel(
+                        "HeatMap Delta Methylation (logFC)",
+                        "Heatmap of log fold change(delta methylation); clustering order comes from clustering of p_values.",
+                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_DM", label = "Step 6b: Plot condensed Heatmap Delta Methylation (logFC)")),
+                        shiny::verbatimTextOutput("txtCondHMDescription_DM", placeholder = TRUE),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "condHeatmap_DM",
+                          height1 = '95vh',
+                          width1 = 950,
+                          height2 = '95vh',
+                          width2 = 950,
+                          inline = FALSE
+                        )
+                      ),
+                      shiny::tabPanel(
                         "Table Delta Methylation",
                         DT::dataTableOutput("condDTDM")
+                      ),
+                      shiny::tabPanel(
+                        "Table Delta Methylation log(FC)",
+                        "Table of log fold change(delta methylation); clustering order comes from clustering of p_values.",
+                        DT::dataTableOutput("condDTDMlogFC")
                       ),
                       shiny::tabPanel(
                         "Table N",
@@ -710,7 +728,7 @@ generate_ui <- function() {
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondDWHM_P_Val", label = "Step 6b: Plot condensed distance weighted Heatmap P_Val")),
+                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondDWHM_P_Val", label = "Step 6c: Plot condensed distance weighted Heatmap P_Val")),
                         shiny::verbatimTextOutput("txtCondDWHMDescription_P_Val", placeholder = TRUE),
                         # shiny::column(
                         #   width = 6,

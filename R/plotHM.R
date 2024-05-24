@@ -295,7 +295,291 @@ emptyHM <- function() {
 
 # emptyHM <- compiler::cmpfun(emptyHM)
 
-#' creates a regular heatmap
+#' creates a regular heatmap based on log fold change values
+#' @param combinedDF_Labels list of data.frame and labels generated from function mergeDFP_Val_Labels()
+#' @param dendProbes dendrogram (without labels) for probes (rows), generated externally and providing information for clustering of heatmap
+#' @param dendTraits dendrogram (without labels) result for traits (columns), generated externally and providing information for clustering of heatmap
+#' @param selectedRowIndicesYellow indicies of HM rows to mark in yellow color
+#' @param selectedColIndices indicies of HM cols to mark (not used so far)
+#' @param selectedRowIndicesOrange indicies of HM rows to mark in orange color
+#' @param session session object for reference
+#' @return heatmap object for InteractiveComplexHeatmap::makeInteractiveComplexHeatmap
+# examples combinedDFInteractiveHeatMapDMlogFC(combinedDF_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange)
+combinedDFInteractiveHeatMapDMlogFC <-
+  function(combinedDF_Labels,
+           dendProbes = NA,
+           dendTraits = NA,
+           Distances = NA,
+           selectedRowIndicesYellow = NA,
+           selectedColIndices = NA,
+           selectedRowIndicesOrange = NA,
+           session = session) {
+    base::tryCatch(
+      {
+        startTime <- Sys.time()
+        base::print(base::paste0(sysTimePID(), " start preparing HM; combinedDFInteractiveHeatMapP_Val()"))
+        matP_Val <- base::as.matrix(combinedDF_Labels$dfP_Val)
+        matDM <- base::as.matrix(combinedDF_Labels$dfDM)
+        matDMlogFC <- base::as.matrix(combinedDF_Labels$dfDMlogFC)
+        matN <- base::as.matrix(combinedDF_Labels$dfN)
+        # use rasterization like described in
+        # https://jokergoo.github.io/2020/06/30/rasterization-in-complexheatmap/
+        base::print(base::paste0(sysTimePID(), " making labels"))
+        labelsDF1 <- combinedDF_Labels$labelsDF1
+        labelsDF2 <- combinedDF_Labels$labelsDF2
+        labelsDF3 <- combinedDF_Labels$labelsDF3
+        l1 <- base::rep("trait 1", base::length(labelsDF1))
+        l2 <- base::rep("trait 2", base::length(labelsDF2))
+        l3 <- base::rep("trait 3", base::length(labelsDF3))
+        labels <- base::c(l1, l2, l3)
+        while (!base::is.null(grDevices::dev.list())) {
+          grDevices::dev.off()
+        }
+        base::print(base::paste0(sysTimePID(), " making annotations"))
+        ha <- ComplexHeatmap::columnAnnotation(
+          classes = labels,
+          col = base::list(
+            classes = base::c(
+              "trait 1" = "red",
+              "trait 2" = "green",
+              "trait 3" = "blue"
+            )
+          )
+        )
+        base::print(base::paste0(sysTimePID(), " making colors"))
+        max.Col1 <- base::max(matDMlogFC, na.rm = TRUE)
+        min.Col1 <- base::min(matDMlogFC, na.rm = TRUE)
+        max.Col2 <- base::max(matDMlogFC, na.rm = TRUE)
+        min.Col2 <- base::min(matDMlogFC, na.rm = TRUE)
+        max.Col3 <- base::max(matDMlogFC, na.rm = TRUE)
+        min.Col3 <- base::min(matDMlogFC, na.rm = TRUE)
+        col1 <-
+          circlize::colorRamp2(
+            base::seq(max.Col1, min.Col1, length = 9),
+            RColorBrewer::brewer.pal(9, "OrRd")
+          )
+        col2 <-
+          circlize::colorRamp2(
+            base::seq(max.Col2, min.Col2, length = 9),
+            RColorBrewer::brewer.pal(9, "YlGn")
+          )
+        col3 <-
+          circlize::colorRamp2(
+            base::seq(max.Col3, min.Col3, length = 9),
+            RColorBrewer::brewer.pal(9, "GnBu")
+          )
+        base::print(base::paste0(sysTimePID(), " preparing heatmap n(probes)=", base::dim(matDMlogFC)[1], " x n(traits)=", base::dim(matDMlogFC)[2]))
+
+        if ("dendrogram" %in% class(dendProbes) && "dendrogram" %in% class(dendTraits)) {
+          base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+          base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+          length(unlist(dendTraits)) == base::dim(matDMlogFC)[2]
+          length(unlist(dendProbes)) == base::dim(matDMlogFC)[1]
+          ht <-
+            ComplexHeatmap::Heatmap(
+              matDMlogFC,
+              rect_gp = grid::gpar(type = "none"),
+              cluster_rows = dendProbes,
+              cluster_columns = dendTraits,
+              top_annotation = ha,
+              layer_fun = function(j, i, x, y, w, h, fill) {
+                if (length(i) == base::nrow(matDMlogFC) * base::ncol(matDMlogFC)) {
+                  # we are in main HM
+                  subHM <- FALSE
+                } else {
+                  # we are in sub HM
+                  subHM <- TRUE
+                }
+                l <- labels[j] == "trait 1"
+                if (any(l)) {
+                  grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
+                    fill = col1(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l])),
+                    col = col1(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l]))
+                  ))
+                }
+                l <- labels[j] == "trait 2"
+                if (any(l)) {
+                  grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
+                    fill = col2(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l])),
+                    col = col2(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l]))
+                  ))
+                }
+                l <- labels[j] == "trait 3"
+                if (any(l)) {
+                  grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
+                    fill = col3(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l])),
+                    col = col3(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l]))
+                  ))
+                }
+                #mark selected row indices
+                labelsProbes  <- labels(dendProbes)
+                rowsToMarkYellow <- labelsProbes %in% selectedRowIndicesYellow
+                if (any(rowsToMarkYellow)) {
+                  grid::grid.rect(x, y[rowsToMarkYellow], w, h[rowsToMarkYellow], gp = grid::gpar(
+                    fill = "yellow",
+                    col = "yellow"
+                  ))
+                }
+                rowsToMarkOrange <- labelsProbes %in% selectedRowIndicesOrange
+                if (any(rowsToMarkOrange)) {
+                  grid::grid.rect(x, y[rowsToMarkOrange], w, h[rowsToMarkOrange], gp = grid::gpar(
+                    fill = "orange",
+                    col = "orange"
+                  ))
+                }
+                if (subHM == TRUE) {
+                  grid::grid.text(
+                    paste0(
+                      "p:",
+                      sprintf("%.G", ComplexHeatmap::pindex(matP_Val, i, j)),
+                      "\n",
+                      "d:",
+                      sprintf("%.G", ComplexHeatmap::pindex(matDM, i, j)),
+                      "\n",
+                      "dlogFC:",
+                      sprintf("%.G", ComplexHeatmap::pindex(matDMlogFC, i, j)),
+                      "\n",
+                      "n:",
+                      ComplexHeatmap::pindex(matN, i, j)
+                    ),
+                    x,
+                    y,
+                    gp = grid::gpar(fontsize = 8)
+                  )
+                }
+              },
+              show_heatmap_legend = FALSE,
+              use_raster = TRUE,
+              raster_by_magick = TRUE
+            )
+        } else {
+          base::print(base::paste0(sysTimePID(), " at least one distance matrix is not of class \"dendrogram\""))
+        }
+
+        base::print(base::paste0(sysTimePID(), " making legend"))
+        lgd <- list(
+          ComplexHeatmap::Legend(
+            title = "trait 1",
+            col_fun = col1,
+            at = c(max.Col1, min.Col1),
+            labels = c(max.Col1, paste0(
+              extractMantissaExponent(min.Col1)$exponent
+            ))
+          ),
+          ComplexHeatmap::Legend(
+            title = "trait 2",
+            col_fun = col2,
+            at = c(max.Col2, min.Col2),
+            labels = c(max.Col2, paste0(
+              extractMantissaExponent(min.Col2)$exponent
+            ))
+          ),
+          ComplexHeatmap::Legend(
+            title = "trait 3",
+            col_fun = col3,
+            at = c(max.Col3, min.Col3),
+            labels = c(max.Col3, paste0(
+              extractMantissaExponent(min.Col3)$exponent
+            ))
+          )
+        )
+      },
+      error = function(e) {
+        base::message("An error occurred in combinedDFInteractiveHeatMapDMlogFC():\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in combinedDFInteractiveHeatMapDMlogFC():\n", w)
+      },
+      finally = {
+        endTime <- Sys.time()
+        elapsedTime <- endTime - startTime
+        base::print(base::paste0(sysTimePID(), " end preparing heatmap. Elapsed time: ", elapsedTime, "."))
+      }
+    )
+    base::tryCatch(
+      {
+        matDistances <- cbind(Distances$minDistance, Distances$meanDistance)
+        htDistances <-
+          ComplexHeatmap::Heatmap(
+            matDistances,
+            cluster_rows = dendProbes
+          )
+        minDist <- base::min(matDistances, na.rm = TRUE)
+        maxDist <- base::max(matDistances, na.rm = TRUE)
+        colDist <-
+          circlize::colorRamp2(
+            base::seq(minDist, maxDist, length = 9),
+            RColorBrewer::brewer.pal(9, "OrRd")
+          )
+        lgdHMDist <- list(
+          ComplexHeatmap::Legend(
+            title = "distances",
+            col_fun = colDist,
+            at = c(maxDist, minDist),
+            labels = c(maxDist, minDist)
+          )
+        )
+        #lgd <- list(lgdHMDist[1], lgd[1], lgd[2], lgd[3])
+      },
+      error = function(e) {
+        base::message("An error occurred in making htDistances():\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in making htDistances():\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " end making htDistances()."))
+      }
+    )
+    base::tryCatch(
+      {
+        base::print(base::paste0(sysTimePID(), " clearing grDevices()"))
+        if (grDevices::dev.cur() > 1) {
+          grDevices::dev.off()
+        }
+        grDevices::pdf(NULL)
+      },
+      error = function(e) {
+        base::message("An error occurred in clearing grDevices():\n", e)
+      },
+      warning = function(w) {
+        base::message("A warning occurred in clearing grDevices():\n", w)
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " end clearing grDevices()."))
+      }
+    )
+    base::tryCatch(
+      {
+        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw()"))
+        # with huge heatmaps, the following error occurs:
+        # Error in Cairo: Failed to create Cairo backend!
+        # ht <- ComplexHeatmap::draw(ht + ht2 + ht3, annotation_legend_list = lgd)
+        # ht <- ComplexHeatmap::draw(ht, annotation_legend_list = lgd)
+        ht <- ComplexHeatmap::draw(htDistances + ht, annotation_legend_list = lgd)
+      },
+      error = function(err) {
+        base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", err$message))
+      },
+      warning = function(w) {
+        base::message(base::paste0(sysTimePID(), " unable to draw HM. ", w$message))
+      },
+      finally = {
+        base::print(base::paste0(sysTimePID(), " grDevices::dev.off()"))
+        grDevices::dev.off()
+        base::print(base::paste0(sysTimePID(), " l <- base::list()"))
+        l <- base::list()
+        base::print(base::paste0(sysTimePID(), " l$combinedHMDMlogFC <- ht"))
+        l$combinedHMDMlogFC <- ht
+        endTime <- Sys.time()
+        elapsedTime <- endTime - startTime
+        base::print(base::paste0(sysTimePID(), " end combinedDFInteractiveHeatMapDMlogFC()"))
+        base::print(base::paste0(sysTimePID(), " finished drawing heatmap (takes some time). (step after ComplexHeatmap::draw(); Elapsed time: ", elapsedTime, "."))
+        base::return(l)
+      })
+  }
+
+#' creates a regular heatmap based on p-values
 #' @param combinedDF_Labels list of data.frame and labels generated from function mergeDFP_Val_Labels()
 #' @param dendProbes dendrogram (without labels) for probes (rows), generated externally and providing information for clustering of heatmap
 #' @param dendTraits dendrogram (without labels) result for traits (columns), generated externally and providing information for clustering of heatmap
@@ -726,6 +1010,92 @@ getSearchResultTrait <- function(txtSearchTrait, dataStructure) {
 #     show_layer_fun = FALSE
 #   )
 # }
+
+plotCombinedHM_DMlogFC <- function(input, output, session) {
+  base::print(base::paste0(sysTimePID(), " start plotting heatmap for DM (logFC)."))
+  output$txtCondHMDescription_DM <-
+    shiny::renderText(base::paste0("calculating heatmap..., current plot is not valid"))
+    while (!is.null(grDevices::dev.list())) {
+      grDevices::dev.off()
+    }
+  combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels
+  dfDMlogFC <- combinedDFP_Val_Labels$dfDMlogFC
+  #leave out low logFC?
+
+browser()
+  if (nrow(dfDMlogFC) > 5) {
+    startTime <- Sys.time()
+  }
+  base::tryCatch({
+    base::print(base::paste0(sysTimePID(), " gc()"))
+    gc()
+    base::options(expressions = 500000)
+    dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
+    dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+    dendTraits <- session$userData$sessionVariables$probeReducedDataStructure()$traitDendrogram
+    Distances <- session$userData$sessionVariables$probeReducedDataStructure()$DNAdistances
+
+    base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
+
+    selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " ")) #is a list of cg-numbers from search field "txtSearchCpG"
+    selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
+    #selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
+    selectedRowIndicesOrange <- NULL
+    base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
+###tbc()
+browser()
+    l <-
+      combinedDFInteractiveHeatMapDMlogFC(combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
+    base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
+    combinedHMDMlogFC <- l$combinedHMDMlogFC
+
+    endTime <- Sys.time()
+    elapsedTime <- endTime - startTime
+    base::print(base::paste0(sysTimePID(), " after calculating heatmap. Elapsed time: ", elapsedTime, " sec."))
+    base::print(base::paste0(sysTimePID(), " before plotting heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
+    while (!base::is.null(grDevices::dev.list())) {
+      grDevices::dev.off()
+    }
+    startTime <- Sys.time()
+    InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+      input = input,
+      output = output,
+      session = session,
+      ht_list = combinedHMDMlogFC,
+      heatmap_id = "condHeatmap_DM",
+      show_layer_fun = TRUE,
+      click_action = click_action_fullHM_P_Val,
+      brush_action = brush_action_fullHM_P_Val,
+      hover_action = hover_action_fullHM_P_Val
+    )
+  },
+  error = function(e) {
+    base::message("An error occurred in plotCombinedHM_DM():\n", e)
+    Cstack_info()
+    browser()
+  },
+  warning = function(w) {
+    base::message("A warning occurred in plotCombinedHM_DM():\n", w)
+    browser()
+  },
+  finally = {
+    endTime <- Sys.time()
+    elapsedTime <- endTime - startTime
+    base::print(base::paste0(sysTimePID(), " after plotting heatmap for DM; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
+    output$txtCondHMDescription_DM <-
+      shiny::renderText(
+        base::paste0(
+          sysTimePID(),
+          " done plotting heatmap for DM..., current plot is valid. n(probe) = ",
+          base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+          "; n(trait) = ",
+          base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+          "; elapsed time: ",
+          elapsedTime, " sec."
+        )
+      )
+  })
+}
 
 plotCombinedHM_P_Val <- function(input, output, session) {
   base::print(base::paste0(sysTimePID(), " start plotting heatmap for P_Val."))
