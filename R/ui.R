@@ -679,7 +679,7 @@ generate_ui <- function() {
                         shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_DM", label = "Step 6b: Plot condensed Heatmap Delta Methylation (logFC)")),
                         shiny::verbatimTextOutput("txtCondHMDescription_DM", placeholder = TRUE),
                         InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "condHeatmap_DM",
+                          "condHeatmap_DMlogFC",
                           height1 = '95vh',
                           width1 = 950,
                           height2 = '95vh',

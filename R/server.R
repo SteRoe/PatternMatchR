@@ -1791,7 +1791,6 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   session$userData$sessionVariables$pReducedDataStructure <- shiny::reactive({
     base::tryCatch(
       {
-#browser() #look for mergedOriginalColnames here... and also in the subsequent data structures
         if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
           result <- base::list(combinedDFP_Val_Labels = session$userData$sessionVariables$pReducedData(),
                            #                            #matP_Val = session$userData$sessionVariables$matP_Val(), #is part of combinedDFP_Val_Labels()
@@ -1861,7 +1860,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           if (is.valid(session$userData$sessionVariables$traitReducedData())) {
             result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
             dfDM <- result$combinedDFP_Val_Labels$dfP_Val
-            dfDMlogFC <- log(dfDM) #log 10 of delta methylations
+            dfDMlogFC <- log2(dfDM) #log 10 of delta methylations
             result$combinedDFP_Val_Labels$dfDMlogFC <- dfDMlogFC
             rm(dfDM)
             rm(dfDMlogFC)
@@ -2036,7 +2035,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           dfDM <- dfDM[which(rownames(dfDM) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfDM <- dfDM
 
-          dfDMlogFC <- log(dfDM) #log 10 of delta methylations
+          dfDMlogFC <- log2(dfDM) #log 10 of delta methylations
           result$combinedDFP_Val_Labels$dfDMlogFC <- dfDMlogFC
           rm(dfDM)
           rm(dfDMlogFC)
@@ -2066,7 +2065,6 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             result$clustResTraits <- NULL
           }
           base::print(paste0(sysTimePID(), " (traitReducedDataStructure) after clustering results for traits."))
-          # browser()
           # identical(result$clustResTraits, session$userData$sessionVariables$traitReducedDataStructure()$clustResTraits) #they are not identical, but similar
           base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating traitClusters."))
           numClusters <- length(result$clustResTraits$order)
@@ -2715,11 +2713,6 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     )
   })
 
-
-###tbc()
-  #"btnPlotCombinedCondHM_DM"
-  #"txtCondHMDescription_DM"
-  #"condHeatmap_DM"
   shiny::observeEvent(input$btnPlotCombinedCondHM_DM,
     ignoreInit = TRUE,
     {
@@ -2727,7 +2720,6 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
         {
           base::print(base::paste0(sysTimePID(), " Step 6b: start plotting heatmap for Delta Methylation (logFC). (first step in shiny::observeEvent(input$btnPlotCombinedCondHM_DM))"))
           plotCombinedHM_DMlogFC(input = input, output = output, session = session)
-          #session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
         error = function(e) {
           base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_DM):\n", e)

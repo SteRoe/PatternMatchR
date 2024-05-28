@@ -1022,7 +1022,6 @@ plotCombinedHM_DMlogFC <- function(input, output, session) {
   dfDMlogFC <- combinedDFP_Val_Labels$dfDMlogFC
   #leave out low logFC?
 
-browser()
   if (nrow(dfDMlogFC) > 5) {
     startTime <- Sys.time()
   }
@@ -1042,8 +1041,6 @@ browser()
     #selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
     selectedRowIndicesOrange <- NULL
     base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
-###tbc()
-browser()
     l <-
       combinedDFInteractiveHeatMapDMlogFC(combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
     base::print(base::paste0(sysTimePID(), " before combinedHMP_VAL <- l$combinedHMP_VAL"))
@@ -1062,20 +1059,20 @@ browser()
       output = output,
       session = session,
       ht_list = combinedHMDMlogFC,
-      heatmap_id = "condHeatmap_DM",
+      heatmap_id = "condHeatmap_DMlogFC",
       show_layer_fun = TRUE,
-      click_action = click_action_fullHM_P_Val,
-      brush_action = brush_action_fullHM_P_Val,
-      hover_action = hover_action_fullHM_P_Val
+      click_action = click_action_condHeatmap_DMlogFC,
+      brush_action = brush_action_condHeatmap_DMlogFC,
+      hover_action = hover_action_condHeatmap_DMlogFC
     )
   },
   error = function(e) {
-    base::message("An error occurred in plotCombinedHM_DM():\n", e)
+    base::message("An error occurred in plotCombinedHM_DMlogFC():\n", e)
     Cstack_info()
     browser()
   },
   warning = function(w) {
-    base::message("A warning occurred in plotCombinedHM_DM():\n", w)
+    base::message("A warning occurred in plotCombinedHM_DMlogFC():\n", w)
     browser()
   },
   finally = {
@@ -1650,17 +1647,7 @@ click_action_condHM_P_Val <- function(df, input, output, session) {
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start click_action_condHM_P_Val()."))
-      # output[["info_HM_P_Val"]] <- shiny::renderUI({
-      #   if (!is.null(df)) {
-      #     htmltools::HTML(
-      #       GetoptLong::qq(
-      #         "<p style='background-color:#FF8080;color:white;padding:5px;'>
-      #         row_label: @{df$row_label}, col_label: @{df$column_label},
-      #         row: @{df$row_index}, column: @{df$column_index}</p>"
-      #       )
-      #     )
-      #   }
-      # })
+      # only placeholder at the moment
     },
     error = function(e) {
       base::message("An error occurred in click_action_condHM_P_Val():\n", e)
@@ -1758,6 +1745,7 @@ hover_action_condHM_P_Val <- function(df, input, output, session) {
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " hover_action_condHM_P_Val.", as.character(head(df))))
+      # only placeholder at the moment
     },
     error = function(e) {
       base::message("An error occurred in hover_action_condHM_P_Val():\n", e)
@@ -1767,6 +1755,46 @@ hover_action_condHM_P_Val <- function(df, input, output, session) {
     },
     finally = {
       base::print(base::paste0(sysTimePID(), " end hover_action_condHM_P_Val()."))
+    }
+  )
+}
+
+click_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
+  base::tryCatch(
+    {
+      base::print(base::paste0(sysTimePID(), " start click_action_condHeatmap_DMlogFC()."))
+      # only placeholder at the moment
+    },
+    error = function(e) {
+      base::message("An error occurred in click_action_condHeatmap_DMlogFC():\n", e)
+    },
+    warning = function(w) {
+      base::message("A warning occurred in click_action_condHeatmap_DMlogFC():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end click_action_condHeatmap_DMlogFC()."))
+    }
+  )
+}
+
+brush_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
+
+}
+
+hover_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
+  base::tryCatch(
+    {
+      base::print(base::paste0(sysTimePID(), " hover_action_condHeatmap_DMlogFC", as.character(head(df))))
+      # only placeholder at the moment
+    },
+    error = function(e) {
+      base::message("An error occurred in hover_action_condHeatmap_DMlogFC():\n", e)
+    },
+    warning = function(w) {
+      base::message("A warning occurred in hover_action_condHeatmap_DMlogFC():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " end hover_action_condHeatmap_DMlogFC()."))
     }
   )
 }

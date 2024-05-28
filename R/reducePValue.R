@@ -54,10 +54,9 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           browser()
         }
         #take only DM outside slider defined range in cgsToRetainDM
-#tbc() think on outside definition of DM range
-        cgsToRetainMaxDM <- dfDM < maxDM #dfDM > maxDM
+        cgsToRetainMaxDM <- dfDM < maxDM
         cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
-        cgsToRetainMinDM <- dfDM > minDM #dfDM < minDM
+        cgsToRetainMinDM <- dfDM > minDM
         cgsToRetainMinDM <- unique(rownames(which(cgsToRetainMinDM == TRUE, arr.ind = TRUE)))
         cgsToRetainDM <- unique(c(cgsToRetainMaxDM, cgsToRetainMinDM))
         if (base::exists("cgsToRetainMaxDM") && base::exists("cgsToRetainMinDM")) {
