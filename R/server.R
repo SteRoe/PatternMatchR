@@ -1,17 +1,4 @@
 server <- function(input, output, session) {
-  #draw empty HM, without the github version won't work. Why?
-  # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
-  #   input = input,
-  #   output = output,
-  #   session = session,
-  #   ht_list = emptyHM(),
-  #   heatmap_id = "heatmap_2",
-  #   show_layer_fun = FALSE,
-  #   click_action = NULL,
-  #   brush_action = NULL,
-  #   hover_action = NULL
-  # )
-  #define sessionVariables here
   reactlog::reactlog_enable()
   pid <- Sys.getpid()
   hostname <- Sys.info()["nodename"]
@@ -45,6 +32,7 @@ server <- function(input, output, session) {
     shiny::updateCheckboxInput(session, "chkDebug", value = FALSE)
   }
 
+  #define sessionVariables here
   print(paste0(sysTimePID(), " defining session variables."))
   session$userData$sessionVariables <-
     shiny::reactiveValues(
@@ -92,20 +80,13 @@ server <- function(input, output, session) {
   session$userData$sessionVariables$distNeigboursProbes100 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes100")
   session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes10")
 
-  session$userData$sessionVariables$selectedFullOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedFullOriginalData")
-  session$userData$sessionVariables$selectedFullOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedFullOriginalDataTraits")
-  session$userData$sessionVariables$selectedFullOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedFullOriginalDataProbes")
-  session$userData$sessionVariables$selectedFullCpG <- shiny::reactiveVal(value = NULL, label = "selectedFullCpG")
-  session$userData$sessionVariables$selectedFullTrait <- shiny::reactiveVal(value = NULL, label = "selectedFullTrait")
-
-  session$userData$sessionVariables$selectedCondOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedCondOriginalData")
-  session$userData$sessionVariables$selectedCondOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedCondOriginalDataTraits")
-  session$userData$sessionVariables$selectedCondOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedCondOriginalDataProbes")
-  session$userData$sessionVariables$selectedCondCpG <- shiny::reactiveVal(value = NULL, label = "selectedCondCpG")
-  session$userData$sessionVariables$selectedCondTrait <- shiny::reactiveVal(value = NULL, label = "selectedCondTrait")
-
-  session$userData$sessionVariables$fullMarkingVar <- shiny::reactiveVal(value = NULL, label = "fullMarkingVar")
-  session$userData$sessionVariables$condMarkingVar <- shiny::reactiveVal(value = NULL, label = "condMarkingVar")
+  session$userData$sessionVariables$selectedOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedOriginalData")
+  session$userData$sessionVariables$selectedOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataTraits")
+  session$userData$sessionVariables$selectedOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataProbes")
+  session$userData$sessionVariables$selectedCpG <- shiny::reactiveVal(value = NULL, label = "selectedCpG")
+  session$userData$sessionVariables$selectedTrait <- shiny::reactiveVal(value = NULL, label = "selectedTrait")
+  session$userData$sessionVariables$selectedAnnotation <- shiny::reactiveVal(value = NULL, label = "selectedAnnotation")
+  session$userData$sessionVariables$markingVar <- shiny::reactiveVal(value = NULL, label = "markingVar")
 
   shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = 0, max = 0, value = c(0, 0))
   shiny::updateSliderInput(session = session, inputId = "sldDM", min = 0, max = 0, value = c(0, 0))
@@ -364,60 +345,31 @@ server <- function(input, output, session) {
     )
   })
 
-  session$userData$sessionVariables$fullMarkingVar <- shiny::reactive({
-    return(input$fullMarkingVar)
+  session$userData$sessionVariables$markingVar <- shiny::reactive({
+    return(input$markingVar)
   })
 
-  session$userData$sessionVariables$condMarkingVar <- shiny::reactive({
-    return(input$condMarkingVar)
-  })
-
-  output$fullSPLOM <- plotly::renderPlotly({
-      if (!is.null(session$userData$sessionVariables$selectedFullOriginalData())) {
-        base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedFullOriginalData()))) #thats sum of probes and traits
-        base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedFullOriginalData()))) #thats number of cases in data set
-        base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedFullOriginalDataTraits())))
-        base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedFullOriginalDataProbes())))
-        fig <- getSPLOM(session$userData$sessionVariables$selectedFullOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedFullOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedFullOriginalDataProbes()), markingVar = session$userData$sessionVariables$fullMarkingVar())
-        return(fig)
-      }
-  })
-
-  output$fullSPLOMTrait <- plotly::renderPlotly({
-      if (!is.null(session$userData$sessionVariables$selectedFullOriginalDataTraits())) {
-        fig <- getSPLOM(session$userData$sessionVariables$selectedFullOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedFullOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedFullOriginalDataTraits(), markingVar = session$userData$sessionVariables$fullMarkingVar())
-        return(fig)
-      }
-  })
-
-  output$fullSPLOMProbe <- plotly::renderPlotly({
-      if (!is.null(session$userData$sessionVariables$selectedFullOriginalDataProbes())) {
-        fig <- getSPLOM(session$userData$sessionVariables$selectedFullOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedFullOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedFullOriginalDataProbes(), markingVar = session$userData$sessionVariables$fullMarkingVar())
-        return(fig)
-      }
-  })
-
-  output$condSPLOM <- plotly::renderPlotly({
-    if (!is.null(session$userData$sessionVariables$selectedCondOriginalData())) {
-      base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedCondOriginalData()))) #thats sum of probes and traits
-      base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedCondOriginalData()))) #thats number of cases in data set
-      base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedCondOriginalDataTraits())))
-      base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedCondOriginalDataProbes())))
-      fig <- getSPLOM(session$userData$sessionVariables$selectedCondOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedCondOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedCondOriginalDataProbes()), markingVar = session$userData$sessionVariables$condMarkingVar())
+  output$SPLOM <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
+      base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedOriginalData()))) #thats sum of probes and traits
+      base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedOriginalData()))) #thats number of cases in data set
+      base::print(base::paste0(sysTimePID(), " number of traits in SPLOM (selectedTraits): ", ncol(session$userData$sessionVariables$selectedOriginalDataTraits())))
+      base::print(base::paste0(sysTimePID(), " number of probes in SPLOM: (selectedProbes)", ncol(session$userData$sessionVariables$selectedOriginalDataProbes())))
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalData(), XVars = colnames(session$userData$sessionVariables$selectedOriginalDataTraits()), YVars = colnames(session$userData$sessionVariables$selectedOriginalDataProbes()), markingVar = session$userData$sessionVariables$markingVar())
       return(fig)
     }
   })
 
-  output$condSPLOMTrait <- plotly::renderPlotly({
-    if (!is.null(session$userData$sessionVariables$selectedCondOriginalDataTraits())) {
-      fig <- getSPLOM(session$userData$sessionVariables$selectedCondOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedCondOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedCondOriginalDataTraits(), markingVar = session$userData$sessionVariables$condMarkingVar())
+  output$SPLOMTrait <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedOriginalDataTraits())) {
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedOriginalDataTraits(), markingVar = session$userData$sessionVariables$markingVar())
       return(fig)
     }
   })
 
-  output$condSPLOMProbe <- plotly::renderPlotly({
-    if (!is.null(session$userData$sessionVariables$selectedCondOriginalDataProbes())) {
-      fig <- getSPLOM(session$userData$sessionVariables$selectedCondOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedCondOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedCondOriginalDataProbes(), markingVar = session$userData$sessionVariables$condMarkingVar())
+  output$SPLOMProbe <- plotly::renderPlotly({
+    if (!is.null(session$userData$sessionVariables$selectedOriginalDataProbes())) {
+      fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedOriginalDataProbes(), markingVar = session$userData$sessionVariables$markingVar())
       return(fig)
     }
   })
@@ -1124,8 +1076,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
 
 #  output$DTSelectedP_Val <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTraitReducedcombinedDFP_Val_Labels()$dfP_Val), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))  #TBC()
 
-  output$DTSelectedFullTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedFullTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
-  output$DTSelectedCondTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedCondTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  # output$DTSelectedFullTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedFullTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  # output$DTSelectedCondTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedCondTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+
+  #create DT from selectedTrait
+  output$DTSelectedTrait <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedTrait()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
+  #create DT from selectedAnnotation
+  output$DTSelectedCpG <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$selectedAnnotation()), escape = FALSE, extensions = c("Buttons"), options = list(dom = "Bfrtip", buttons = c("csv"), pageLength = 10000))
 
   output$selectHistDM <- plotly::renderPlotly(selectHistDM())
 

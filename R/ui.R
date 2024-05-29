@@ -24,7 +24,7 @@ generate_ui <- function() {
           "PatternMatchR",
           shinyBS::bsCollapse(
             id = "clpMain",
-            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data", "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)"),
+            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data", "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)", "Selected Results"),
             multiple = TRUE,
             # shinyBS::bsCollapsePanel(
             #   "session",
@@ -79,14 +79,14 @@ generate_ui <- function() {
               shiny::actionButton("btnLoadDirAll", label = "Step 1: Load all trait dirs"),
               shiny::verbatimTextOutput("txtLoadOut", placeholder = TRUE)
             ),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
+            shinyBS::bsCollapsePanel(
               "Merge",
               shiny::fluidRow(
                 shiny::actionButton("btnMerge", label = "Step 2: Merge data from all folders"),
                 shiny::verbatimTextOutput("txtMergeOut", placeholder = TRUE)
               )
-            )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
+            ),
+            shinyBS::bsCollapsePanel(
               "Count Borders",
               shiny::tabsetPanel(
                 shiny::tabPanel("P_VAL border vs. # of probes",
@@ -136,8 +136,8 @@ generate_ui <- function() {
                   )
                 )
               )
-            )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
+            ),
+            shinyBS::bsCollapsePanel(
               "Reduce Data",
               shiny::fluidRow(
                 shiny::column(
@@ -176,8 +176,8 @@ generate_ui <- function() {
               ),
               shinyjs::disabled(shiny::actionButton("btnReduce", label = "Step 3: Reduce data (omit CpGs) by applying thresholds for p-value, DM or n limit")),
               shiny::verbatimTextOutput("txtPReduceOut", placeholder = TRUE)
-            )),
-            shinyjs::disabled(shinyBS::bsCollapsePanel(
+            ),
+            shinyBS::bsCollapsePanel(
               "Omit Traits",
               shiny::fluidRow(
                 shiny::column(
@@ -380,9 +380,8 @@ generate_ui <- function() {
                   )
                 )
               )
-            )),
-#            shinyjs::disabled
-            (shinyBS::bsCollapsePanel(
+            ),
+            shinyBS::bsCollapsePanel(
               "Full Trait-reduced Data",
               shiny::fluidRow(
                 shiny::tabsetPanel(
@@ -434,47 +433,15 @@ generate_ui <- function() {
                             shiny::textAreaInput(inputId = "txtSearchFullTrait", label = "Search Trait", value = ""),
                             shiny::verbatimTextOutput(outputId = "txtSearchResultFullTrait"),
                             shiny::actionButton("btnSearchFullTraitHM", label = "Search Trait")
-                          ),
-                          shiny::tabPanel(
-                            "SPLOM of Original Data",
-                            shiny::selectizeInput("fullmarkingVar",
-                              label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
-                              choices = NULL,
-                              width = "100%"
-                            ),
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "SPLOM from selected area in heatmap",
-                                plotly::plotlyOutput("fullSPLOM",
-                                                 height = '95vh', #1200, #height = "100%",
-                                                 width = '95%', #100, #width = "100%",
-                                                 inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "SPLOM trait/trait",
-                                plotly::plotlyOutput("fullSPLOMTrait",
-                                                     height = '95vh', #1200, #height = "100%",
-                                                     width = '95%', #100, #width = "100%",
-                                                     inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "SPLOM probe/probe",
-                                shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
-                                plotly::plotlyOutput("fullSPLOMProbe",
-                                                     height = '95vh', #1200, #height = "100%",
-                                                     width = '95%', #1000, #width = "100%",
-                                                     inline = TRUE)
-                              )
-                            )
-                          ),
-                          shiny::tabPanel(
-                            "Selected CpG",
-                            DT::dataTableOutput("DTSelectedFullCpG")
-                          ),
-                          shiny::tabPanel(
-                            "Selected trait",
-                            DT::dataTableOutput("DTSelectedFullTrait")
                           )
+                          # shiny::tabPanel(
+                          #   "Selected CpG",
+                          #   DT::dataTableOutput("DTSelectedFullCpG")
+                          # ),
+                          # shiny::tabPanel(
+                          #   "Selected trait",
+                          #   DT::dataTableOutput("DTSelectedFullTrait")
+                          # )
                           # shiny::tabPanel(
                           #   "Selected p-value",
                           #   DT::dataTableOutput("DTSelectedP_Val")
@@ -588,12 +555,11 @@ generate_ui <- function() {
                   )
                 )
               )
-            )),
-#            shinyjs::disabled
-            (shinyBS::bsCollapsePanel(
+            ),
+            shinyBS::bsCollapsePanel(
               "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)",
               shiny::fluidRow(
-                shiny::verbatimTextOutput("txtCondOut", placeholder = TRUE),
+                shiny::verbatimTextOutput("txtResultsOut", placeholder = TRUE),
               ),
               shiny::fluidRow(
                 shiny::tabsetPanel(
@@ -612,61 +578,15 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "HeatMap P_Val",
-                            shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_P_Val", label = "Step 6a: Plot condensed Heatmap P_Val")),
-                            shiny::verbatimTextOutput("txtCondHMDescription_P_Val", placeholder = TRUE),
-                            InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                              "condHeatmap_P_Val",
-                              height1 = '95vh',
-                              width1 = 950,
-                              height2 = '95vh',
-                              width2 = 950,
-                              inline = FALSE
-                            )
-                          ),
-                          shiny::tabPanel(
-                            "SPLOM of Original Data",
-                            shiny::selectizeInput("condMarkingVar",
-                                                  label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
-                                                  choices = NULL,
-                                                  width = "100%"
-                            ),
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "SPLOM from selected area in heatmap",
-                                plotly::plotlyOutput("condSPLOM",
-                                                     height = '95vh', #1200, #height = "100%",
-                                                     width = '95%', #100, #width = "100%",
-                                                     inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "SPLOM trait/trait",
-                                plotly::plotlyOutput("condSPLOMTrait",
-                                                     height = '95vh', #1200, #height = "100%",
-                                                     width = '95%', #100, #width = "100%",
-                                                     inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "SPLOM probe/probe",
-                                shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
-                                plotly::plotlyOutput("condSPLOMProbe",
-                                                     height = '95vh', #1200, #height = "100%",
-                                                     width = '95%', #1000, #width = "100%",
-                                                     inline = TRUE)
-                              )
-                            )
-                          ),
-
-                          shiny::tabPanel(
-                            "Selected CpG",
-                            DT::dataTableOutput("DTSelectedCondCpG")
-                          ),
-                          shiny::tabPanel(
-                            "Selected trait",
-                            DT::dataTableOutput("DTSelectedCondTrait")
-                          )
+                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_P_Val", label = "Step 6a: Plot condensed Heatmap P_Val")),
+                        shiny::verbatimTextOutput("txtCondHMDescription_P_Val", placeholder = TRUE),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "condHeatmap_P_Val",
+                          height1 = '95vh',
+                          width1 = 950,
+                          height2 = '95vh',
+                          width2 = 950,
+                          inline = FALSE
                         )
                       ),
                       shiny::tabPanel(
@@ -784,7 +704,57 @@ generate_ui <- function() {
                   )
                 )
               )
-            ))
+            )
+          ),
+          shinyBS::bsCollapsePanel(
+            "Selected Results",
+            shiny::fluidRow(
+              shiny::verbatimTextOutput("txtCondOut", placeholder = TRUE),
+            ),
+            shiny::fluidRow(
+              shiny::tabsetPanel(
+                shiny::tabPanel(
+                  "Selected CpG",
+                  DT::dataTableOutput("DTSelectedCpG")
+                ),
+                shiny::tabPanel(
+                  "Selected trait",
+                  DT::dataTableOutput("DTSelectedTrait")
+                ),
+                shiny::tabPanel(
+                  "SPLOM of Original Data for selected probe/trait",
+                  shiny::selectizeInput("markingVar",
+                                        label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
+                                        choices = NULL,
+                                        width = "100%"
+                  ),
+                  shiny::tabsetPanel(
+                    shiny::tabPanel(
+                      "SPLOM from selected area in heatmap",
+                      plotly::plotlyOutput("SPLOM",
+                                           height = '95vh', #1200, #height = "100%",
+                                           width = '95%', #100, #width = "100%",
+                                           inline = TRUE)
+                    ),
+                    shiny::tabPanel(
+                      "SPLOM trait/trait",
+                      plotly::plotlyOutput("SPLOMTrait",
+                                           height = '95vh', #1200, #height = "100%",
+                                           width = '95%', #100, #width = "100%",
+                                           inline = TRUE)
+                    ),
+                    shiny::tabPanel(
+                      "SPLOM probe/probe",
+                      shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
+                      plotly::plotlyOutput("SPLOMProbe",
+                                           height = '95vh', #1200, #height = "100%",
+                                           width = '95%', #1000, #width = "100%",
+                                           inline = TRUE)
+                    )
+                  )
+                )
+              )
+            )
           )
         ),
         shiny::tabPanel(

@@ -1,8 +1,8 @@
 #' structure of sessionVariables for SPLOM:
 #' detailed original data for SPLOM analysis
-#' session$userData$sessionVariables$fullSPLOM - data structure for scatter plot matrix
-#' session$userData$sessionVariables$selectedFullOriginalData - merged original data for creation of SPLOM
-#' session$userData$sessionVariables$fullMarkingVar - variable, which should be marked (stratified for) in SPLOM
+#' session$userData$sessionVariables$SPLOM - data structure for scatter plot matrix
+#' session$userData$sessionVariables$selectedOriginalData - merged original data for creation of SPLOM
+#' session$userData$sessionVariables$markingVar - variable, which should be marked (stratified for) in SPLOM
 
 #' getDimensionsForPlotlySPLOM
 #' @param df data frame
