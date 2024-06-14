@@ -170,9 +170,9 @@ loadResultFile <- function(session, folder, fileName) {
   all.results <-
     data.table::setcolorder(
       all.results,
-      base::c("probeID", "BETA", "SE", "P_VAL", "FDR", "DeltaMeth", "N")
+      base::c("probeID", "BETA", "SE", "P_VAL", "FDR", "DeltaMeth", "logFC", "N")
     )
-  all.results <- all.results[, 1:7]
+  all.results <- all.results[, 1:8]
   base::print(base::paste0(sysTimePID(), " before merging annotation."))
   all.results <-
     data.table::merge.data.table(
@@ -193,7 +193,6 @@ loadResultFile <- function(session, folder, fileName) {
   # duplicated(all.results$probeID)
   rownames(all.results) <- all.results$probeID
   base::print(base::paste0(sysTimePID(), " after excluding chr x and y ."))
-
   return(all.results)
 }
 

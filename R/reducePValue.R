@@ -18,6 +18,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         result <- combinedDFP_Val_Labels
         dfP_Val <- result$dfP_Val
         dfDM <- result$dfDM
+        dflogFC <- result$dflogFC
         dfN <- result$dfN
         base::print(base::paste0(sysTimePID(),
                                  " result matrix before reduce has N(row) probes=",
@@ -96,6 +97,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         }
         dfP_Val <- dfP_Val[cgsToRetain, ]
         dfDM <- dfDM[cgsToRetain, ]
+        dflogFC <- dflogFC[cgsToRetain, ]
         dfN <- dfN[cgsToRetain, ]
         base::print(base::paste0(sysTimePID(),
                                  " result matrix after reduce has N(row) probes=",
@@ -111,6 +113,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
             #dfP_Val <- dfP_Val[1:session$userData$sessionVariables$debugNumber, ]
             dfP_Val <- head(dfP_Val, session$userData$sessionVariables$debugNumber)
             dfDM <- head(dfDM, session$userData$sessionVariables$debugNumber)
+            dflogFC <- head(dflogFC, session$userData$sessionVariables$debugNumber)
             dfN <- head(dfN, session$userData$sessionVariables$debugNumber)
           }
           base::print(base::paste0(
@@ -127,15 +130,21 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           if (!base::is.data.frame(dfN)) {
             dfN <- base::as.data.frame(dfN)
           }
+          base::print(base::paste0(sysTimePID(), " shortening dflogFC"))
+          dflogFC <- dfDM[rownames(dfP_Val), colnames(dfP_Val)]
+          if (!base::is.data.frame(dflogFC)) {
+            dflogFC <- base::as.data.frame(dflogFC)
+          }
           base::print(base::paste0(sysTimePID(), " shortening dfN"))
           dfN <- dfN[rownames(dfP_Val), colnames(dfP_Val)]
-          combinedDFP_Val_Labels <- base::list(dfP_Val = NULL, dfDM = NULL,
+          combinedDFP_Val_Labels <- base::list(dfP_Val = NULL, dfDM = NULL, dflogFC = NULL,
                                                dfN = NULL, labelsDF1 = NULL,
                                                labelsDF2 = NULL, labelsDF3 = NULL,
                                                mergedOriginDF = NULL, mergedColnames = NULL, mergedOriginalColnames = NULL,
                                                mergedOriginTrait = NULL, mergedDFList = NULL)
           combinedDFP_Val_Labels$dfP_Val <- dfP_Val
           combinedDFP_Val_Labels$dfDM <- dfDM
+          combinedDFP_Val_Labels$dflogFC <- dflogFC
           combinedDFP_Val_Labels$dfN <- dfN
 
           combinedDFP_Val_Labels$labelsDF1 <- LabelsDF1

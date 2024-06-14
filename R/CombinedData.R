@@ -11,13 +11,13 @@
 
 #' getResultDfP_D_N
 #' @param listOfResultDF data.frame containing a list of data.frames to be merged
-#' @param P_D_N scalar value "P", "D" or "N" describing whether to merge P_VAL, DeltaMeth or N
+#' @param P_D_N_F scalar value "P", "D", "N" or "F" describing whether to merge P_VAL, DeltaMeth, N or logFC
 #' @return merged data.frame
 # examples getResultDfP_D_N(listDF, "P")
-getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
+getResultDfP_D_N <- function(listOfResultDF, P_D_N_F) {
   base::tryCatch(
     {
-      base::print(base::paste0(sysTimePID(), " start getResultDfP_D_N(): ", P_D_N, "."))
+      base::print(base::paste0(sysTimePID(), " start getResultDfP_D_N(): ", P_D_N_F, "."))
       i <- NULL
       if (base::length(listOfResultDF) != 0) {
         #foreach::foreach(i = 1:length(listOfResultDF)) %do% {
@@ -29,13 +29,14 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
             " of ",
             base::length(listOfResultDF)
           ))
-          if (P_D_N == "P") {
+          if (P_D_N_F == "P") {
             DF <- base::subset(listOfResultDF[[i]], select = c("probeID", "P_VAL"))
-          } else if (P_D_N == "D") {
-            DF <-
-              base::subset(listOfResultDF[[i]], select = c("probeID", "DeltaMeth"))
-          } else if (P_D_N == "N") {
+          } else if (P_D_N_F == "D") {
+            DF <- base::subset(listOfResultDF[[i]], select = c("probeID", "DeltaMeth"))
+          } else if (P_D_N_F == "N") {
             DF <- base::subset(listOfResultDF[[i]], select = c("probeID", "N"))
+          } else if (P_D_N_F == "F") {
+            DF <- base::subset(listOfResultDF[[i]], select = c("probeID", "logFC"))
           }
           if (i == 1) {
             merged <- DF
@@ -68,7 +69,7 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N) {
       base::message("A warning occurred in getResultDfP_D_N():\n", w)
     },
     finally = {
-      base::print(base::paste0(sysTimePID(), " end getResultDfP_D_N(): ", P_D_N, "."))
+      base::print(base::paste0(sysTimePID(), " end getResultDfP_D_N(): ", P_D_N_F, "."))
       return(merged)
     }
   )
@@ -98,6 +99,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           dfP_Val = NULL,
           dfDM = NULL,
           dfN = NULL,
+          dflogFC = NULL,
           resultOriginDF = NULL,
           resultColnames = NULL,
           resultOriginalColnames = NULL,
@@ -106,6 +108,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$dfP_Val <- resultDFListTrait1$resultDFP_Val
         dfList$dfDM <- resultDFListTrait1$resultDFDM
         dfList$dfN <- resultDFListTrait1$resultDFN
+        dfList$dflogFC <- resultDFListTrait1$resultDFlogFC
         dfList$resultOriginDF <- resultDFListTrait1$resultOriginDF
         dfList$resultColnames <- resultDFListTrait1$resultColnames
         dfList$resultOriginalColnames <- resultDFListTrait1$resultOriginalColnames
@@ -116,6 +119,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         }
         dfDM1 <- dfList$dfDM
         dfN1 <- dfList$dfN
+        dflogFC1 <- dfList$dflogFC
         OriginDF1 <- dfList$resultOriginDF
         Colnames1 <- dfList$resultColnames
         OriginalColnames1 <- dfList$resultOriginalColnames
@@ -132,6 +136,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$dfP_Val <- resultDFListTrait2$resultDFP_Val
         dfList$dfDM <- resultDFListTrait2$resultDFDM
         dfList$dfN <- resultDFListTrait2$resultDFN
+        dfList$dflogFC <- resultDFListTrait2$resultDFlogFC
         dfList$resultOriginDF <- resultDFListTrait2$resultOriginDF
         dfList$resultColnames <- resultDFListTrait2$resultColnames
         dfList$resultOriginalColnames <- resultDFListTrait2$resultOriginalColnames
@@ -142,6 +147,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         }
         dfDM2 <- dfList$dfDM
         dfN2 <- dfList$dfN
+        dflogFC2 <- dfList$dflogFC
         OriginDF2 <- dfList$resultOriginDF
         Colnames2 <- dfList$resultColnames
         OriginalColnames2 <- dfList$resultOriginalColnames
@@ -158,6 +164,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfList$dfP_Val <- resultDFListTrait3$resultDFP_Val
         dfList$dfDM <- resultDFListTrait3$resultDFDM
         dfList$dfN <- resultDFListTrait3$resultDFN
+        dfList$dflogFC <- resultDFListTrait3$resultDFlogFC
         dfList$resultOriginDF <- resultDFListTrait3$resultOriginDF
         dfList$resultColnames <- resultDFListTrait3$resultColnames
         dfList$resultOriginalColnames <- resultDFListTrait3$resultOriginalColnames
@@ -168,6 +175,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         }
         dfDM3 <- dfList$dfDM
         dfN3 <- dfList$dfN
+        dflogFC3 <- dfList$dflogFC
         OriginDF3 <- dfList$resultOriginDF
         Colnames3 <- dfList$resultColnames
         OriginalColnames3 <- dfList$resultOriginalColnames
@@ -192,6 +200,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         dfN1 <- base::as.data.frame(dfN1)
         dfN1$Row.names <- rn
         base::rownames(dfN1) <- rn
+        dflogFC1 <- base::as.data.frame(dflogFC1)
+        dflogFC1$Row.names <- rn
+        base::rownames(dflogFC1) <- rn
 
         rn <- base::rownames(dfP_Val1)
         mergedDFP_Val <- base::as.data.frame(dfP_Val1)
@@ -204,6 +215,14 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         rn <- base::rownames(dfN1)
         mergedDFN <- base::as.data.frame(dfN1)
         mergedDFN$Row.names <- rn
+        rn <- base::rownames(dflogFC1)
+        if (length(dflogFC2) != 0) {
+          mergedDFlogFC <- base::as.data.frame(dflogFC1)
+        }
+        else {
+          base::message("Size of dflogFC1 == 0. Maybe, logFC was not calculated for that trait?\n")
+        }
+        mergedDFlogFC$Row.names <- rn
         mergedOriginDF <- OriginDF1
         mergedColnames <- Colnames1
         mergedOriginalColnames <- OriginalColnames1
@@ -224,6 +243,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           dfN2 <- base::as.data.frame(dfN2)
           dfN2$Row.names <- rn
           base::rownames(dfN2) <- rn
+          dflogFC2 <- base::as.data.frame(dflogFC2)
+          dflogFC2$Row.names <- rn
+          base::rownames(dflogFC2) <- rn
 
           mergedDFP_Val <-
             base::merge(
@@ -252,6 +274,20 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
               all.x = FALSE,
               all.y = FALSE
             )
+          if (length(dflogFC2) != 0) {
+            mergedDFlogFC <-
+            base::merge(
+              mergedDFlogFC,
+              dflogFC2,
+              by.x = "Row.names",
+              by.y = "Row.names",
+              all.x = FALSE,
+              all.y = FALSE
+            )
+          }
+          else {
+            base::message("Size of dflogFC2 == 0. Maybe, logFC was not calculated for that trait?\n")
+          }
           mergedOriginDF <- c(mergedOriginDF, OriginDF2)
           mergedColnames <- c(mergedColnames, Colnames2)
           mergedOriginalColnames <- c(mergedOriginalColnames, OriginalColnames2)
@@ -269,6 +305,10 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
             rownames(dfN2) <- dfN2$Row.names
             dfN2$Row.names <- NULL
           }
+          if ("Row.names" %in% base::colnames(dflogFC2)) {
+            rownames(dflogFC2) <- dflogFC2$Row.names
+            dflogFC2$Row.names <- NULL
+          }
         } else {
           rn <- base::rownames(dfP_Val2)
           mergedDFP_Val <- base::as.data.frame(dfP_Val2)
@@ -282,6 +322,11 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           mergedDFN <- base::as.data.frame(dfN2)
           mergedDFN$Row.names <- rn
           base::rownames(mergedDFN) <- rn
+          rn <- base::rownames(dflogFC2)
+          mergedDFlogFC <- base::as.data.frame(dflogFC2)
+          mergedDFlogFC$Row.names <- rn
+          base::rownames(mergedDFlogFC) <- rn
+
           mergedOriginDF <- OriginDF2
           mergedColnames <- Colnames2
           mergedOriginalColnames <- OriginalColnames2
@@ -303,6 +348,11 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           dfN3 <- base::as.data.frame(dfN3)
           dfN3$Row.names <- rn
           base::rownames(dfN3) <- rn
+          rn <- base::rownames(dflogFC3)
+          dflogFC3 <- base::as.data.frame(dflogFC3)
+          dflogFC3$Row.names <- rn
+          base::rownames(dflogFC3) <- rn
+
           mergedDFP_Val <-
             base::merge(
               mergedDFP_Val,
@@ -330,6 +380,21 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
               all.x = FALSE,
               all.y = FALSE
             )
+#tbc(): check for size of dflogFC3; if dim = 0,0 then we miss contents of DFlogFC3
+          if (length(dflogFC3) != 0) {
+          mergedDFlogFC <-
+            base::merge(
+              mergedDFlogFC,
+              dflogFC3,
+              by.x = "Row.names",
+              by.y = "Row.names",
+              all.x = FALSE,
+              all.y = FALSE
+            )
+          }
+          else {
+            base::message("Size of dflogFC3 == 0. Maybe, logFC was not calculated for that trait?\n")
+          }
           mergedOriginDF <- c(mergedOriginDF, OriginDF3)
           mergedColnames <- c(mergedColnames, Colnames3)
           mergedOriginalColnames <- c(mergedOriginalColnames, OriginalColnames3)
@@ -347,6 +412,11 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
             rownames(dfN3) <- dfN3$Row.names
             dfN3$Row.names <- NULL
           }
+          if ("Row.names" %in% base::colnames(dflogFC3)) {
+            rownames(dflogFC3) <- dflogFC3$Row.names
+            dflogFC3$Row.names <- NULL
+          }
+
         } else {
           rn <- base::rownames(dfP_Val3)
           mergedDFP_Val <- base::as.data.frame(dfP_Val3)
@@ -360,6 +430,11 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           mergedDFN <- base::as.data.frame(dfN3)
           mergedDFN$Row.names <- rn
           base::rownames(mergedDFN) <- rn
+          rn <- base::rownames(dflogFC3)
+          mergedDFlogFC <- base::as.data.frame(dflogFC3)
+          mergedDFlogFC$Row.names <- rn
+          base::rownames(mergedDFlogFC) <- rn
+
           mergedOriginDF <- OriginDF3
           mergedColnames <- Colnames3
           mergedOriginalColnames <- OriginalColnames3
@@ -381,6 +456,11 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           rownames(mergedDFN) <- mergedDFN$Row.names
           mergedDFN$Row.names <- NULL
         }
+        if ("Row.names" %in% base::colnames(mergedDFlogFC)) {
+          rownames(mergedDFlogFC) <- mergedDFlogFC$Row.names
+          mergedDFlogFC$Row.names <- NULL
+        }
+
       }
       if (base::exists("dfP_Val1")) {
         if ("Row.names" %in% base::colnames(dfP_Val1)) {
@@ -418,15 +498,16 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
       }
       if (base::exists("mergedDFP_Val")) {
-        result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL,
+        result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL, dflogFC = NULL,
                              labelsDF1 = NULL, labelsDF2 = NULL,
                              labelsDF3 = NULL, mergedOriginDF = NULL,
                              mergedColnames = NULL, mergedOriginalColnames = NULL, mergedOriginTrait = NULL,
                              mergedDFList = NULL)
-        result$dfP_Val <- mergedDFP_Val # matP_Val
+        result$dfP_Val <- mergedDFP_Val
         mergedDFDM <- base::abs(mergedDFDM) # all Values to positive values
-        result$dfDM <- mergedDFDM # matDM
-        result$dfN <- mergedDFN # matN
+        result$dfDM <- mergedDFDM
+        result$dfN <- mergedDFN
+        result$dflogFC <- mergedDFlogFC
         if (base::exists("LabelsDF1")) {
           result$labelsDF1 <- LabelsDF1
         }
@@ -479,7 +560,6 @@ loadDir <- function(session, traitDirList) {
       base::print(base::paste0(sysTimePID(), " before merge folders()"))
       resultDFList <- loadtraitDFs(traitDFs)
       if (base::exists("resultDFList$resultDFP_Val")) {
-        #browser()
         checkResultP_Val_cg(resultDFList$resultDFP_Val)
       }
     },

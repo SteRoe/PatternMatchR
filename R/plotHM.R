@@ -320,7 +320,7 @@ combinedDFInteractiveHeatMapDMlogFC <-
         base::print(base::paste0(sysTimePID(), " start preparing HM; combinedDFInteractiveHeatMapP_Val()"))
         matP_Val <- base::as.matrix(combinedDF_Labels$dfP_Val)
         matDM <- base::as.matrix(combinedDF_Labels$dfDM)
-        matDMlogFC <- base::as.matrix(combinedDF_Labels$dfDMlogFC)
+        matlogFC <- base::as.matrix(combinedDF_Labels$dflogFC)
         matN <- base::as.matrix(combinedDF_Labels$dfN)
         # use rasterization like described in
         # https://jokergoo.github.io/2020/06/30/rasterization-in-complexheatmap/
@@ -1012,17 +1012,17 @@ getSearchResultTrait <- function(txtSearchTrait, dataStructure) {
 # }
 
 plotCombinedHM_DMlogFC <- function(input, output, session) {
-  base::print(base::paste0(sysTimePID(), " start plotting heatmap for DM (logFC)."))
+  base::print(base::paste0(sysTimePID(), " start plotting heatmap for logFC."))
   output$txtCondHMDescription_DM <-
     shiny::renderText(base::paste0("calculating heatmap..., current plot is not valid"))
   while (!is.null(grDevices::dev.list())) {
     grDevices::dev.off()
   }
   combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels
-  dfDMlogFC <- combinedDFP_Val_Labels$dfDMlogFC
+  dflogFC <- combinedDFP_Val_Labels$dflogFC
   #leave out low logFC?
 
-  if (nrow(dfDMlogFC) > 5) {
+  if (nrow(dflogFC) > 5) {
     startTime <- Sys.time()
   }
   base::tryCatch({
@@ -1030,7 +1030,10 @@ plotCombinedHM_DMlogFC <- function(input, output, session) {
     gc()
     base::options(expressions = 500000)
     dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
-    dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+    maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+    if (maxClassesProbes <= 7) {
+      dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
+    }
     dendTraits <- session$userData$sessionVariables$probeReducedDataStructure()$traitDendrogram
     Distances <- session$userData$sessionVariables$probeReducedDataStructure()$DNAdistances
 
@@ -1059,20 +1062,20 @@ plotCombinedHM_DMlogFC <- function(input, output, session) {
       output = output,
       session = session,
       ht_list = combinedHMDMlogFC,
-      heatmap_id = "condHeatmap_DMlogFC",
+      heatmap_id = "condHeatmap_logFC",
       show_layer_fun = TRUE,
-      click_action = click_action_condHeatmap_DMlogFC,
-      brush_action = brush_action_condHeatmap_DMlogFC,
-      hover_action = hover_action_condHeatmap_DMlogFC
+      click_action = click_action_condHeatmap_logFC,
+      brush_action = brush_action_condHeatmap_logFC,
+      hover_action = hover_action_condHeatmap_logFC
     )
   },
   error = function(e) {
-    base::message("An error occurred in plotCombinedHM_DMlogFC():\n", e)
+    base::message("An error occurred in plotCombinedHM_logFC():\n", e)
     Cstack_info()
     browser()
   },
   warning = function(w) {
-    base::message("A warning occurred in plotCombinedHM_DMlogFC():\n", w)
+    base::message("A warning occurred in plotCombinedHM_logFC():\n", w)
     browser()
   },
   finally = {
@@ -1123,8 +1126,10 @@ plotCombinedHM_P_Val <- function(input, output, session) {
       # check clustResProbes > 8
       base::options(expressions = 500000)
       dendProbes <- session$userData$sessionVariables$traitReducedDataStructure()$probeDendrogram
-      dendProbes <-
-        dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+      if (maxClassesProbes <= 7) {
+        dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
+      }
       dendTraits <- session$userData$sessionVariables$traitReducedDataStructure()$traitDendrogram
       Distances <- session$userData$sessionVariables$traitReducedDataStructure()$DNAdistances
 
@@ -1233,8 +1238,10 @@ plotCombinedDWHM_P_Val <- function(input, output, session) {
       #base::options(expression = 500000)
       base::options(expressions = 500000)
       dendProbes <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$probeDendrogram
-      dendProbes <-
-        dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+      if (maxClassesProbes <= 7) {
+        dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
+      }
       dendTraits <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$traitDendrogram
 
       Distances <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$DNAdistances
@@ -1338,7 +1345,10 @@ plotCombinedCondHM_P_Val <- function(input, output, session) {
       #      if (is.valid(combinedDF_Labels$dfP_Val)) {
       dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
       #browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
-      dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+      if (maxClassesProbes <= 7) {
+        dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
+      }
       dendTraits <- session$userData$sessionVariables$probeReducedDataStructure()$traitDendrogram
 
       Distances <- session$userData$sessionVariables$probeReducedDataStructure()$DNAdistances
@@ -1440,7 +1450,10 @@ plotCombinedCondDWHM_P_Val <- function(input, output, session) {
       #      if (is.valid(combinedDF_Labels$dfP_Val)) {
       dendProbes <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$probeDendrogram
       #browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
-      dendProbes <- dendextend::color_branches(dendProbes, as.integer(input$txtMaxClassesProbes))
+      maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+      if (maxClassesProbes <= 7) {
+        dendProbes <- dendextend::color_branches(dendProbes, as.integer(maxClassesProbes))
+      }
       dendTraits <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$traitDendrogram
 
       Distances <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$DNAdistances
@@ -1761,33 +1774,33 @@ hover_action_condHM_P_Val <- function(df, input, output, session) {
   )
 }
 
-click_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
+click_action_condHeatmap_logFC <- function(df, input, output, session) {
   base::tryCatch(
     {
-      base::print(base::paste0(sysTimePID(), " start click_action_condHeatmap_DMlogFC()."))
+      base::print(base::paste0(sysTimePID(), " start click_action_condHeatmap_logFC()."))
       # only placeholder at the moment
     },
     error = function(e) {
-      base::message("An error occurred in click_action_condHeatmap_DMlogFC():\n", e)
+      base::message("An error occurred in click_action_condHeatmap_logFC():\n", e)
     },
     warning = function(w) {
-      base::message("A warning occurred in click_action_condHeatmap_DMlogFC():\n", w)
+      base::message("A warning occurred in click_action_condHeatmap_logFC():\n", w)
     },
     finally = {
-      base::print(base::paste0(sysTimePID(), " end click_action_condHeatmap_DMlogFC()."))
+      base::print(base::paste0(sysTimePID(), " end click_action_condHeatmap_logFC()."))
     }
   )
 }
 
-brush_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
+brush_action_condHeatmap_logFC <- function(df, input, output, session) {
   base::tryCatch(
     if (!is.null(df)) {
       row_index <- collapse::funique(unlist(df$row_index)) #row_index <- unique(unlist(df$row_index))
       column_index <- collapse::funique(unlist(df$column_index))
       #load results into session global data structure #feed in selected CpG here
       #session$userData$sessionVariables$selectedCondCpG(rownames(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)[row_index])
-      session$userData$sessionVariables$selectedCpG(rownames(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDMlogFC)[row_index])
-      #dfDMlogFC
+      session$userData$sessionVariables$selectedCpG(rownames(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dflogFC)[row_index])
+      #dflogFC
       #add annotation
       rownames(session$userData$annotation) <- session$userData$annotation$name
       selectedAnnotation <- session$userData$annotation[session$userData$sessionVariables$selectedCpG(),]
@@ -1846,31 +1859,31 @@ brush_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in brush_action_condHeatmap_DMlogFC():\n", e)
+      base::message("An error occurred in brush_action_condHeatmap_logFC():\n", e)
     },
     warning = function(w) {
-      base::message("A warning occurred in brush_action_condHeatmap_DMlogFC():\n", w)
+      base::message("A warning occurred in brush_action_condHeatmap_logFC():\n", w)
     },
     finally = {
-      base::print(base::paste0(sysTimePID(), " end brush_action_condHeatmap_DMlogFC()."))
+      base::print(base::paste0(sysTimePID(), " end brush_action_condHeatmap_logFC()."))
     }
   )
 }
 
-hover_action_condHeatmap_DMlogFC <- function(df, input, output, session) {
+hover_action_condHeatmap_logFC <- function(df, input, output, session) {
   base::tryCatch(
     {
-      base::print(base::paste0(sysTimePID(), " hover_action_condHeatmap_DMlogFC", as.character(head(df))))
+      base::print(base::paste0(sysTimePID(), " hover_action_condHeatmap_logFC", as.character(head(df))))
       # only placeholder at the moment
     },
     error = function(e) {
-      base::message("An error occurred in hover_action_condHeatmap_DMlogFC():\n", e)
+      base::message("An error occurred in hover_action_condHeatmap_logFC():\n", e)
     },
     warning = function(w) {
-      base::message("A warning occurred in hover_action_condHeatmap_DMlogFC():\n", w)
+      base::message("A warning occurred in hover_action_condHeatmap_logFC():\n", w)
     },
     finally = {
-      base::print(base::paste0(sysTimePID(), " end hover_action_condHeatmap_DMlogFC()."))
+      base::print(base::paste0(sysTimePID(), " end hover_action_condHeatmap_logFC()."))
     }
   )
 }

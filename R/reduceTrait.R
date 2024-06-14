@@ -182,7 +182,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       else {
         traitNos <- which(combinedDFP_Val_Labels$mergedColnames %in% traits)
       }
-      result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL,
+      result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL, dflogFC = NULL,
                            labelsDF1 = NULL, labelsDF2 = NULL, labelsDF3 = NULL,
                            mergedOriginDF = NULL, mergedColnames = NULL,
                            mergedOriginTrait = NULL, mergedDFList = NULL)
@@ -190,6 +190,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
 
       result$dfP_Val <- combinedDFP_Val_Labels$dfP_Val[, traitNos]
       result$dfDM <- combinedDFP_Val_Labels$dfDM[, traitNos]
+      result$dflogFC <- combinedDFP_Val_Labels$dflogFC[, traitNos]
       result$dfN <- combinedDFP_Val_Labels$dfN[, traitNos]
       result$mergedOriginDF <- combinedDFP_Val_Labels$mergedOriginDF[traitNos]
       result$mergedOriginalColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[traitNos]

@@ -455,17 +455,22 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Table P_VAL",
-                        # DT tableout
+                        "Table of p-value; clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("traitReducedDTP_VAL")
                       ),
                       shiny::tabPanel(
                         "Table Delta Methylation",
-                        # DT tableout
+                        "Table of delta methylation; clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("traitReducedDTDM")
                       ),
                       shiny::tabPanel(
+                        "Table logFC",
+                        "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
+                        DT::dataTableOutput("traitReducedDTlogFC")
+                      ),
+                      shiny::tabPanel(
                         "Table N",
-                        # DT tableout
+                        "Table of n; clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("traitReducedDTN")
                       ),
                       shiny::tabPanel(
@@ -519,14 +524,22 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Table P_Val",
+                        "Table of p-value; clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("fullDWDTP_VAL")
                       ),
                       shiny::tabPanel(
                         "Table Delta Methylation",
+                        "Table of delta methylation; clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("fullDWDTDM")
                       ),
                       shiny::tabPanel(
+                        "Table logFC",
+                        "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
+                        DT::dataTableOutput("fullDWDTlogFC")
+                      ),
+                      shiny::tabPanel(
                         "Table N",
+                        "Table of n; clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("fullDWDTN")
                       ),
                       shiny::tabPanel(
@@ -599,7 +612,7 @@ generate_ui <- function() {
                         shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_DM", label = "Step 6b: Plot condensed Heatmap Delta Methylation (logFC)")),
                         shiny::verbatimTextOutput("txtCondHMDescription_DM", placeholder = TRUE),
                         InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "condHeatmap_DMlogFC",
+                          "condHeatmap_logFC",
                           height1 = '95vh',
                           width1 = 950,
                           height2 = '95vh',
@@ -609,15 +622,17 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "Table Delta Methylation",
+                        "Table of delta methylation; clustering order comes from clustering of p_values.",
                         DT::dataTableOutput("condDTDM")
                       ),
                       shiny::tabPanel(
                         "Table Delta Methylation log(FC)",
                         "Table of log fold change(delta methylation); clustering order comes from clustering of p_values.",
-                        DT::dataTableOutput("condDTDMlogFC")
+                        DT::dataTableOutput("condDTlogFC")
                       ),
                       shiny::tabPanel(
                         "Table N",
+                        "Table of n; clustering order comes from clustering of p_values.",
                         DT::dataTableOutput("condDTN")
                       ),
                       shiny::tabPanel(
@@ -795,12 +810,12 @@ generate_ui <- function() {
                   width = 2,
                   shiny::textInput(inputId = "txtMaxClassesProbes",
                     label = "maximum colored Classes Probes (in dendrogram)",
-                    value = 10,
+                    value = 7,
                     placeholder = TRUE
                   ),
                   shiny::textInput(inputId = "txtMaxClassesTraits",
                     label = "maximum colored Classes Traits (in dendrogram)",
-                    value = 10,
+                    value = 7,
                     placeholder = TRUE
                   )
                 )

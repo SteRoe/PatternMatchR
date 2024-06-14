@@ -795,8 +795,6 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
         {
           base::print(base::paste0(sysTimePID(), " Step 2: start merging data. (first step in shiny::observeEvent(btnMerge))"))
           base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
-          # combinedHMP_VAL <- emptyHM()
-          # InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, combinedHMP_VAL, "Heatmap_P_Val")
           minN <- base::as.integer(input$txtCases)
           #if (session$userData$sessionVariables$LoadInitialized == TRUE) {
           if (is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3())) {
@@ -809,8 +807,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$resultDFListTrait1()) || is.valid(session$userData$sessionVariables$resultDFListTrait2())  || is.valid(session$userData$sessionVariables$resultDFListTrait3()) == FALSE."))
             result <- NULL
           }
+#browser() #check: here we have dflogFC
+          updateSliders(session, result)
+          #updateSliders(session, session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels)
           session$userData$sessionVariables$combinedData(result)
-          updateSliders(session, session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels)
         },
         error = function(e) {
           base::message("An error occurred in shiny::observeEvent(input$btnMerge):\n", e)
@@ -831,6 +831,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     {
       base::tryCatch(
         {
+          if (is.valid(session$userData$sessionVariables$combinedDataStructure())) {
           base::print(base::paste0(sysTimePID(), " Step 3: start reducing data by p-value."))
           base::print(base::paste0(sysTimePID(), " creating empty heatmap."))
           minP_Val <- 5 * 10^base::as.integer(input$sldP_Val[1]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
@@ -845,8 +846,9 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           maxDM <- input$sldDM[2]
           minN <- base::as.integer(input$sldN[1])
           maxN <- base::as.integer(input$sldN[2])
+#browser() #check for dflogFC and for return result in the end
           combinedDFP_Val_Labels <- session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels
-          if (is.valid(combinedDFP_Val_Labels)) {
+          #if (is.valid(combinedDFP_Val_Labels)) {
             if (minP_Val != maxP_Val && minDM != maxDM && minN != maxN) {
               result <- getPReducedTraitData(session = session,
                                                        combinedDFP_Val_Labels =
@@ -872,7 +874,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           }
           else {
             result <- NULL
-            base::print(base::paste0(sysTimePID(), " is.valid(combinedDFP_Val_Labels) == FALSE."))
+            base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDataStructure()) == FALSE."))
           }
         },
         error = function(e) {
@@ -1661,6 +1663,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   #("Full Data")
   output$traitReducedDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
   output$traitReducedDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
+  output$traitReducedDTlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dflogFC_w_number))
   output$traitReducedDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
   output$traitReducedDTProbes <- DT::renderDataTable(as.data.frame(traitReducedDTProbes()),
                                                      options = list(pageLength = 1000, info = FALSE,
@@ -1693,6 +1696,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   #("Full Distance Weighted Data")
   output$fullDWDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
   output$fullDWDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
+  output$fullDWDTlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dflogFC_w_number))
   output$fullDWDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
   output$fullDWDTProbes <- DT::renderDataTable(as.data.frame(fullDWDTProbes()),
                                                options = list(pageLength = 1000, info = FALSE,
@@ -1709,7 +1713,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   #("Condensed Data (contains only CpG with nearby neighbours)")
   output$condDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
   output$condDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
-  output$condDTDMlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDMlogFC_w_number))
+  output$condDTlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dflogFC_w_number))
   output$condDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
   output$condDTProbes <- DT::renderDataTable(as.data.frame(condDTProbes()),
                                      options = list(pageLength = 1000, info = FALSE,
@@ -1748,9 +1752,8 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   session$userData$sessionVariables$pReducedDataStructure <- shiny::reactive({
     base::tryCatch(
       {
-        if (is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+        if (is.valid(session$userData$sessionVariables$pReducedData())) {
           result <- base::list(combinedDFP_Val_Labels = session$userData$sessionVariables$pReducedData(),
-                           #                            #matP_Val = session$userData$sessionVariables$matP_Val(), #is part of combinedDFP_Val_Labels()
                            matP_Val.t = NULL,
                            distMatTraits = NULL,
                            clustResTraits = NULL,
@@ -1762,7 +1765,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                            clustResProbes = NULL,
                            dendProbes = NULL
           )
-
+  #browser() #check
           result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
           numberCores <- session$userData$numCores
           base::print(paste0(sysTimePID(), " (pReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
@@ -1781,6 +1784,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             result$clustResTraits <- NULL
           }
           base::print(paste0(sysTimePID(), " after clustering results for traits."))
+        }
+        else {
+          base::print(paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$pReducedData()) == FALSE"))
+          result <- NULL
         }
       },
       error = function(e) {
@@ -1816,12 +1823,8 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           )
           if (is.valid(session$userData$sessionVariables$traitReducedData())) {
             result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
-            dfDM <- result$combinedDFP_Val_Labels$dfP_Val
-            dfDMlogFC <- log2(dfDM) #log 10 of delta methylations
-            result$combinedDFP_Val_Labels$dfDMlogFC <- dfDMlogFC
-            rm(dfDM)
-            rm(dfDMlogFC)
-
+#browser() #check for missings (should be there) and negative values (too)
+#result$combinedDFP_Val_Labels$dflogFC
             result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
             numberCores <- session$userData$numCores
             base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
@@ -1892,10 +1895,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
 
-            result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC
-            result$combinedDFP_Val_Labels$dfDMlogFC_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDMlogFC_w_number))
-            result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dflogFC_w_number <- result$combinedDFP_Val_Labels$dflogFC
+            result$combinedDFP_Val_Labels$dflogFC_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dflogFC_w_number))
+            result$combinedDFP_Val_Labels$dflogFC_w_number <- result$combinedDFP_Val_Labels$dflogFC_w_number[, col_order]
 
             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
             result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
@@ -1991,12 +1994,12 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           dfDM <- result$combinedDFP_Val_Labels$dfDM
           dfDM <- dfDM[which(rownames(dfDM) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfDM <- dfDM
-
-          dfDMlogFC <- log2(dfDM) #log 10 of delta methylations
-          result$combinedDFP_Val_Labels$dfDMlogFC <- dfDMlogFC
           rm(dfDM)
-          rm(dfDMlogFC)
-
+          dflogFC <- result$combinedDFP_Val_Labels$dflogFC
+browser() #check for missings (should be there) and negative values (too)
+          dflogFC <- dflogFC[which(rownames(dflogFC) %in% DNAdistances$ID), ]
+          result$combinedDFP_Val_Labels$dflogFC <- dflogFC
+          rm(dflogFC)
           dfN <- result$combinedDFP_Val_Labels$dfN
           dfN <- dfN[which(rownames(dfN) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfN <- dfN
@@ -2074,10 +2077,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
 
-          result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC
-          result$combinedDFP_Val_Labels$dfDMlogFC_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDMlogFC_w_number))
-          result$combinedDFP_Val_Labels$dfDMlogFC_w_number <- result$combinedDFP_Val_Labels$dfDMlogFC_w_number[, col_order]
+          result$combinedDFP_Val_Labels$dflogFC_w_number <- result$combinedDFP_Val_Labels$dflogFC
+          result$combinedDFP_Val_Labels$dflogFC_w_number$number <- seq(1:nprobes)
+          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dflogFC_w_number))
+          result$combinedDFP_Val_Labels$dflogFC_w_number <- result$combinedDFP_Val_Labels$dflogFC_w_number[, col_order]
 
           #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
@@ -2326,6 +2329,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           # sort
           DTProbes <- DTProbes[base::order(DTProbes$order), ]
           rownames(DTProbes) <- DTProbes$probeID
+# browser()
+#           DTProbes <- addLinkToEWASDataHubShort(DTProbes, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+#           DTProbes <- addLinkToMRCEWASCatalogShort(DTProbes, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+#
+#           DTProbes <- addLinkToEWASDataHub(DTProbes, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+#           DTProbes <- addLinkToMRCEWASCatalog(DTProbes, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+          DTProbes$probeID <- NULL
           result <- DTProbes
           base::print(base::paste0(sysTimePID(), " after making probe table."))
         }
@@ -2464,6 +2474,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           # sort
           DTProbes <- DTProbes[base::order(DTProbes$order), ]
           rownames(DTProbes) <- DTProbes$probeID
+# browser()
+#           DTProbes <- addLinkToEWASDataHubShort(DTProbes, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+#           DTProbes <- addLinkToMRCEWASCatalogShort(DTProbes, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+#
+#           DTProbes <- addLinkToEWASDataHub(DTProbes, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
+#           DTProbes <- addLinkToMRCEWASCatalog(DTProbes, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
+          DTProbes$probeID <- NULL
           result <- DTProbes
           base::print(base::paste0(sysTimePID(), " after making probe table."))
         }

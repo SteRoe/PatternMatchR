@@ -135,12 +135,18 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               listResultN <- base::as.data.frame(listResultN)
               rownames(listResultN) <- rn
               colnames(listResultN) <- cn
+              listResultlogFC <- getResultDfP_D_N(listOfResultDF, "F")
+              rn <- rownames(listResultlogFC)
+              listResultlogFC <- base::as.data.frame(listResultlogFC)
+              rownames(listResultlogFC) <- rn
+              colnames(listResultlogFC) <- cn
 
               listResultP_Val_DeltaMeth_N <-
                 list(
                   P_Val = listResultP_Val,
                   DM = listResultDeltaMeth,
                   N = listResultN,
+                  logFC = listResultlogFC,
                   OriginalColnames = OriginalColnames,
                   PHENOdata = PHENOdata,
                   traitListName = traitListName,
@@ -162,9 +168,15 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               listResultP_Val_DeltaMeth_N$N <-
                 base::as.data.frame(listResultP_Val_DeltaMeth_N$N)
             }
+            if (!base::is.data.frame(listResultP_Val_DeltaMeth_N$logFC)) {
+              listResultP_Val_DeltaMeth_N$logFC <-
+                base::as.data.frame(listResultP_Val_DeltaMeth_N$logFC)
+            }
+
             #        rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
             rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
             rownames(listResultP_Val_DeltaMeth_N$N) <- rn
+            rownames(listResultP_Val_DeltaMeth_N$logFC) <- rn
             listResultP_Val_DeltaMeth_N$folder <- folder
           }
           base::print(base::paste0(sysTimePID(), " saveRDS loadFolderDFList()")) # , fileNameLPV, "."))
@@ -185,12 +197,16 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             base::as.data.frame(head(listResultP_Val_DeltaMeth_N$DM, session$userData$sessionVariables$debugNumber))
           listResultP_Val_DeltaMeth_N$N <-
             base::as.data.frame(head(listResultP_Val_DeltaMeth_N$N, session$userData$sessionVariables$debugNumber))
+          listResultP_Val_DeltaMeth_N$logFC <-
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$logFC, session$userData$sessionVariables$debugNumber))
           rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
           rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
           rownames(listResultP_Val_DeltaMeth_N$N) <- rn
+          rownames(listResultP_Val_DeltaMeth_N$logFC) <- rn
           colnames(listResultP_Val_DeltaMeth_N$P_Val) <- cn
           colnames(listResultP_Val_DeltaMeth_N$DM) <- cn
           colnames(listResultP_Val_DeltaMeth_N$N) <- cn
+          colnames(listResultP_Val_DeltaMeth_N$logFC) <- cn
           listResultP_Val_DeltaMeth_N$folder <- folder
         }
         result <- listResultP_Val_DeltaMeth_N
@@ -227,24 +243,24 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
 loadtraitDFs <- function(traitDFs) {
   base::tryCatch(
     {
-      # browser() #everything seems fine until here (all DFs become loaded)
-      #listPHENOdata <- base::list(1:base::length(traitDFs))
+      #browser() #everything seems fine until here (all DFs become loaded)
       listPHENOdata <- base::list(seq_along(traitDFs))
       i <- NULL
-      #foreach(i = 1:base::length(traitDFs)) %do% {
       foreach::foreach(i = seq_along(traitDFs)) %do% {
         rownames(traitDFs[[i]]$P_Val)
         colnames(traitDFs[[i]]$P_Val)
         if (i == 1) {
-          resultDFP_Val <- traitDFs[[i]]$P_Val # [[1]]
-          resultDFDM <- traitDFs[[i]]$DM # [[2]]
-          resultDFN <- traitDFs[[i]]$N # [[3]]
+          resultDFP_Val <- traitDFs[[i]]$P_Val
+          resultDFDM <- traitDFs[[i]]$DM
+          resultDFN <- traitDFs[[i]]$N
+          resultDFlogFC <- traitDFs[[i]]$logFC
           resultColnames <- base::colnames(traitDFs[[i]]$P_Val)
           resultOriginalColnames <- traitDFs[[i]]$OriginalColnames
           resultOriginDF <- base::rep(i, length(resultColnames))
           resultDFP_Val$Row.names <- rownames(traitDFs[[i]]$P_Val)
           resultDFDM$Row.names <- rownames(traitDFs[[i]]$DM)
           resultDFN$Row.names <- rownames(traitDFs[[i]]$N)
+          resultDFlogFC$Row.names <- rownames(traitDFs[[i]]$logFC)
           resultFolder <- traitDFs[[i]]$folder
         } else {
           base::print(base::paste0(sysTimePID(), " merge trait ", i, "."))
@@ -255,10 +271,9 @@ loadtraitDFs <- function(traitDFs) {
             base::rownames(traitDFs[[i]]$P_Val)
           traitDFs[[i]]$DM$Row.names <- base::rownames(traitDFs[[i]]$DM)
           traitDFs[[i]]$N$Row.names <- base::rownames(traitDFs[[i]]$N)
-
+          traitDFs[[i]]$logFC$Row.names <- base::rownames(traitDFs[[i]]$logFC)
           # Cannot merge with rownames due to:
           # A non-empty vector of column names is required for `by.x` and `by.y`.
-          # resultDFP_Val = base::merge(x = resultDFP_Val, y = traitDFs[[i]]$P_Val, by.x = 0, by.y = 0, all.x = TRUE, all.y = TRUE)
           resultDFP_Val <-
             base::merge(
               x = resultDFP_Val,
@@ -286,6 +301,15 @@ loadtraitDFs <- function(traitDFs) {
               all.x = TRUE,
               all.y = TRUE
             )
+            resultDFlogFC <-
+              base::merge(
+                x = resultDFlogFC,
+                y = traitDFs[[i]]$logFC,
+                by.x = "Row.names",
+                by.y = "Row.names",
+                all.x = TRUE,
+                all.y = TRUE
+              )
           resultOriginDF <- base::c(resultOriginDF, OriginDF)
           resultColnames <- base::c(resultColnames, cn)
           resultOriginalColnames <- base::c(resultOriginalColnames, OriginalColnames)
@@ -306,10 +330,15 @@ loadtraitDFs <- function(traitDFs) {
         rownames(resultDFN) <- resultDFN$Row.names
         resultDFN$Row.names <- NULL
       }
+      if ("Row.names" %in% colnames(resultDFlogFC)) {
+        rownames(resultDFlogFC) <- resultDFlogFC$Row.names
+        resultDFlogFC$Row.names <- NULL
+      }
       result <- base::list()
       result$resultDFP_Val <- resultDFP_Val
       result$resultDFDM <- resultDFDM
       result$resultDFN <- resultDFN
+      result$resultDFlogFC <- resultDFlogFC
       result$rownames <- base::rownames(resultDFP_Val)
       result$colnames <- base::colnames(resultDFP_Val)
       result$listPHENOdata <- listPHENOdata
@@ -337,7 +366,6 @@ loadtraitDFs <- function(traitDFs) {
 #' @param session delivers session variables to this function
 #' @return list of data.frame from folder
 # examples getlistOfResultsDF(session, folder)
-#getlistOfResultsDF <- function(session, folder, globalVariables) {
 getlistOfResultsDF <- function(session, folder) {
   base::tryCatch(
     {
@@ -370,7 +398,7 @@ getlistOfResultsDF <- function(session, folder) {
                   loadResultFile(session = session, folder = folder, fileName = trait) #loadResultFile(folder, trait, globalVariables)
                 # omit unneccesary variables
                 resultDF <-
-                  resultDF[, c("probeID", "P_VAL", "DeltaMeth", "N")]
+                  resultDF[, c("probeID", "P_VAL", "DeltaMeth", "logFC", "N")]
                 base::tryCatch({
                   if (base::min(resultDF$P_VAL, na.rm = TRUE) <
                       base::as.numeric(session$userData$config$P_VALWarningThreshold)) {
