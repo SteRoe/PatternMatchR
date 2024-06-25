@@ -1525,6 +1525,52 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
     })
   })
 
+  traitReducedVolcano <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly traitReducedVolcano()."))
+      volcano <- session$userData$sessionVariables$traitReducedDataStructure()$dfVolcano
+      volcano$label <- paste0(volcano$cg, " ", volcano$exposure)
+      plot <- plotly::plot_ly(volcano, x = ~logFC, y = ~P_Val, text = ~label, type = "scatter", mode = "markers", name = "volcano") %>%
+        plotly::layout(yaxis = list(title = "-log(p-val)", type = "log", autorange = "reversed")) %>%
+        plotly::layout(xaxis = list(title = "logFC"))
+#tbc() #add user defined hover function to show similar cg# (same trait, same cg#)
+    },
+    error = function(e) {
+      base::message("An error occurred in traitReducedVolcano <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in traitReducedVolcano <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly traitReducedVolcano()."))
+      return(plot)
+    })
+  })
+
+  probeReducedVolcano <- shiny::reactive({
+    base::tryCatch({
+      base::print(base::paste0(sysTimePID(), " start render plotly traitReducedVolcano()."))
+      volcano <- session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano
+      volcano$label <- paste0(volcano$cg, " ", volcano$exposure)
+      plot <- plotly::plot_ly(volcano, x = ~logFC, y = ~P_Val, text = ~label, type = "scatter", mode = "markers", name = "volcano") %>%
+        plotly::layout(yaxis = list(title = "-log(p-val)", type = "log", autorange = "reversed")) %>%
+        plotly::layout(xaxis = list(title = "logFC"))
+      #tbc() #add user defined hover function to show similar cg# (same trait, same cg#)
+    },
+    error = function(e) {
+      base::message("An error occurred in traitReducedVolcano <- shiny::reactive():\n", e)
+      browser()
+    },
+    warning = function(w) {
+      base::message("A warning occurred in traitReducedVolcano <- shiny::reactive():\n", w)
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished render plotly traitReducedVolcano()."))
+      return(plot)
+    })
+  })
+
   histP_Val <- shiny::reactive({
     base::tryCatch({
       base::print(base::paste0(sysTimePID(), " start render plotly histP_Val()."))
@@ -1664,6 +1710,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   output$traitReducedDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
   output$traitReducedDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
   output$traitReducedDTlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dflogFC_w_number))
+
+  output$traitReducedDTVolcano <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$dfVolcano))
+  output$traitReducedPlotVolcano <- plotly::renderPlotly(traitReducedVolcano())
+
   output$traitReducedDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
   output$traitReducedDTProbes <- DT::renderDataTable(as.data.frame(traitReducedDTProbes()),
                                                      options = list(pageLength = 1000, info = FALSE,
@@ -1714,6 +1764,10 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
   output$condDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
   output$condDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
   output$condDTlogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dflogFC_w_number))
+
+  output$condDTVolcano <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano))
+  output$condPlotVolcano <- plotly::renderPlotly(probeReducedVolcano())
+
   output$condDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
   output$condDTProbes <- DT::renderDataTable(as.data.frame(condDTProbes()),
                                      options = list(pageLength = 1000, info = FALSE,
@@ -1734,7 +1788,8 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
        {
          result <- base::list(combinedDFP_Val_Labels = session$userData$sessionVariables$combinedData()
          )
-         #numberCores <- session$userData$numCores
+ #browser() #check for missings (should be there) and negative values (too) -> checked, right
+ #View(result$combinedDFP_Val_Labels$dflogFC)
       },
       error = function(e) {
         base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$combinedDataStructure):\n", e)
@@ -1765,7 +1820,9 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                            clustResProbes = NULL,
                            dendProbes = NULL
           )
-  #browser() #check
+#browser() #check for missings (should be there) and negative values (too) -> checked, it's fine now
+#View(result$combinedDFP_Val_Labels$dflogFC)
+#View(result$combinedDFP_Val_Labels$dfP_Val)
           result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
           numberCores <- session$userData$numCores
           base::print(paste0(sysTimePID(), " (pReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
@@ -1819,12 +1876,13 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                                distMatProbes = NULL,
                                clustResProbes = NULL,
                                probeDendrogram = NULL,
-                               DNAdistances = NULL
+                               DNAdistances = NULL,
+                               dfVolcano = NULL
           )
           if (is.valid(session$userData$sessionVariables$traitReducedData())) {
             result$combinedDFP_Val_Labels <- session$userData$sessionVariables$traitReducedData()
-#browser() #check for missings (should be there) and negative values (too)
-#result$combinedDFP_Val_Labels$dflogFC
+# browser() #check for missings (should be there) and negative values (too), passed, it's fine now
+# View(result$combinedDFP_Val_Labels$dflogFC)
             result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
             numberCores <- session$userData$numCores
             base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
@@ -1926,6 +1984,33 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             }
             else {
               result$distMatProbes <- NULL
+browser() # should not happen
+            }
+            dflogFC <- result$combinedDFP_Val_Labels$dflogFC
+            if (is.valid(dflogFC)) {
+              dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+              if (is.valid(dfP_Val)) {
+                #take everything into one column...
+                dflogFC$cg <- row.names(dflogFC)
+                dflogFC <- tidyr::pivot_longer(dflogFC, cols  = -cg, names_to = c("exposure"))
+                colnames(dflogFC)[3] <- "logFC"
+                dfP_Val$cg <- row.names(dfP_Val)
+                dfP_Val <- tidyr::pivot_longer(dfP_Val, cols  = -cg, names_to = c("exposure"))
+                colnames(dfP_Val)[3] <- "P_Val"
+                dfVolcano <- base::merge(dfP_Val, dflogFC, by.x = c("cg","exposure"), by.y = c("cg","exposure"), all.x = FALSE, all.y = FALSE)
+                dfVolcano$Row.names <- paste0(dfVolcano$cg, "_" ,dfVolcano$exposure)
+                rownames(dfVolcano) <- dfVolcano$Row.names
+                dfVolcano$Row.names <- NULL
+                result$dfVolcano <- dfVolcano
+              }
+              else {
+                result$dfVolcano <- NULL
+browser() # should not happen
+              }
+            }
+            else {
+              result$dfVolcano <- NULL
+browser() # should not happen
             }
             base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start clustResProbes."))
             distMat <- result$distMatProbes
@@ -1934,20 +2019,18 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
             }
             else {
               result$clustResProbes <- NULL
+browser() # should not happen
             }
             if (is.valid(result$clustResProbes)) {
               result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
             }
             else {
               result$probeDendrogram <- NULL
+browser() # should not happen
             }
             Distance <- input$sld_NumNeighbours
             DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = result$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
             result$DNAdistances <- DNAdistances
-            #DNAdistances <- session$userData$sessionVariables$distNeigboursProbes10()
-            #          DNAdistances <- na.omit(DNAdistances)
-            #dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-            #dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
           }
         }
       },
@@ -1980,7 +2063,8 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
                               distMatProbes = NULL,
                               clustResProbes = NULL,
                               probeDendrogram = NULL,
-                              DNAdistances = NULL
+                              DNAdistances = NULL,
+                              dfVolcano = NULL
           )
           #          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
           DNAdistances <- traitReducedDataStructure$DNAdistances
@@ -1996,7 +2080,7 @@ browser() #check, whether this is called initially and why plotCombinedHM_P_Val 
           result$combinedDFP_Val_Labels$dfDM <- dfDM
           rm(dfDM)
           dflogFC <- result$combinedDFP_Val_Labels$dflogFC
-browser() #check for missings (should be there) and negative values (too)
+#browser() #check for missings (should be there) and negative values (too), yes we have negatives and missings here
           dflogFC <- dflogFC[which(rownames(dflogFC) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dflogFC <- dflogFC
           rm(dflogFC)
@@ -2108,6 +2192,32 @@ browser() #check for missings (should be there) and negative values (too)
           }
           else {
             result$distMatProbes <- NULL
+          }
+          dflogFC <- result$combinedDFP_Val_Labels$dflogFC
+          if (is.valid(dflogFC)) {
+            dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+            if (is.valid(dfP_Val)) {
+              #take everything into one column...
+              dflogFC$cg <- row.names(dflogFC)
+              dflogFC <- tidyr::pivot_longer(dflogFC, cols  = -cg, names_to = c("exposure"))
+              colnames(dflogFC)[3] <- "logFC"
+              dfP_Val$cg <- row.names(dfP_Val)
+              dfP_Val <- tidyr::pivot_longer(dfP_Val, cols  = -cg, names_to = c("exposure"))
+              colnames(dfP_Val)[3] <- "P_Val"
+              dfVolcano <- base::merge(dfP_Val, dflogFC, by.x = c("cg","exposure"), by.y = c("cg","exposure"), all.x = FALSE, all.y = FALSE)
+              dfVolcano$Row.names <- paste0(dfVolcano$cg, "_" ,dfVolcano$exposure)
+              rownames(dfVolcano) <- dfVolcano$Row.names
+              dfVolcano$Row.names <- NULL
+              result$dfVolcano <- dfVolcano
+            }
+            else {
+              result$dfVolcano <- NULL
+              browser() # should not happen
+            }
+          }
+          else {
+            result$dfVolcano <- NULL
+            browser() # should not happen
           }
           base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start clustResProbes."))
           distMat <- result$distMatProbes

@@ -36,11 +36,15 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         # omit p_values from dfs - max PVal
         #if we obtain 0 hits later, check maxP_Val and minP_Val
         cgsToRetainMaxP <- dfP_Val < maxP_Val
-        cgsToRetainMaxP <- unique(rownames(which(cgsToRetainMaxP == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMaxP <- unique(rownames(which(cgsToRetainMaxP == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMaxP <- unique(rownames(cgsToRetainMaxP == TRUE))
+        cgsToRetainMaxP <- names(which((rowSums(cgsToRetainMaxP) > 0L) == TRUE))
 
         cgsToRetainMinP <- dfP_Val > minP_Val
-        cgsToRetainMinP <- unique(rownames(which(cgsToRetainMinP == TRUE, arr.ind = TRUE)))
-        #here we obtain 0 hits
+        #cgsToRetainMinP <- unique(rownames(which(cgsToRetainMinP == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMinP <- unique(rownames(cgsToRetainMinP == TRUE))
+        cgsToRetainMinP <- names(which((rowSums(cgsToRetainMinP) > 0L) == TRUE))
+#browser() #check
         if (base::exists("cgsToRetainMaxP") && base::exists("cgsToRetainMinP")) {
           cgsToRetainP <- base::intersect(cgsToRetainMaxP, cgsToRetainMinP)
         }
@@ -56,10 +60,14 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         }
         #take only DM outside slider defined range in cgsToRetainDM
         cgsToRetainMaxDM <- dfDM < maxDM
-        cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMaxDM <- unique(rownames(cgsToRetainMaxDM == TRUE))
+        cgsToRetainMaxDM <- names(which((rowSums(cgsToRetainMaxDM) > 0L) == TRUE))
         cgsToRetainMinDM <- dfDM > minDM
-        cgsToRetainMinDM <- unique(rownames(which(cgsToRetainMinDM == TRUE, arr.ind = TRUE)))
-        cgsToRetainDM <- unique(c(cgsToRetainMaxDM, cgsToRetainMinDM))
+        #cgsToRetainMinDM <- unique(rownames(which(cgsToRetainMinDM == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMinDM <- unique(rownames(cgsToRetainMinDM == TRUE))
+        cgsToRetainMinDM <- names(which((rowSums(cgsToRetainMinDM) > 0L) == TRUE))
+        #cgsToRetainDM <- unique(c(cgsToRetainMaxDM, cgsToRetainMinDM))
         if (base::exists("cgsToRetainMaxDM") && base::exists("cgsToRetainMinDM")) {
           cgsToRetainDM <- base::intersect(cgsToRetainMaxDM, cgsToRetainMinDM)
         }
@@ -74,9 +82,13 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           browser()
         }
         cgsToRetainMaxN <- dfN < maxN
-        cgsToRetainMaxN <- unique(rownames(which(cgsToRetainMaxN == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMaxN <- unique(rownames(which(cgsToRetainMaxN == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMaxN <- unique(rownames(cgsToRetainMaxN == TRUE))
+        cgsToRetainMaxN <- names(which((rowSums(cgsToRetainMaxN) > 0L) == TRUE))
         cgsToRetainMinN <- dfN > minN
-        cgsToRetainMinN <- unique(rownames(which(cgsToRetainMinN == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMinN <- unique(rownames(which(cgsToRetainMinN == TRUE, arr.ind = TRUE)))
+        #cgsToRetainMinN <- unique(rownames(cgsToRetainMinN == TRUE))
+        cgsToRetainMinN <- names(which((rowSums(cgsToRetainMinN) > 0L) == TRUE))
         if (base::exists("cgsToRetainMaxN") && base::exists("cgsToRetainMinN")) {
           cgsToRetainN <- base::intersect(cgsToRetainMaxN, cgsToRetainMinN)
         }
@@ -131,7 +143,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
             dfN <- base::as.data.frame(dfN)
           }
           base::print(base::paste0(sysTimePID(), " shortening dflogFC"))
-          dflogFC <- dfDM[rownames(dfP_Val), colnames(dfP_Val)]
+          dflogFC <- dflogFC[rownames(dfP_Val), colnames(dfP_Val)]
           if (!base::is.data.frame(dflogFC)) {
             dflogFC <- base::as.data.frame(dflogFC)
           }

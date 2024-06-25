@@ -464,9 +464,23 @@ generate_ui <- function() {
                         DT::dataTableOutput("traitReducedDTDM")
                       ),
                       shiny::tabPanel(
-                        "Table logFC",
+                        "Table Delta Methylation log(FC)",
                         "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("traitReducedDTlogFC")
+                      ),
+                      shiny::tabPanel(
+                        "VolcanoPlot Delta Methylation log(FC)",
+                        "P-values and log fold change(delta methylation)",
+                        shiny::tabsetPanel(
+                          shiny::tabPanel(
+                            "Table",
+                            DT::dataTableOutput("traitReducedDTVolcano")
+                          ),
+                          shiny::tabPanel(
+                            "Plot",
+                            plotly::plotlyOutput("traitReducedPlotVolcano", height = "80%")
+                          )
+                        )
                       ),
                       shiny::tabPanel(
                         "Table N",
@@ -533,7 +547,7 @@ generate_ui <- function() {
                         DT::dataTableOutput("fullDWDTDM")
                       ),
                       shiny::tabPanel(
-                        "Table logFC",
+                        "Table Delta Methylation log(FC)",
                         "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
                         DT::dataTableOutput("fullDWDTlogFC")
                       ),
@@ -629,6 +643,20 @@ generate_ui <- function() {
                         "Table Delta Methylation log(FC)",
                         "Table of log fold change(delta methylation); clustering order comes from clustering of p_values.",
                         DT::dataTableOutput("condDTlogFC")
+                      ),
+                      shiny::tabPanel(
+                        "VolcanoPlot Delta Methylation log(FC)",
+                        "P-values and log fold change(delta methylation)",
+                        shiny::tabsetPanel(
+                          shiny::tabPanel(
+                            "Table",
+                            DT::dataTableOutput("condDTVolcano")
+                          ),
+                          shiny::tabPanel(
+                            "Plot",
+                            plotly::plotlyOutput("condPlotVolcano", height = "80%")
+                          )
+                        )
                       ),
                       shiny::tabPanel(
                         "Table N",
