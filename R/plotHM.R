@@ -347,12 +347,12 @@ combinedDFInteractiveHeatMapDMlogFC <-
           )
         )
         base::print(base::paste0(sysTimePID(), " making colors"))
-        max.Col1 <- base::max(matDMlogFC, na.rm = TRUE)
-        min.Col1 <- base::min(matDMlogFC, na.rm = TRUE)
-        max.Col2 <- base::max(matDMlogFC, na.rm = TRUE)
-        min.Col2 <- base::min(matDMlogFC, na.rm = TRUE)
-        max.Col3 <- base::max(matDMlogFC, na.rm = TRUE)
-        min.Col3 <- base::min(matDMlogFC, na.rm = TRUE)
+        max.Col1 <- base::max(matlogFC, na.rm = TRUE)
+        min.Col1 <- base::min(matlogFC, na.rm = TRUE)
+        max.Col2 <- base::max(matlogFC, na.rm = TRUE)
+        min.Col2 <- base::min(matlogFC, na.rm = TRUE)
+        max.Col3 <- base::max(matlogFC, na.rm = TRUE)
+        min.Col3 <- base::min(matlogFC, na.rm = TRUE)
         col1 <-
           circlize::colorRamp2(
             base::seq(max.Col1, min.Col1, length = 9),
@@ -368,22 +368,22 @@ combinedDFInteractiveHeatMapDMlogFC <-
             base::seq(max.Col3, min.Col3, length = 9),
             RColorBrewer::brewer.pal(9, "GnBu")
           )
-        base::print(base::paste0(sysTimePID(), " preparing heatmap n(probes)=", base::dim(matDMlogFC)[1], " x n(traits)=", base::dim(matDMlogFC)[2]))
+        base::print(base::paste0(sysTimePID(), " preparing heatmap n(probes)=", base::dim(matlogFC)[1], " x n(traits)=", base::dim(matlogFC)[2]))
 
         if ("dendrogram" %in% class(dendProbes) && "dendrogram" %in% class(dendTraits)) {
           base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
           base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-          length(unlist(dendTraits)) == base::dim(matDMlogFC)[2]
-          length(unlist(dendProbes)) == base::dim(matDMlogFC)[1]
+          length(unlist(dendTraits)) == base::dim(matlogFC)[2]
+          length(unlist(dendProbes)) == base::dim(matlogFC)[1]
           ht <-
             ComplexHeatmap::Heatmap(
-              matDMlogFC,
+              matlogFC,
               rect_gp = grid::gpar(type = "none"),
               cluster_rows = dendProbes,
               cluster_columns = dendTraits,
               top_annotation = ha,
               layer_fun = function(j, i, x, y, w, h, fill) {
-                if (length(i) == base::nrow(matDMlogFC) * base::ncol(matDMlogFC)) {
+                if (length(i) == base::nrow(matlogFC) * base::ncol(matlogFC)) {
                   # we are in main HM
                   subHM <- FALSE
                 } else {
@@ -393,22 +393,22 @@ combinedDFInteractiveHeatMapDMlogFC <-
                 l <- labels[j] == "trait 1"
                 if (any(l)) {
                   grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
-                    fill = col1(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l])),
-                    col = col1(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l]))
+                    fill = col1(ComplexHeatmap::pindex(matlogFC, i[l], j[l])),
+                    col = col1(ComplexHeatmap::pindex(matlogFC, i[l], j[l]))
                   ))
                 }
                 l <- labels[j] == "trait 2"
                 if (any(l)) {
                   grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
-                    fill = col2(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l])),
-                    col = col2(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l]))
+                    fill = col2(ComplexHeatmap::pindex(matlogFC, i[l], j[l])),
+                    col = col2(ComplexHeatmap::pindex(matlogFC, i[l], j[l]))
                   ))
                 }
                 l <- labels[j] == "trait 3"
                 if (any(l)) {
                   grid::grid.rect(x[l], y[l], w[l], h[l], gp = grid::gpar(
-                    fill = col3(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l])),
-                    col = col3(ComplexHeatmap::pindex(matDMlogFC, i[l], j[l]))
+                    fill = col3(ComplexHeatmap::pindex(matlogFC, i[l], j[l])),
+                    col = col3(ComplexHeatmap::pindex(matlogFC, i[l], j[l]))
                   ))
                 }
                 #mark selected row indices
@@ -437,7 +437,7 @@ combinedDFInteractiveHeatMapDMlogFC <-
                       sprintf("%.G", ComplexHeatmap::pindex(matDM, i, j)),
                       "\n",
                       "dlogFC:",
-                      sprintf("%.G", ComplexHeatmap::pindex(matDMlogFC, i, j)),
+                      sprintf("%.G", ComplexHeatmap::pindex(matlogFC, i, j)),
                       "\n",
                       "n:",
                       ComplexHeatmap::pindex(matN, i, j)
