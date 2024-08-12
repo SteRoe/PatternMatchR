@@ -30,6 +30,8 @@ getDimensionsForPlotlySPLOM <- function(df, omitVar) {
 #' @return list with variables that can be treated as factor in df
 # examples getBinaryFactorialVars(df)
 getBinaryFactorialVars <- function(df) {
+  id <- shiny::showNotification("Getting binary factor variables...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::print(base::paste0(sysTimePID(), " start getBinaryFactorialVars()."))
   result <- list()
   for (i in base::seq_along(df)) {
@@ -51,7 +53,8 @@ getBinaryFactorialVars <- function(df) {
 #' @return a plotly figure, which can be drawn using renderPlotly
 # examples getSPLOM(df, markingVar)
 getSPLOM <- function(df, XVars, YVars, markingVar) {
-#getSPLOM <- function(df, XVars, YVars, markingVar, height, width) {
+  id <- shiny::showNotification("Getting SPLOM...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   if (!is.null(df)) {
     dimensions <- getDimensionsForPlotlySPLOM(df, markingVar)
     pl_colorscale <- list(

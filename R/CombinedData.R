@@ -15,6 +15,8 @@
 #' @return merged data.frame
 # examples getResultDfP_D_N(listDF, "P")
 getResultDfP_D_N <- function(listOfResultDF, P_D_N_F) {
+  id <- shiny::showNotification("Getting result data frame...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start getResultDfP_D_N(): ", P_D_N_F, "."))
@@ -90,6 +92,8 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N_F) {
 #' @return result$labelsDF3 for labels belonging to original df3
 # examples mergeDFP_Val_Labels(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN)
 mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN) {
+  id <- shiny::showNotification("Merging data frames...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start mergeDFP_Val_Labels()."))
@@ -442,7 +446,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           mergedDFList <- DFList3
         }
       }
-#browser() #check mergedDFList
+# browser() #check mergedDFList
       if (base::exists("mergedDFP_Val")) {
         if ("Row.names" %in% base::colnames(mergedDFP_Val)) {
           rownames(mergedDFP_Val) <- mergedDFP_Val$Row.names
@@ -547,6 +551,10 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
 #' @return data.frame with contents of traitDirList
 # examples loadDir(session, traitDirList)
 loadDir <- function(session, traitDirList) {
+  id <- shiny::showNotification("Loading regression result data fom directory...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
+#  waiter::waiter_show()
+#  on.exit(waiter::waiter_hide(), add = TRUE)
   base::tryCatch(
     {
       #load all trait folders

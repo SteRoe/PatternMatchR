@@ -1,7 +1,7 @@
 Package: PatternMatchR
 Type: Package
 Title: A Tool for Visualization of Different Traits in Heatmaps
-Version: 0.4.6
+Version: 0.4.8
 Authors@R: 
     person(given = "Stefan",
            family = "Röder",
@@ -50,7 +50,8 @@ Imports:
     doFuture,
     meffil,
     factoextra,
-    tidyr
+    tidyr,
+    colourvalues
 Suggests: 
     rmarkdown,
     knitr,

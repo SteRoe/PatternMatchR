@@ -6,6 +6,8 @@
 #' @return list with cluster medoids
 #' examples getTraitClusterMedoids(clustResTraits, distMatTraits, numClusters)
 getTraitClusterMedoids <- function(clustResTraits, distMatTraits, numClusters) {
+  id <- shiny::showNotification("Getting trait cluster medoids...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start find cluster medoids."))
@@ -62,6 +64,8 @@ getTraitClusterMedoids <- function(clustResTraits, distMatTraits, numClusters) {
 #' @return data.frame with information on clusters and its medoids
 #' examples getClustersTable(listClusters, listMedoids)
 getClustersTable <- function(listClusters, listMedoids) {
+  id <- shiny::showNotification("Getting cluster trait table...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   if (is.valid(listClusters)) {
     result <- as.data.frame(listClusters)
     colnames(result)[[1]] <- "Cluster #"
@@ -80,6 +84,8 @@ getClustersTable <- function(listClusters, listMedoids) {
 #' @return data.frame with information on medoids
 #' examples getMedoidsTable(listMedoids)
 getMedoidsTable <- function(listMedoids) {
+  id <- shiny::showNotification("Getting medoids table...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   if (is.valid(listMedoids)) {
     result <- listMedoids
     result <- as.data.frame(result)
@@ -103,6 +109,8 @@ getPlot <- function(plotObject) {
 #' @return dendrogram
 #' examples getDendTraits(clustResTraits, traitClusters)
 getDendTraits <- function(clustResTraits, traitClusters) {
+  id <- shiny::showNotification("Getting trait dendrogram...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       if (is.valid(clustResTraits) && traitClusters > 1) {
@@ -147,6 +155,8 @@ getDendTraits <- function(clustResTraits, traitClusters) {
 #' @return list with data structure for regression model results
 #' examples getTraitReducedData(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys)
 getTraitReducedData <- function(pReducedcombinedDFP_Val_Labels, ClusterMedoids, keys) {
+  id <- shiny::showNotification("Geting trait reduced data...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start getTraitReducedData()."))
@@ -173,6 +183,8 @@ getTraitReducedData <- function(pReducedcombinedDFP_Val_Labels, ClusterMedoids, 
 #' @return combinedDFP_Val_Labels structure list()
 #' examples getTraitSubsetcombinedDFP_Val_Labels(combinedDFP_Val_Labels, traits, keys)
 getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits, keys) {
+  id <- shiny::showNotification("Getting trait subset combined data structure...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start getTraitSubsetcombinedDFP_Val_Labels()."))
@@ -251,7 +263,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
         }
       }
       result$mergedDFList <- mergedDFList
-      #browser() #check result
+      # browser() #check result
     },
     error = function(e) {
       base::message("An error occurred in getTraitSubsetcombinedDFP_Val_Labels():\n", e)
@@ -275,6 +287,8 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
 #' @return plot with clustergram
 #' examples getplotClustergramTraitsLong(matP_Val.t, clustResTraits, traitClusters)
 getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitClusters) {
+  id <- shiny::showNotification("Creating trait clustergram long...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   base::print(base::paste0(sysTimePID(), " start plotting clustergram."))
   base::tryCatch(
     {

@@ -1,8 +1,15 @@
 generate_ui <- function() {
   ui <- shiny::shinyUI(
     shiny::fluidPage(
+      waiter::useWaiter(), # dependencies
+      # waiter::transparent(alpha = 0.1),
+      # waiter::waiterShowOnLoad(), # shows before anything else
       shinyjs::useShinyjs(),
-
+      shiny::tags$script('
+              $(document).on("keyup", function (e) {
+              Shiny.onInputChange("keypressed", e.which);
+              });
+              '),
       shinyjs::inlineCSS(list(.red = "background: lightcoral",
                      .green = "background: lightgreen",
                      .blue = "background: lightblue")),
@@ -24,7 +31,7 @@ generate_ui <- function() {
           "PatternMatchR",
           shinyBS::bsCollapse(
             id = "clpMain",
-            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data", "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)", "Selected Results"),
+            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data"),
             multiple = TRUE,
             # shinyBS::bsCollapsePanel(
             #   "session",
@@ -381,6 +388,8 @@ generate_ui <- function() {
                 )
               )
             ),
+            Search_Full_UI("Search"),
+            GlobalSelection_UI("GlobalSelection"),
             shinyBS::bsCollapsePanel(
               "Full Trait-reduced Data",
               shiny::fluidRow(
@@ -391,101 +400,40 @@ generate_ui <- function() {
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "HeatMap P_Val",
-                            shinyjs::disabled(shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5a: Plot Heatmap P_Val")),
-                            shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE),
-                            # shiny::column(
-                            #   width = 6,
-                            #   shinyjs::disabled(shiny::numericInput(inputId = "numHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                            # ),
-                            # shiny::column(
-                            #   width = 6,
-                            #   shinyjs::disabled(shiny::numericInput(inputId = "numHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                            # ),
-                            InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                              "Heatmap_P_Val",
-                              height1 = '95vh', #1200,
-                              width1 = 950,
-                              height2 = '95vh', #1200,
-                              width2 = 950,
-                              inline = FALSE
-                            )
-                          ),
-                          # shiny::tabPanel(
-                          #   "DNADistances",
-                          #   InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          #     "Heatmap_DNADistances",
-                          #     height1 = '95vh', #1200,
-                          #     width1 = 950,
-                          #     height2 = '95vh', #1200,
-                          #     width2 = 950,
-                          #     inline = FALSE
-                          #   )
-                          # ),
-                          shiny::tabPanel(
-                            "Search for CpG in Full Heatmap",
-                            shiny::textAreaInput(inputId = "txtSearchFullCpG", label = "Search CpG", value = ""),
-                            shiny::verbatimTextOutput(outputId = "txtSearchResultFullCpG"),
-                            shiny::actionButton("btnSearchFullCpGHM", label = "Search CpG"),
-                            "Search for Trait in Full Heatmap",
-                            shiny::textAreaInput(inputId = "txtSearchFullTrait", label = "Search Trait", value = ""),
-                            shiny::verbatimTextOutput(outputId = "txtSearchResultFullTrait"),
-                            shiny::actionButton("btnSearchFullTraitHM", label = "Search Trait")
-                          )
-                          # shiny::tabPanel(
-                          #   "Selected CpG",
-                          #   DT::dataTableOutput("DTSelectedFullCpG")
-                          # ),
-                          # shiny::tabPanel(
-                          #   "Selected trait",
-                          #   DT::dataTableOutput("DTSelectedFullTrait")
-                          # )
-                          # shiny::tabPanel(
-                          #   "Selected p-value",
-                          #   DT::dataTableOutput("DTSelectedP_Val")
-                          # ),
-                          # shiny::tabPanel(
-                          #   "Selected Histogram on Delta Methylation",
-                          #   shiny::verbatimTextOutput("txtselectDMTraits", placeholder = TRUE),
-                          #   plotly::plotlyOutput("selectHistDM", inline = TRUE)
-                          # )
+                        # shinyjs::disabled(
+                        #   shiny::radioButtons("RbHighlightHM", "Highlight mode:",
+                        #                       choiceNames = list(
+                        #                         "P-val",
+                        #                         "Global Selection",
+                        #                         "Distance"
+                        #                       ),
+                        #                       choiceValues = list("pval", "sel", "dist"),
+                        #                       inline = TRUE
+                        #   )
+                        # ),
+                        shinyjs::disabled(
+                          shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5a: Plot Heatmap P_Val")
+                        ),
+                        shinyjs::disabled(
+                          shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE)
+                        ),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "Heatmap_P_Val",
+                          height1 = '95vh', #1200,
+                          width1 = 950,
+                          height2 = '95vh', #1200,
+                          width2 = 950,
+                          inline = FALSE
                         )
                       ),
                       shiny::tabPanel(
-                        "Table P_VAL",
-                        "Table of p-value; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("traitReducedDTP_VAL")
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation",
-                        "Table of delta methylation; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("traitReducedDTDM")
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation log(FC)",
-                        "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("traitReducedDTlogFC")
+                        "HeatMap P_Val Details",
+                        HeatMap_UI("HeatMap_Full_Details")
                       ),
                       shiny::tabPanel(
                         "VolcanoPlot Delta Methylation log(FC)",
-                        "P-values and log fold change(delta methylation)",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "Table",
-                            DT::dataTableOutput("traitReducedDTVolcano")
-                          ),
-                          shiny::tabPanel(
-                            "Plot",
-                            plotly::plotlyOutput("traitReducedPlotVolcano", height = "80%")
-                          )
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Table N",
-                        "Table of n; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("traitReducedDTN")
+                        "P-values and log fold change (delta methylation)",
+                        VolcanoPlot_UI("VolcanoPlot")
                       ),
                       shiny::tabPanel(
                         "Dendrogram Probes",
@@ -594,29 +542,6 @@ generate_ui <- function() {
                     "Non-modified Data",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
-                        "Search for CpG in Condensed Heatmap (p-val)",
-                        shiny::textAreaInput(inputId = "txtSearchCondCpG", label = "Search CpG", value = ""),
-                        shiny::verbatimTextOutput(outputId = "txtSearchResultCondCpG"),
-                        shiny::actionButton("btnSearchCondCpGHM", label = "Search CpG"),
-                        "Search for Trait in Condensed Heatmap",
-                        shiny::textAreaInput(inputId = "txtSearchCondTrait", label = "Search Trait", value = ""),
-                        shiny::verbatimTextOutput(outputId = "txtSearchResultCondTrait"),
-                        shiny::actionButton("btnSearchCondTraitHM", label = "Search Trait")
-                      ),
-                      shiny::tabPanel(
-                        "HeatMap P_Val",
-                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_P_Val", label = "Step 6a: Plot condensed Heatmap P_Val")),
-                        shiny::verbatimTextOutput("txtCondHMDescription_P_Val", placeholder = TRUE),
-                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "condHeatmap_P_Val",
-                          height1 = '95vh',
-                          width1 = 950,
-                          height2 = '95vh',
-                          width2 = 950,
-                          inline = FALSE
-                        )
-                      ),
-                      shiny::tabPanel(
                         "Table P_Val",
                         DT::dataTableOutput("condDTP_VAL")
                       ),
@@ -646,7 +571,6 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "VolcanoPlot Delta Methylation log(FC)",
-                        "P-values and log fold change(delta methylation)",
                         shiny::tabsetPanel(
                           shiny::tabPanel(
                             "Table",
@@ -743,56 +667,6 @@ generate_ui <- function() {
                         "Histogram of all p-values in condensed heatmap",
                         plotly::plotlyOutput("condDWHistP_Val", inline = TRUE)
                       )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          shinyBS::bsCollapsePanel(
-            "Selected Results",
-            shiny::fluidRow(
-              shiny::verbatimTextOutput("txtCondOut", placeholder = TRUE),
-            ),
-            shiny::fluidRow(
-              shiny::tabsetPanel(
-                shiny::tabPanel(
-                  "Selected CpG",
-                  DT::dataTableOutput("DTSelectedCpG")
-                ),
-                shiny::tabPanel(
-                  "Selected trait",
-                  DT::dataTableOutput("DTSelectedTrait")
-                ),
-                shiny::tabPanel(
-                  "SPLOM of Original Data for selected probe/trait",
-                  shiny::selectizeInput("markingVar",
-                                        label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
-                                        choices = NULL,
-                                        width = "100%"
-                  ),
-                  shiny::tabsetPanel(
-                    shiny::tabPanel(
-                      "SPLOM from selected area in heatmap",
-                      plotly::plotlyOutput("SPLOM",
-                                           height = '95vh', #1200, #height = "100%",
-                                           width = '95%', #100, #width = "100%",
-                                           inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "SPLOM trait/trait",
-                      plotly::plotlyOutput("SPLOMTrait",
-                                           height = '95vh', #1200, #height = "100%",
-                                           width = '95%', #100, #width = "100%",
-                                           inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "SPLOM probe/probe",
-                      shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
-                      plotly::plotlyOutput("SPLOMProbe",
-                                           height = '95vh', #1200, #height = "100%",
-                                           width = '95%', #1000, #width = "100%",
-                                           inline = TRUE)
                     )
                   )
                 )

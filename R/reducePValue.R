@@ -7,6 +7,8 @@
 #' @param debugMode return smaller data structure (only session$userData$sessionVariables$debugNumber records) for faster debugging
 #' @return result list()
 getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
+  id <- shiny::showNotification("Getting p reduced trait data...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(id), add = TRUE)
   if (maxN < 1) {
     base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
     browser()

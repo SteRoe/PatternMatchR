@@ -6,6 +6,8 @@
 #' @return distance matrix
 #' examples getDistMat(numberCores, matrix)
 getDistMat <- function(numberCores, matrix) {
+  id <- shiny::showNotification("Calculating distance matrix parallel...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
   #distMat <- spam::as.spam.dist(
   if (length(matrix) > 100000) {
   distMat <- stats::as.dist(
@@ -32,6 +34,8 @@ getDistMat <- function(numberCores, matrix) {
 #' @return hclust object
 #' examples getClustResFast(distanceMatrix)
 getClustResFast <- function(distanceMatrix) {
+  id <- shiny::showNotification("Calculating clustering results...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
   base::print(base::paste0(sysTimePID(), " start getClustResFast()"))
   #check size of distanceMatrix
   if (is.valid(distanceMatrix)) {
@@ -39,11 +43,6 @@ getClustResFast <- function(distanceMatrix) {
     #startTime <- Sys.time()
     gc()
     ClustRes <- fastcluster::hclust(stats::as.dist(distanceMatrix), method = "ward.D2")
-    # endTime <- Sys.time()
-    # runTime <- difftime(endTime, startTime, units = "secs")
-    # base::tryCatch({
-    #   base::print(base::paste0(sysTimePID(), " runtime for FastCluster: ", runTime))
-    # })
   }
   else {
     ClustRes <- NULL
@@ -97,6 +96,8 @@ getClustResFast <- function(distanceMatrix) {
 #' @return data.frame with min, mean, max distance and nuber of CpG in distanceToLook window
 #' examples calculateDistanceNeigboursProbes(wd, clustResProbes, annotation, distanceToLook, numCores)
 calculateDistanceNeigboursProbes <- function(wd, clustResProbes, annotation, distanceToLook, numCores) {
+  id <- shiny::showNotification("Calculating distance neighbours probes...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start calculateDistanceNeigboursProbes() with max distance (distanceToLook) = ", distanceToLook, "."))

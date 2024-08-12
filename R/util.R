@@ -79,6 +79,8 @@ loadDirLists <- function(session, input, output) {
 # examples loadObjects(session)
 #loadObjects <- function(globalVariables) {
 loadObjects <- function(session) {
+  id <- shiny::showNotification("Loading annotation...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
   base::print(base::paste0(sysTimePID(), " loading annotation."))
   annotation <- meffil::meffil.get.features("450k")
   rownames(annotation) <- annotation$name
@@ -154,6 +156,8 @@ loadObjects <- function(session) {
 #' @return data.frame with regression results from file
 # examples loadResultFile(folder, fileName)
 loadResultFile <- function(session, folder, fileName) {
+  id <- shiny::showNotification("Loading result file...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
   options(warn = 2)
   fileName <- base::paste0(folder, fileName, ".csv")
   base::print(base::paste0(sysTimePID(), " before fread()."))
@@ -246,11 +250,16 @@ addInstToPath <- function(fileName) {
 #' @return data frame with measured beta values
 # examples loadDNAm(betaFileName)
 loadDNAm <- function(betaFileName, config) {
+  id <- shiny::showNotification("Loading raw methylation data...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  waiter::waiter_show()
+  waiter::transparent(alpha = 0)
+  base::on.exit(waiter::waiter_hide(), add = TRUE)
   base::print(base::paste0(sysTimePID(), " loading configuration."))
   #config <- session$userData$config #config::get(file = "config.yml")
   base::print(base::paste0(sysTimePID(), " load beta."))
-  #if (TRUE) {
-  if (config$debugMode == FALSE) {
+  if (TRUE) {
+  #if (config$debugMode == FALSE) {
     beta <-
       data.table::fread(
         betaFileName,
