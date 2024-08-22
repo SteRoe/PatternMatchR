@@ -35,6 +35,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         mergedOriginalColnames <- result$mergedOriginalColnames
         mergedOriginTrait <- result$mergedOriginTrait
         mergedDFList <- result$mergedDFList
+        traitID <- result$traitID
         # omit p_values from dfs - max PVal
         #if we obtain 0 hits later, check maxP_Val and minP_Val
         cgsToRetainMaxP <- dfP_Val < maxP_Val
@@ -155,7 +156,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
                                                dfN = NULL, labelsDF1 = NULL,
                                                labelsDF2 = NULL, labelsDF3 = NULL,
                                                mergedOriginDF = NULL, mergedColnames = NULL, mergedOriginalColnames = NULL,
-                                               mergedOriginTrait = NULL, mergedDFList = NULL)
+                                               mergedOriginTrait = NULL, mergedDFList = NULL, traitID = NULL)
           combinedDFP_Val_Labels$dfP_Val <- dfP_Val
           combinedDFP_Val_Labels$dfDM <- dfDM
           combinedDFP_Val_Labels$dflogFC <- dflogFC
@@ -169,6 +170,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           combinedDFP_Val_Labels$mergedOriginalColnames <- mergedOriginalColnames
           combinedDFP_Val_Labels$mergedOriginTrait <- mergedOriginTrait
           combinedDFP_Val_Labels$mergedDFList <- mergedDFList #(consists of mergedDFList$PHENODF and mergedDFList$PHENOFileName for each source file)
+          combinedDFP_Val_Labels$traitID <- traitID
         }
         else {
           base::message(base::paste0(sysTimePID(), " less than 5 probes remained. Please check your maximum and minimum p-val settings."))

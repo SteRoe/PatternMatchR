@@ -1,7 +1,7 @@
 generate_ui <- function() {
   ui <- shiny::shinyUI(
     shiny::fluidPage(
-      waiter::useWaiter(), # dependencies
+      # waiter::useWaiter(), # dependencies
       # waiter::transparent(alpha = 0.1),
       # waiter::waiterShowOnLoad(), # shows before anything else
       shinyjs::useShinyjs(),
@@ -20,18 +20,13 @@ generate_ui <- function() {
       )),
       "Hostname / PID",
       shiny::verbatimTextOutput(outputId = "Sys.PID", placeholder = TRUE),
-      # shiny::fluidRow(
-      #   plotly::plotlyOutput("plotTest",
-      #                        height = '90vh', #height = "100%", #height = '200', #height = "100%", #height = 'auto', #height = "100%",
-      #                        width = '90%' #width = "100%", #width = '200', #width = "100%", #width = 'auto', #width = "100%",
-      #                        )#inline = TRUE)
-      # ),
       shiny::tabsetPanel(
         shiny::tabPanel(
           "PatternMatchR",
+          #shiny::tagList(
           shinyBS::bsCollapse(
-            id = "clpMain",
-            open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data"),
+          id = "clpMain",
+          open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data"),
             multiple = TRUE,
             # shinyBS::bsCollapsePanel(
             #   "session",
@@ -388,8 +383,14 @@ generate_ui <- function() {
                 )
               )
             ),
-            Search_Full_UI("Search"),
-            GlobalSelection_UI("GlobalSelection"),
+            shinyBS::bsCollapsePanel(
+              "Search",
+              Search_Full_UI("Search")
+            ),
+            shinyBS::bsCollapsePanel(
+              "Global Selection",
+              GlobalSelection_UI("GlobalSelection")
+            ),
             shinyBS::bsCollapsePanel(
               "Full Trait-reduced Data",
               shiny::fluidRow(
@@ -434,6 +435,11 @@ generate_ui <- function() {
                         "VolcanoPlot Delta Methylation log(FC)",
                         "P-values and log fold change (delta methylation)",
                         VolcanoPlot_UI("VolcanoPlot")
+                      ),
+                      shiny::tabPanel(
+                        "Near Range Methylation Profile Near Range DMR PC Plot",
+                        "Near Range DMR PC Plot",
+                        PCPlot_UI("PCPlot")
                       ),
                       shiny::tabPanel(
                         "Dendrogram Probes",

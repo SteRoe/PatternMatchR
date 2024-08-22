@@ -14,12 +14,12 @@ combinedDFP_Val_Labels$mergedColnames <- merged original Colnames
 combinedDFP_Val_Labels$mergedOriginTrait <- number of trait (1,2 or 3), a particular variable belongs to
 getResultDfP_D_N}
 \usage{
-getResultDfP_D_N(listOfResultDF, P_D_N)
+getResultDfP_D_N(listOfResultDF, P_D_N_F)
 }
 \arguments{
 \item{listOfResultDF}{data.frame containing a list of data.frames to be merged}
 
-\item{P_D_N}{scalar value "P", "D" or "N" describing whether to merge P_VAL, DeltaMeth or N}
+\item{P_D_N_F}{scalar value "P", "D", "N" or "F" describing whether to merge P_VAL, DeltaMeth, N or logFC}
 }
 \value{
 merged data.frame

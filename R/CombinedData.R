@@ -506,7 +506,7 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
                              labelsDF1 = NULL, labelsDF2 = NULL,
                              labelsDF3 = NULL, mergedOriginDF = NULL,
                              mergedColnames = NULL, mergedOriginalColnames = NULL, mergedOriginTrait = NULL,
-                             mergedDFList = NULL)
+                             mergedDFList = NULL, traitID = NULL)
         result$dfP_Val <- mergedDFP_Val
         mergedDFDM <- base::abs(mergedDFDM) # all Values to positive values
         result$dfDM <- mergedDFDM
@@ -526,6 +526,8 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         result$mergedOriginalColnames <- mergedOriginalColnames
         result$mergedOriginTrait <- mergedOriginTrait
         result$mergedDFList <- mergedDFList
+        traitID <- seq(1:length(result$mergedColnames))
+        result$traitID <- traitID
       }
       else {
         result <- NULL

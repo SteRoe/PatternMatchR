@@ -197,7 +197,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL, dflogFC = NULL,
                            labelsDF1 = NULL, labelsDF2 = NULL, labelsDF3 = NULL,
                            mergedOriginDF = NULL, mergedColnames = NULL,
-                           mergedOriginTrait = NULL, mergedDFList = NULL)
+                           mergedOriginTrait = NULL, mergedDFList = NULL, traitID = NULL)
       mergedDFList <- list()
 
       result$dfP_Val <- combinedDFP_Val_Labels$dfP_Val[, traitNos]
@@ -208,6 +208,8 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       result$mergedOriginalColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[traitNos]
       result$mergedColnames <- combinedDFP_Val_Labels$mergedColnames[traitNos]
       result$mergedOriginTrait <- combinedDFP_Val_Labels$mergedOriginTrait[traitNos]
+      result$traitID <- combinedDFP_Val_Labels$traitID[traitNos]
+#browser()
       #result$mergedDFList <- combinedDFP_Val_Labels$mergedDFList[traitNos]
       #mergedDFList is more complex: it consists of three parts (red, green, blue) with PHENODF and PHENOFileName; merge them here:
       #DF1

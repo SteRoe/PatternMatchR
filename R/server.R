@@ -7,7 +7,7 @@ server <- function(input, output, session) {
   #   image = "",
   #   fadeout = FALSE
   # )
-  reactlog::reactlog_enable()
+  #reactlog::reactlog_enable()
   pid <- Sys.getpid()
   hostname <- Sys.info()["nodename"]
   output$Sys.PID <- shiny::renderText(base::paste0(hostname, ": ", pid))
@@ -89,6 +89,7 @@ server <- function(input, output, session) {
   session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactiveVal(value = NULL, label = "distNeigboursProbes10")
 
   session$userData$sessionVariables$selectedOriginalData <- shiny::reactiveVal(value = NULL, label = "selectedOriginalData")
+  session$userData$sessionVariables$OriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "OriginalDataTraits")
   session$userData$sessionVariables$selectedOriginalDataTraits <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataTraits")
   session$userData$sessionVariables$selectedOriginalDataProbes <- shiny::reactiveVal(value = NULL, label = "selectedOriginalDataProbes")
   session$userData$sessionVariables$selectedAnnotation <- shiny::reactiveVal(value = NULL, label = "selectedAnnotation")
@@ -96,6 +97,7 @@ server <- function(input, output, session) {
 
   session$userData$sessionVariables$selectedKey <- shiny::reactiveVal(value = NULL, label = "selectedKey")
   session$userData$sessionVariables$selectedTrait <- shiny::reactiveVal(value = NULL, label = "selectedTrait")
+  session$userData$sessionVariables$selectedTraitID <- shiny::reactiveVal(value = NULL, label = "selectedTraitID")
   session$userData$sessionVariables$selectedProbe <- shiny::reactiveVal(value = NULL, label = "selectedProbe")
 
   shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = 0, max = 0, value = c(0, 0))
@@ -114,6 +116,7 @@ server <- function(input, output, session) {
   GlobalSelection_SERVER("GlobalSelection", session)
   VolcanoPlot_SERVER("VolcanoPlot", session)
   HeatMap_SERVER("HeatMap_Full_Details", session)
+  PCPlot_SERVER("PCPlot", session)
 ################################################################################
 
   counter.invalidateLater <- local({
@@ -1951,6 +1954,8 @@ browser() # should not happen
                 dfKeyShadow$probe <- dfVolcano$probe
                 traitLabels <- session$userData$sessionVariables$traitReducedData()$mergedOriginalColnames
                 dfKeyShadow$trait <- traitLabels #dfVolcano$trait
+                traitID <- session$userData$sessionVariables$traitReducedData()$traitID
+                dfKeyShadow$traitID <- traitID
                 dfKeyShadow$traitSource <- originTrait
                 dfVolcano$key <- dfKeyShadow$key
                 rownames(dfVolcano) <- dfVolcano$key

@@ -3,7 +3,12 @@ default:
 #  dataDir2: ["./extdata/data2/","./extdata/data21/","./extdata/data22/"]
 #  dataDir3: "./extdata/data3/"
   betaFileName: "F:/roeder/methylation_transposed2.csv"
+  baseFileName: "Y:/Home/roeder/daten/Forschungsplanung/Pheno_Long_Salas.csv" #file with gender information
   probeAttribut: "probeID"
+  mergeAttribut: "ID_Kind"
+  sexAttribut: "sex"
+  sexFemaleValue: "w"
+  sexMaleValue: "m"
   dataDir1: ["Z:/EWAS_Parabene_test/all/",
 #              "Z:/EWAS_Phthalate_test/all/",
 #              "Z:/EWAS_Biocrates_1LJ/all/",

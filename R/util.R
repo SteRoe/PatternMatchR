@@ -137,6 +137,22 @@ loadObjects <- function(session) {
   session$userData$BetaDF <- loadDNAm(betaFileName = betaFileName, config = session$userData$config)
   session$userData$Beta_tDF <- as.data.frame(t(session$userData$BetaDF))
   base::print(base::paste0(sysTimePID(), " finished read methylation data with nrow = ", nrow(session$userData$BetaDF), " and ncol = ", ncol(session$userData$BetaDF), "."))
+
+  #read base data
+  baseFileName <- session$userData$config$baseFileName
+  #check for existence of baseFileName
+  if (!file.exists(baseFileName)) {
+    base::message(base::paste0(sysTimePID(), " beta file not found: ", baseFileName, ". Is your config.yml correct?"))
+    #add /inst to baseFileName and try again
+    baseFileName <- addInstToPath(baseFileName)
+    if (file.exists(baseFileName)) {
+      base::message(base::paste0(sysTimePID(), " beta file now found: ", baseFileName, "."))
+    }
+  }
+
+  session$userData$baseData <- loadBaseData(session = session, baseFileName = baseFileName)
+  session$userData$baseData <- as.data.frame(session$userData$baseData)
+  base::print(base::paste0(sysTimePID(), " finished read base data with nrow = ", nrow(session$userData$baseData), " and ncol = ", ncol(session$userData$baseData), "."))
   return(session)
 }
 
@@ -148,6 +164,17 @@ loadObjects <- function(session) {
 #   options(scipen=0, digits=7)
 # }
 #
+
+loadBaseData <- function(session, baseFileName) {
+  id <- shiny::showNotification("Loading base data...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  result <- NULL
+  result <- data.table::fread(file=baseFileName, sep="\t", dec=".", data.table = FALSE)
+  result <- base::subset(result, select=c(session$userData$config$mergeAttribut, session$userData$config$sexAttribut))
+  rownames(result) <- result[, session$userData$config$mergeAttribut]
+  result <- as.data.frame(result)
+  return(result)
+}
 
 #' loadResultFile
 #' @param folder folder containing file with fileName
@@ -403,3 +430,130 @@ sysTimePID <- function() {
   result <- paste0(as.character(Sys.time()), "; PID: ", as.character(Sys.getpid()))
   return(result)
 }
+
+#' plotlyPcPForDMP <- function(DMPNearRange, probe, resultDataSingleTrait, annotation) {
+#'   #plotlyPcPForDMP <- function(DMPNearRange, probe, P_VAL, DeltaMeth, annotation) {
+#'   #plotlyPcPForDMP <- function(globalVariables, sessionVariables, DMPNearRange) {
+#'   tryCatch({
+#' browser()
+#'     traitName <- colnames(DMPNearRange)[3]
+#'     #DMP <- sessionVariables$probe$probe
+#'     #df <- sessionVariables$resultDataSingleTrait
+#'     df <- resultDataSingleTrait
+#'     #df <- resultDataSingleScenarioWithAnnotation(globalVariables$annotation, df)
+#'     df <- resultDataSingleScenarioWithAnnotation(annotation, df)
+#'     gene.symbol <- df[which(df$probeID == probe),]$gene.symbol
+#'     DMPNearRange <- stats::na.omit(DMPNearRange)
+#'     DMPNearRangeShort <- DMPNearRange[,4:ncol(DMPNearRange)]
+#'     dimensionsList=list()
+#'     P_VAL <- resultDataSingleTrait$P_VAL[resultDataSingleTrait$probeID == probe]
+#'     DeltaMeth <- resultDataSingleTrait$DeltaMeth[resultDataSingleTrait$probeID == probe]
+#'     for (i in 1:ncol(DMPNearRangeShort)) {
+#'       lblCpG = colnames(DMPNearRangeShort)[i]
+#'       lblP = signif(df[which(df$probeID == colnames(DMPNearRangeShort)[i]),]$P_VAL,3)
+#'       if (shiny::isTruthy(lblP)) {
+#'         lblP = paste0(",\n p: ", lblP)
+#'         lblDM = paste0(",\n d: ", signif(df[which(df$probeID == colnames(DMPNearRangeShort)[i]),]$DeltaMeth,3))
+#'       }
+#'       else {
+#'         lblP = ",\n p: n.s."
+#'         lblDM = ""
+#'       }
+#'       lblSym = paste0(",\n sbl:", annotation[which(annotation$name == colnames(DMPNearRangeShort)[i]),]$gene.symbol)
+#'       lblPos = paste0(",\n pos:", annotation[which(annotation$name == colnames(DMPNearRangeShort)[i]),]$position)
+#'       label = paste0(lblCpG, lblP, lblDM, lblSym, lblPos)
+#'       dimension = list(label = label, values = DMPNearRangeShort[,i],
+#'                        range = c(0, 1))
+#'       dimensionsList = append(dimensionsList,list(dimension))
+#'     }
+#'     plot <- plotly::plot_ly(data = DMPNearRange)
+#'     plot <- plot %>% plotly::add_trace(type = 'parcoords',
+#'                                        line = list(shape = 'spline',
+#'                                                    color =  DMPNearRange[,3],
+#'                                                    colorscale = 'Jet',
+#'                                                    showscale = TRUE,
+#'                                                    reversescale = TRUE,
+#'                                                    cmin = min(DMPNearRange[,3],na.rm=TRUE),
+#'                                                    cmax = max(DMPNearRange[,3],na.rm=TRUE)),
+#'                                        dimensions = dimensionsList
+#'     )
+#'     plot <- plot %>% plotly::layout(
+#'       #title = paste0(traitName, " vs. ", DMP, " gene.symbol: ", gene.symbol ," P_VAL: ", P_VAL, " DeltaMeth: ", DeltaMeth),
+#'       title = paste0(traitName, " vs. ", probe, " gene.symbol: ", gene.symbol ," P_VAL: ", P_VAL, " DeltaMeth: ", DeltaMeth),
+#'       xaxis = list(
+#'         title = "Location",
+#'         showgrid = F,
+#'         tickangle = 45),
+#'       yaxis = list(
+#'         title = "Methylation [%]"),
+#'       coloraxis = list(
+#'         title = traitName)
+#'     )
+#'     plot <- plot %>%
+#'       plotly::add_annotations(
+#'         text = "Methylation [%]",
+#'         x = 0,
+#'         y = 0.5,
+#'         yref = "paper",
+#'         xref = "paper",
+#'         xanchor = "center",
+#'         yanchor = "center",
+#'         xshift = -50,
+#'         showarrow = FALSE,
+#'         textangle = 270,
+#'         font = list(size = 15)
+#'       )
+#'     plot <- plot %>%
+#'       plotly::add_annotations(
+#'         text = "globalArrayPosition",
+#'         x = 0.5,
+#'         y = 0,
+#'         yref = "paper",
+#'         xref = "paper",
+#'         xanchor = "center",
+#'         yanchor = "center",
+#'         yshift = -35,
+#'         showarrow = FALSE,
+#'         textangle = 0,
+#'         font = list(size = 15)
+#'       )
+#'     return (plot)
+#'   }, error=function(err){
+#'     print(paste0("unable to print pc plot: ", err$message, ". Maybe there was only a subset of the data loaded?"))
+#'     return(empty_plot(err$message))
+#'   });
+#' }
+#'
+#' #' empty_plot
+#' #' @param title title for empty plot
+#' #' @return plot empty plot
+#' #' @keywords internal
+#' #' @noRd
+#' empty_plot <- function(title = NULL){
+#'   plot <- plotly::plotly_empty(type = "scatter", mode = "markers") %>%
+#'     plotly::config(
+#'       displayModeBar = FALSE
+#'     ) %>%
+#'     plotly::layout(
+#'       title = list(
+#'         text = title,
+#'         yref = "paper",
+#'         y = 0.5
+#'       )
+#'     )
+#'   return(plot)
+#' }
+#'
+#' resultDataSingleScenarioWithAnnotation <- function(annotation, df){
+#'   #  a = reducedAnnotation(globalVariables)
+#'   a = EpiVisR::reducedAnnotation(annotation)
+#'   a$gene.symbolShort = stringr::str_sub(a$gene.symbol, 1, 20) #NULL
+#'   a$gene.accession = NULL
+#'   a$gene.region = NULL
+#'   a$cpg.island.name = NULL
+#'   a$relation.to.island = NULL
+#'   a$snp.exclude = NULL
+#'   #df = dplyr::left_join(df, a, by = c("probeID" = "name"))
+#'   df <- base::merge(df, a, by.x = "probeID", by.y = "name")
+#'   return (df)
+#' }
