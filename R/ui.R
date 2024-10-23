@@ -1,5 +1,5 @@
 generate_ui <- function() {
-  ui <- shiny::shinyUI(
+  shiny::shinyUI(
     shiny::fluidPage(
       # waiter::useWaiter(), # dependencies
       # waiter::transparent(alpha = 0.1),
@@ -25,34 +25,9 @@ generate_ui <- function() {
           "PatternMatchR",
           #shiny::tagList(
           shinyBS::bsCollapse(
-          id = "clpMain",
-          open = c("Folders", "Merge", "Reduce Data", "Omit Traits", "Reduce Traits by Clustering", "Full Trait-reduced Data"),
+          id = "clpPreprocess",
+          open = c("Folders", "Merge", "Reduce Data"),
             multiple = TRUE,
-            # shinyBS::bsCollapsePanel(
-            #   "session",
-            #   shiny::fluidRow(
-            #     shiny::tags$table(
-            #       style = "width: 100%",
-            #       shiny::tags$tr(
-            #         shiny::tags$td(
-            #           align = "center",
-            #           shiny::actionButton(inputId = "btnExportCombinedData", label = "Export session data to <CombinedHM.RDS>"),
-            #           shinyFiles::shinySaveButton(id = "save", label = "Export session data",
-            #                                       title = "Save session data as file",
-            #                                       filetype = list(RDS = "RDS", text = "txt"),
-            #                                       viewtype = "detail")
-            #         ),
-            #         shiny::tags$td(
-            #           align = "center",
-            #           shiny::actionButton(inputId = "btnImportCombinedData", label = "Import session data from <CombinedHM.RDS>"),
-            #           shinyFiles::shinyFilesButton(id = "file", label = "Import session data",
-            #                                        title = "Load session data from file",
-            #                                        multiple = FALSE, viewtype = "detail")
-            #         )
-            #       )
-            #     )
-            #   )
-            # ),
             shinyBS::bsCollapsePanel(
               "Folders",
               shiny::fluidRow(
@@ -80,21 +55,21 @@ generate_ui <- function() {
               ),
               shiny::actionButton("btnLoadDirAll", label = "Step 1: Load all trait dirs"),
               shiny::verbatimTextOutput("txtLoadOut", placeholder = TRUE)
-            ),
+            ), #end bsCollapsePanel
             shinyBS::bsCollapsePanel(
               "Merge",
               shiny::fluidRow(
                 shiny::actionButton("btnMerge", label = "Step 2: Merge data from all folders"),
                 shiny::verbatimTextOutput("txtMergeOut", placeholder = TRUE)
               )
-            ),
+            ), #end bsCollapsePanel
             shinyBS::bsCollapsePanel(
               "Count Borders",
               shiny::tabsetPanel(
                 shiny::tabPanel("P_VAL border vs. # of probes",
                   shiny::fluidRow(
-                    shinyjs::disabled(shiny::actionButton("btnCountP_ValProbes", label = "Count Probes for p-values (may take a long time)")),
-                    shinyjs::disabled(shiny::actionButton("btnCountProbesP_ValParallel", label = "Count Probes for p-values parallel (may take less time)"))
+                    # shinyjs::disabled(shiny::actionButton("btnCountP_ValProbes", label = "Count Probes for p-values (may take a long time)")),
+                    shinyjs::disabled(shiny::actionButton("btnCountProbesP_ValParallel", label = "Count Probes for p-values parallel"))
                   ),
                   shiny::fluidRow(
                     shiny::tabsetPanel(
@@ -138,9 +113,10 @@ generate_ui <- function() {
                   )
                 )
               )
-            ),
+            ), #end bsCollapsePanel
             shinyBS::bsCollapsePanel(
               "Reduce Data",
+#              shiny::verbatimTextOutput("txtTest", placeholder = TRUE),
               shiny::fluidRow(
                 shiny::column(
                   width = 4,
@@ -178,22 +154,27 @@ generate_ui <- function() {
               ),
               shinyjs::disabled(shiny::actionButton("btnReduce", label = "Step 3: Reduce data (omit CpGs) by applying thresholds for p-value, DM or n limit")),
               shiny::verbatimTextOutput("txtPReduceOut", placeholder = TRUE)
-            ),
+            ) #end bsCollapsePanel "Reduce Data"
+          ), #end bsCollapse "clpPreprocess"
+          shinyBS::bsCollapse(
+            id = "clpClustering",
+            open = c("Clustering"),
+            multiple = TRUE,
             shinyBS::bsCollapsePanel(
-              "Omit Traits",
+              "Clustering",
               shiny::fluidRow(
                 shiny::column(
                   width = 4,
                   shinyjs::disabled(shiny::sliderInput(
                     "sldNumClusters",
-                    "number of clusters (omit traits)",
+                    "number of clusters (omit traits based on p-value)",
                     min = 0,
                     max = 0,
                     step = 0,
                     value = 0 # value = c(1, 10)
                   ))
                 )
-              ),
+              ), #end fluidRow
               shiny::fluidRow(
                 shiny::column(
                   width = 4,
@@ -206,212 +187,30 @@ generate_ui <- function() {
                     value = 10
                   ))
                 )
-              ),
-              shinyjs::disabled(shiny::actionButton("btnOmitTraits", label = "Step 4: Omit Traits")),
-              shiny::verbatimTextOutput("txtOmitOut", placeholder = TRUE),
-              shiny::fluidRow(
-                shiny::tabsetPanel(
-                  shiny::tabPanel(
-                    "Dendrogram Traits",
-                    shiny::verbatimTextOutput("txtDendrogramTraitsLong", placeholder = TRUE),
-                    shiny::plotOutput("plotDendrogramTraitsLong")
-                  ),
-                  shiny::tabPanel(
-                    "Clustergram Traits",
-                    shiny::verbatimTextOutput("txtClustergramTraitsLong", placeholder = TRUE),
-                    shiny::plotOutput("plotClustergramTraitsLong")
-                  ),
-                  shiny::tabPanel(
-                    "DT Cluster Medoids Traits",
-                    shiny::verbatimTextOutput("txtDTTraitsMedoids", placeholder = TRUE),
-                    DT::dataTableOutput("DTTraitsMedoids")
-                  ),
-                  shiny::tabPanel(
-                    "DT Cluster Assignment Traits",
-                    shiny::verbatimTextOutput("txtDTTraitsClusters", placeholder = TRUE),
-                    DT::dataTableOutput("DTTraitsClusters")
-                  ),
-                  shiny::tabPanel(
-                    "Histograms/DT on CpG Distances of Clustering Results",
-                    shiny::tabsetPanel(
-                      shiny::tabPanel(
-                        "Mean Distance Probes = 10 CpG up/down",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "Histogram",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "min",
-                                plotly::plotlyOutput("histMinDistance10", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "mean",
-                                plotly::plotlyOutput("histMeanDistance10", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "max",
-                                plotly::plotlyOutput("histMaxDistance10", inline = TRUE)
-                              )
-                            )
-                          ),
-                          shiny::tabPanel(
-                            "Table",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "reduced",
-                                DT::dataTableOutput("DTDistance10reduced")
-                              ),
-                              shiny::tabPanel(
-                                "full",
-                                #table with histogram values
-                                DT::dataTableOutput("DTDistance10")
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Mean Distance Probes = 100 CpG up/down",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "Histogram",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "min",
-                                plotly::plotlyOutput("histMinDistance100", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "mean",
-                                plotly::plotlyOutput("histMeanDistance100", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "max",
-                                plotly::plotlyOutput("histMaxDistance100", inline = TRUE)
-                              )
-                            )
-                          ),
-                          shiny::tabPanel(
-                            "Table",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "reduced",
-                                DT::dataTableOutput("DTDistance100reduced")
-                              ),
-                              shiny::tabPanel(
-                                "full",
-                                #table with histogram values
-                                DT::dataTableOutput("DTDistance100")
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Mean Distance Probes = 1000 CpG up/down",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "Histogram",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "min",
-                                plotly::plotlyOutput("histMinDistance1000", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "mean",
-                                plotly::plotlyOutput("histMeanDistance1000", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "max",
-                                plotly::plotlyOutput("histMaxDistance1000", inline = TRUE)
-                              )
-                            )
-                          ),
-                          shiny::tabPanel(
-                            "Table",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "reduced",
-                                DT::dataTableOutput("DTDistance1000reduced")
-                              ),
-                              shiny::tabPanel(
-                                "full",
-                                #table with histogram values
-                                DT::dataTableOutput("DTDistance1000")
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Mean Distance Probes = 10000 CpG up/down",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "Histogram",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "min",
-                                plotly::plotlyOutput("histMinDistance10000", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "mean",
-                                plotly::plotlyOutput("histMeanDistance10000", inline = TRUE)
-                              ),
-                              shiny::tabPanel(
-                                "max",
-                                plotly::plotlyOutput("histMaxDistance10000", inline = TRUE)
-                              )
-                            )
-                          ),
-                          shiny::tabPanel(
-                            "Table",
-                            shiny::tabsetPanel(
-                              shiny::tabPanel(
-                                "reduced",
-                                DT::dataTableOutput("DTDistance10000reduced")
-                              ),
-                              shiny::tabPanel(
-                                "full",
-                                #table with histogram values
-                                DT::dataTableOutput("DTDistance10000")
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
+              ), #end fluidRow
+              shiny::tabsetPanel(
+                shiny::tabPanel(
+                  "Clustering based on p-value",
+                  Clustering_UI("P_Val")
+                ),
+                shiny::tabPanel(
+                  "Clustering based on log(FC)",
+                  Clustering_UI("LogFC")
                 )
-              )
-            ),
+              ) #end tabSetPanel
+            ) #end bsCollapsePanel "Clustering"
+          ), #end bsCollapse "clpClustering"
+          shinyBS::bsCollapse(
+            id = "clpHeatmap",
             shinyBS::bsCollapsePanel(
-              "Search",
-              Search_Full_UI("Search")
-            ),
-            shinyBS::bsCollapsePanel(
-              "Global Selection",
-              GlobalSelection_UI("GlobalSelection")
-            ),
-            shinyBS::bsCollapsePanel(
-              "Full Trait-reduced Data",
+              "Heatmaps",
               shiny::fluidRow(
                 shiny::tabsetPanel(
-                  shiny::tabPanel(
-##full non-modified data start
-                    "Non-modified Data",
+                  shiny::tabPanel( ##full non-modified data p-val start
+                    "Non-modified Data (p-val)",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        # shinyjs::disabled(
-                        #   shiny::radioButtons("RbHighlightHM", "Highlight mode:",
-                        #                       choiceNames = list(
-                        #                         "P-val",
-                        #                         "Global Selection",
-                        #                         "Distance"
-                        #                       ),
-                        #                       choiceValues = list("pval", "sel", "dist"),
-                        #                       inline = TRUE
-                        #   )
-                        # ),
                         shinyjs::disabled(
                           shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5a: Plot Heatmap P_Val")
                         ),
@@ -427,51 +226,87 @@ generate_ui <- function() {
                           inline = FALSE
                         )
                       ),
-                      shiny::tabPanel(
-                        "HeatMap P_Val Details",
-                        HeatMap_UI("HeatMap_Full_Details")
-                      ),
-                      shiny::tabPanel(
-                        "VolcanoPlot Delta Methylation log(FC)",
-                        "P-values and log fold change (delta methylation)",
-                        VolcanoPlot_UI("VolcanoPlot")
-                      ),
-                      shiny::tabPanel(
-                        "Near Range Methylation Profile Near Range DMR PC Plot",
-                        "Near Range DMR PC Plot",
-                        PCPlot_UI("PCPlot")
-                      ),
+                      # shiny::tabPanel(
+                      #   "HeatMap P_Val Details",
+                      #   HeatMap_UI("HeatMap_Full_DetailsPval")
+                      # ),
                       shiny::tabPanel(
                         "Dendrogram Probes",
-                        plotly::plotlyOutput("traitReducedPlotDendrogramProbes", height = "80%")
+                        plotly::plotlyOutput("traitReducedPlotDendrogramProbesPval", height = "80%")
                       ),
                       shiny::tabPanel(
                         "Annotated Table Probes",
-                        DT::dataTableOutput("traitReducedDTProbes")
+                        DT::dataTableOutput("traitReducedDTProbesPval")
                       ),
                       shiny::tabPanel(
                         "Dendrogram Traits",
-                        plotly::plotlyOutput("traitReducedPlotDendrogramTraits", height = "80%")
+                        plotly::plotlyOutput("traitReducedPlotDendrogramTraitsPval", height = "80%")
                       ),
                       shiny::tabPanel(
                         "Table Traits",
-                        DT::dataTableOutput("traitReducedDTTraits")
+                        DT::dataTableOutput("traitReducedDTTraitsPval")
                       ),
                       shiny::tabPanel(
-                        "Histogram P_Val",
+                        "Histogram",
                         "Histogram of all p-values in full heatmap (number of p-values = number probes * number traits)",
                         plotly::plotlyOutput("traitReducedHistP_Val", inline = TRUE)
+                      ) #end tabPanel
+                    ) #end tabSetPanel
+                  ), #end tabPanel ##full non-modified data p-val end
+                  shiny::tabPanel( ##full non-modified data log(FC) start
+                    "Non-modified Data (log(FC))",
+                    shiny::tabsetPanel(
+                      shiny::tabPanel(
+                        "HeatMap log(FC)",
+                        shinyjs::disabled(
+                          shiny::actionButton("btnPlotCombinedHM_LogFC", label = "Step 5b: Plot Heatmap log(FC)")
+                        ),
+                        shinyjs::disabled(
+                          shiny::verbatimTextOutput("txtHMDescription_LogFC", placeholder = TRUE)
+                        ),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "Heatmap_LogFC",
+                          height1 = '95vh', #1200,
+                          width1 = 950,
+                          height2 = '95vh', #1200,
+                          width2 = 950,
+                          inline = FALSE
+                        )
+                      ),
+                      # shiny::tabPanel(
+                      #   "HeatMap log(FC) Details",
+                      #   HeatMap_UI("HeatMap_Full_DetailsLogFC")
+                      # ),
+                      shiny::tabPanel(
+                        "Dendrogram Probes",
+                        plotly::plotlyOutput("traitReducedPlotDendrogramProbesLogFC", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Annotated Table Probes",
+                        DT::dataTableOutput("traitReducedDTProbesLogFC")
+                      ),
+                      shiny::tabPanel(
+                        "Dendrogram Traits",
+                        plotly::plotlyOutput("traitReducedPlotDendrogramTraitsLogFC", height = "80%")
+                      ),
+                      shiny::tabPanel(
+                        "Table Traits",
+                        DT::dataTableOutput("traitReducedDTTraitsLogFC")
+                      ),
+                      shiny::tabPanel(
+                        "Histogram",
+                        "Histogram of all log(FC) in full heatmap (number of log(FC) = number probes * number traits)",
+                        plotly::plotlyOutput("traitReducedHistLogFC", inline = TRUE)
                       )
                     )
-##full non-modified data end
-                  ),
+                  ), ## full non-modified data log(FC) end
                   shiny::tabPanel(
-##full DW data start
+                    ##full DW data start
                     "Distance weighted Data (negative p-values due to distance weighting) - experimental",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap P_Val",
-                        shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 5b: Plot distance weighted Heatmap P_Val"),
+                        shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 5c: Plot distance weighted Heatmap P_Val"),
                         shiny::verbatimTextOutput("txtDWHMDescription_P_Val", placeholder = TRUE),
                         # shiny::column(
                         #   width = 6,
@@ -493,38 +328,38 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "Table P_Val",
                         "Table of p-value; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTP_VAL")
+                        DT::dataTableOutput("fullDWDTP_VALPval")
                       ),
                       shiny::tabPanel(
                         "Table Delta Methylation",
                         "Table of delta methylation; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTDM")
+                        DT::dataTableOutput("fullDWDTDMPval")
                       ),
                       shiny::tabPanel(
                         "Table Delta Methylation log(FC)",
                         "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTlogFC")
+                        DT::dataTableOutput("fullDWDTlogFCPval")
                       ),
                       shiny::tabPanel(
                         "Table N",
                         "Table of n; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTN")
+                        DT::dataTableOutput("fullDWDTNPval")
                       ),
                       shiny::tabPanel(
                         "Dendrogram Probes",
-                        plotly::plotlyOutput("fullDWPlotDendrogramProbes", height = "80%")
+                        plotly::plotlyOutput("fullDWPlotDendrogramProbesPval", height = "80%")
                       ),
                       shiny::tabPanel(
                         "Annotated Table Probes",
-                        DT::dataTableOutput("fullDWDTProbes")
+                        DT::dataTableOutput("fullDWDTProbesPval")
                       ),
                       shiny::tabPanel(
                         "Dendrogram Traits",
-                        plotly::plotlyOutput("fullDWPlotDendrogramTraits", height = "80%")
+                        plotly::plotlyOutput("fullDWPlotDendrogramTraitsPval", height = "80%")
                       ),
                       shiny::tabPanel(
                         "Table Traits",
-                        DT::dataTableOutput("fullDWDTTraits")
+                        DT::dataTableOutput("fullDWDTTraitsPval")
                       ),
                       shiny::tabPanel(
                         "Histogram P_Val",
@@ -532,154 +367,39 @@ generate_ui <- function() {
                         plotly::plotlyOutput("fullDWHistP_Val", inline = TRUE)
                       )
                     )
-##full DW data end
-                  )
+                  ) ##full DW data end
                 )
               )
-            ),
+            ) #end bsCollapsePanel "Heatmap"
+            # )
+          ),
+          shinyBS::bsCollapse(
+          id = "clpGlobals",
             shinyBS::bsCollapsePanel(
-              "Condensed Trait-reduced Data (contains only CpG with nearby neighbours)",
-              shiny::fluidRow(
-                shiny::verbatimTextOutput("txtResultsOut", placeholder = TRUE),
-              ),
-              shiny::fluidRow(
-                shiny::tabsetPanel(
-                  shiny::tabPanel(
-                    "Non-modified Data",
-                    shiny::tabsetPanel(
-                      shiny::tabPanel(
-                        "Table P_Val",
-                        DT::dataTableOutput("condDTP_VAL")
-                      ),
-                      shiny::tabPanel(
-                        "HeatMap Delta Methylation (logFC)",
-                        "Heatmap of log fold change(delta methylation); clustering order comes from clustering of p_values.",
-                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondHM_DM", label = "Step 6b: Plot condensed Heatmap Delta Methylation (logFC)")),
-                        shiny::verbatimTextOutput("txtCondHMDescription_DM", placeholder = TRUE),
-                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "condHeatmap_logFC",
-                          height1 = '95vh',
-                          width1 = 950,
-                          height2 = '95vh',
-                          width2 = 950,
-                          inline = FALSE
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation",
-                        "Table of delta methylation; clustering order comes from clustering of p_values.",
-                        DT::dataTableOutput("condDTDM")
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation log(FC)",
-                        "Table of log fold change(delta methylation); clustering order comes from clustering of p_values.",
-                        DT::dataTableOutput("condDTlogFC")
-                      ),
-                      shiny::tabPanel(
-                        "VolcanoPlot Delta Methylation log(FC)",
-                        shiny::tabsetPanel(
-                          shiny::tabPanel(
-                            "Table",
-                            DT::dataTableOutput("condDTVolcano")
-                          ),
-                          shiny::tabPanel(
-                            "Plot",
-                            plotly::plotlyOutput("condPlotVolcano", height = "80%")
-                          )
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Table N",
-                        "Table of n; clustering order comes from clustering of p_values.",
-                        DT::dataTableOutput("condDTN")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Probes",
-                        plotly::plotlyOutput("condPlotDendrogramProbes", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Annotated Table Probes",
-                        DT::dataTableOutput("condDTProbes")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Traits",
-                        plotly::plotlyOutput("condPlotDendrogramTraits", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Table Traits",
-                        DT::dataTableOutput("condDTTraits")
-                      ),
-                      shiny::tabPanel(
-                        "Histogram P_Val",
-                        "Histogram of all p-values in condensed heatmap (number of p-values = number probes * number traits)",
-                        plotly::plotlyOutput("condHistP_Val", inline = TRUE)
-                      )
-                    )
-                  ),
-                  shiny::tabPanel(
-                    "Distance Weighted Data (negative p-values due to distance weighting) - experimental",
-                    shiny::tabsetPanel(
-                      shiny::tabPanel(
-                        "HeatMap P_Val",
-                        shinyjs::disabled(shiny::actionButton("btnPlotCombinedCondDWHM_P_Val", label = "Step 6c: Plot condensed distance weighted Heatmap P_Val")),
-                        shiny::verbatimTextOutput("txtCondDWHMDescription_P_Val", placeholder = TRUE),
-                        # shiny::column(
-                        #   width = 6,
-                        #   shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                        # ),
-                        # shiny::column(
-                        #   width = 6,
-                        #   shinyjs::disabled(shiny::numericInput(inputId = "numCondDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                        # ),
-                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "condDWHeatmap_P_Val",
-                          height1 = '95vh',
-                          width1 = 950,
-                          height2 = '95vh',
-                          width2 = 950,
-                          inline = FALSE
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Table P_Val",
-                        DT::dataTableOutput("condDWDTP_VAL")
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation",
-                        DT::dataTableOutput("condDWDTDM")
-                      ),
-                      shiny::tabPanel(
-                        "Table N",
-                        DT::dataTableOutput("condDWDTN")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Probes",
-                        plotly::plotlyOutput("condDWPlotDendrogramProbes", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Annotated Table Probes",
-                        DT::dataTableOutput("condDWDTProbes")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Traits",
-                        plotly::plotlyOutput("condDWPlotDendrogramTraits", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Table Traits",
-                        DT::dataTableOutput("condDWDTTraits")
-                      ),
-                      shiny::tabPanel(
-                        "Histogram P_Val",
-                        "Histogram of all p-values in condensed heatmap",
-                        plotly::plotlyOutput("condDWHistP_Val", inline = TRUE)
-                      )
-                    )
-                  )
+              "Global Search",
+              Search_Full_UI("Search")
+            ), #end bsCollapsePanel
+            shinyBS::bsCollapsePanel(
+              "Global Selection",
+              GlobalSelection_UI("GlobalSelection")
+            ), #end bsCollapsePanel
+            shinyBS::bsCollapsePanel(
+              "Selection Visualization",
+              shiny::tabsetPanel(
+                shiny::tabPanel(
+                  "VolcanoPlot Delta Methylation log(FC)",
+                  "P-values and log fold change (delta methylation)",
+                  VolcanoPlot_UI("VolcanoPlot")
+                ),
+                shiny::tabPanel(
+                  "Near Range Methylation Profile Near Range DMR PC Plot",
+                  "Near Range DMR PC Plot",
+                  PCPlot_UI("PCPlot")
                 )
               )
-            )
-          )
-        ),
+            ) #end bsCollapsePanel "Selection Visualization"
+          ) #end bsCollapse "clpGlobals"
+        ), #end tabPanel "PatternMatchR"
         shiny::tabPanel(
           "Settings",
           shiny::fluidRow(
@@ -689,8 +409,8 @@ generate_ui <- function() {
               shiny::actionButton(inputId = "btnBrowser", label = "Break to Browser()"),
               shiny::actionButton(inputId = "btnDebug", label = "Debug"),
               shiny::verbatimTextOutput("txtDebugOut", placeholder = TRUE)
-            )
-          ),
+            ) #end column
+          ), #end fluidRow
           shinyBS::bsCollapse(
             id = "clpSettings",
             multiple = TRUE,
@@ -698,14 +418,14 @@ generate_ui <- function() {
               "methylation file",
               shiny::fluidRow(
                 shiny::textInput(inputId = "inpDNAmFile", label = "File with DNAm", value = "FileName", width = NULL, placeholder = TRUE)
-              )
-            ),
+              ) #end fluidRow
+            ), #end bsCollapsePanel "methylation file"
             shinyBS::bsCollapsePanel(
               "minimum cases for trait",
               shiny::fluidRow(
                 shiny::textInput(inputId = "txtCases", label = "minimum # cases for each trait", value = 100, width = NULL, placeholder = TRUE)
-              )
-            ),
+              ) #end fluidRow
+            ), #end bsCollapsePanel "minimum cases for trait"
             shinyBS::bsCollapsePanel(
               "p-val settings",
               shiny::fluidRow(
@@ -713,7 +433,7 @@ generate_ui <- function() {
                   width = 2,
                   shiny::textInput(inputId = "txtMaxProbes", label = "maximum Probes",
                                    value = 500000, width = NULL, placeholder = TRUE)
-                ),
+                ), #end column
                 shiny::column(
                   width = 2,
                   shiny::textInput(inputId = "txtMaxClassesProbes",
@@ -726,7 +446,7 @@ generate_ui <- function() {
                     value = 7,
                     placeholder = TRUE
                   )
-                )
+                ) #end column
                 # shiny::column(
                 #   width = 4,
                 #   shiny::tags$html("n"),
@@ -742,11 +462,11 @@ generate_ui <- function() {
                 #     inline = FALSE
                 #   )
                 # )
-              )
-            )
-          )
-        )
-      )
-    )
-  )
-}
+              ) #end fluidRow
+            ) #end bsCollapsePanel "p-val settings"
+          ) #end bsCollapse "clpSettings"
+        ) #end tabPanel "Settings"
+      ) # end tabSetPanel
+    ) # end fluidPage
+  ) # end shinyUI
+} #end function

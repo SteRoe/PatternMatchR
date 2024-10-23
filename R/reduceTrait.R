@@ -134,11 +134,11 @@ getDendTraits <- function(clustResTraits, traitClusters) {
     },
     error = function(e) {
       base::message("An error occurred in getDendTraits():\n", e)
-      browser()
+      browser() #should not happen
     },
     warning = function(w) {
       base::message("A warning occurred in getDendTraits():\n", w)
-      browser()
+      browser() #should not happen
     },
     finally = {
       return(dendTraits)
@@ -194,7 +194,7 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       else {
         traitNos <- which(combinedDFP_Val_Labels$mergedColnames %in% traits)
       }
-      result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL, dflogFC = NULL,
+      result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL, dfLogFC = NULL,
                            labelsDF1 = NULL, labelsDF2 = NULL, labelsDF3 = NULL,
                            mergedOriginDF = NULL, mergedColnames = NULL,
                            mergedOriginTrait = NULL, mergedDFList = NULL, traitID = NULL)
@@ -202,14 +202,13 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
 
       result$dfP_Val <- combinedDFP_Val_Labels$dfP_Val[, traitNos]
       result$dfDM <- combinedDFP_Val_Labels$dfDM[, traitNos]
-      result$dflogFC <- combinedDFP_Val_Labels$dflogFC[, traitNos]
+      result$dfLogFC <- combinedDFP_Val_Labels$dfLogFC[, traitNos]
       result$dfN <- combinedDFP_Val_Labels$dfN[, traitNos]
       result$mergedOriginDF <- combinedDFP_Val_Labels$mergedOriginDF[traitNos]
       result$mergedOriginalColnames <- combinedDFP_Val_Labels$mergedOriginalColnames[traitNos]
       result$mergedColnames <- combinedDFP_Val_Labels$mergedColnames[traitNos]
       result$mergedOriginTrait <- combinedDFP_Val_Labels$mergedOriginTrait[traitNos]
       result$traitID <- combinedDFP_Val_Labels$traitID[traitNos]
-#browser()
       #result$mergedDFList <- combinedDFP_Val_Labels$mergedDFList[traitNos]
       #mergedDFList is more complex: it consists of three parts (red, green, blue) with PHENODF and PHENOFileName; merge them here:
       #DF1
@@ -277,63 +276,6 @@ getTraitSubsetcombinedDFP_Val_Labels <- function(combinedDFP_Val_Labels, traits,
       base::print(base::paste0(sysTimePID(), " size of merged data.frame: ", dim(result$dfP_Val), " ."))
       base::print(base::paste0(sysTimePID(), " end getTraitSubsetcombinedDFP_Val_Labels()."))
       return(result)
-    }
-  )
-}
-
-#' getplotClustergramTraitsLong
-#' produces a clustergram for traits
-#' @param matP_Val.t transposed matrix with result p-values
-#' @param clustResTraits (reduced) clustering results for traits
-#' @param traitClusters trait cluster medoids
-#' @return plot with clustergram
-#' examples getplotClustergramTraitsLong(matP_Val.t, clustResTraits, traitClusters)
-getplotClustergramTraitsLong <- function(matP_Val.t, clustResTraits, traitClusters) {
-  id <- shiny::showNotification("Creating trait clustergram long...", duration = NULL, closeButton = FALSE)
-  on.exit(shiny::removeNotification(id), add = TRUE)
-  base::print(base::paste0(sysTimePID(), " start plotting clustergram."))
-  base::tryCatch(
-    {
-      if (traitClusters > 1) {
-        Clusters <- dendextend::cutree(clustResTraits, k = traitClusters) # Clusters <- cutree(clustResTraits, k = traitClusters)
-        mycolors <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(traitClusters)
-        base::tryCatch(
-          {
-          p <- factoextra::fviz_cluster(list(data = matP_Val.t, cluster = Clusters),
-                                        palette = mycolors, #palette = "jco",
-                                        ggtheme = ggplot2::theme_classic())
-          },
-          error = function(e) {
-            base::message("An error occurred in p <- factoextra::fviz_cluster():\n", e)
-            browser()
-            return(NULL)
-          },
-          warning = function(w) {
-            base::message("An warning occurred in p <- factoextra::fviz_cluster():\n", w)
-            browser()
-            return(NULL)
-          },
-          finally = {
-            return(p)
-          }
-        )
-        # p <- factoextra::fviz_mclust(list(data = matP_Val.t, cluster = Clusters),
-        #                               palette = "jco",
-        #                               ggtheme = ggplot2::theme_classic())
-      }
-      else {
-        p <- getEmptyPlot()
-      }
-    },
-    error = function(e) {
-      base::message("An error occurred in getplotClustergramTraitsLong():\n", e)
-    },
-    warning = function(w) {
-      base::message("A warning occurred in getplotClustergramTraitsLong():\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " end plotting clustergram."))
-      return(p)
     }
   )
 }

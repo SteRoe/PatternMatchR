@@ -137,18 +137,18 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               listResultN <- base::as.data.frame(listResultN)
               rownames(listResultN) <- rn
               colnames(listResultN) <- cn
-              listResultlogFC <- getResultDfP_D_N(listOfResultDF, "F")
-              rn <- rownames(listResultlogFC)
-              listResultlogFC <- base::as.data.frame(listResultlogFC)
-              rownames(listResultlogFC) <- rn
-              colnames(listResultlogFC) <- cn
+              listResultLogFC <- getResultDfP_D_N(listOfResultDF, "F")
+              rn <- rownames(listResultLogFC)
+              listResultLogFC <- base::as.data.frame(listResultLogFC)
+              rownames(listResultLogFC) <- rn
+              colnames(listResultLogFC) <- cn
 
               listResultP_Val_DeltaMeth_N <-
                 list(
                   P_Val = listResultP_Val,
                   DM = listResultDeltaMeth,
                   N = listResultN,
-                  logFC = listResultlogFC,
+                  LogFC = listResultLogFC,
                   OriginalColnames = OriginalColnames,
                   PHENOdata = PHENOdata,
                   traitListName = traitListName,
@@ -170,15 +170,15 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               listResultP_Val_DeltaMeth_N$N <-
                 base::as.data.frame(listResultP_Val_DeltaMeth_N$N)
             }
-            if (!base::is.data.frame(listResultP_Val_DeltaMeth_N$logFC)) {
-              listResultP_Val_DeltaMeth_N$logFC <-
-                base::as.data.frame(listResultP_Val_DeltaMeth_N$logFC)
+            if (!base::is.data.frame(listResultP_Val_DeltaMeth_N$LogFC)) {
+              listResultP_Val_DeltaMeth_N$LogFC <-
+                base::as.data.frame(listResultP_Val_DeltaMeth_N$LogFC)
             }
 
             #        rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
             rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
             rownames(listResultP_Val_DeltaMeth_N$N) <- rn
-            rownames(listResultP_Val_DeltaMeth_N$logFC) <- rn
+            rownames(listResultP_Val_DeltaMeth_N$LogFC) <- rn
             listResultP_Val_DeltaMeth_N$folder <- folder
           }
           base::print(base::paste0(sysTimePID(), " saveRDS loadFolderDFList()")) # , fileNameLPV, "."))
@@ -199,16 +199,16 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             base::as.data.frame(head(listResultP_Val_DeltaMeth_N$DM, session$userData$sessionVariables$debugNumber))
           listResultP_Val_DeltaMeth_N$N <-
             base::as.data.frame(head(listResultP_Val_DeltaMeth_N$N, session$userData$sessionVariables$debugNumber))
-          listResultP_Val_DeltaMeth_N$logFC <-
-            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$logFC, session$userData$sessionVariables$debugNumber))
+          listResultP_Val_DeltaMeth_N$LogFC <-
+            base::as.data.frame(head(listResultP_Val_DeltaMeth_N$LogFC, session$userData$sessionVariables$debugNumber))
           rownames(listResultP_Val_DeltaMeth_N$P_Val) <- rn
           rownames(listResultP_Val_DeltaMeth_N$DM) <- rn
           rownames(listResultP_Val_DeltaMeth_N$N) <- rn
-          rownames(listResultP_Val_DeltaMeth_N$logFC) <- rn
+          rownames(listResultP_Val_DeltaMeth_N$LogFC) <- rn
           colnames(listResultP_Val_DeltaMeth_N$P_Val) <- cn
           colnames(listResultP_Val_DeltaMeth_N$DM) <- cn
           colnames(listResultP_Val_DeltaMeth_N$N) <- cn
-          colnames(listResultP_Val_DeltaMeth_N$logFC) <- cn
+          colnames(listResultP_Val_DeltaMeth_N$LogFC) <- cn
           listResultP_Val_DeltaMeth_N$folder <- folder
         }
         result <- listResultP_Val_DeltaMeth_N
@@ -257,14 +257,14 @@ loadtraitDFs <- function(traitDFs) {
           resultDFP_Val <- traitDFs[[i]]$P_Val
           resultDFDM <- traitDFs[[i]]$DM
           resultDFN <- traitDFs[[i]]$N
-          resultDFlogFC <- traitDFs[[i]]$logFC
+          resultDFLogFC <- traitDFs[[i]]$LogFC
           resultColnames <- base::colnames(traitDFs[[i]]$P_Val)
           resultOriginalColnames <- traitDFs[[i]]$OriginalColnames
           resultOriginDF <- base::rep(i, length(resultColnames))
           resultDFP_Val$Row.names <- rownames(traitDFs[[i]]$P_Val)
           resultDFDM$Row.names <- rownames(traitDFs[[i]]$DM)
           resultDFN$Row.names <- rownames(traitDFs[[i]]$N)
-          resultDFlogFC$Row.names <- rownames(traitDFs[[i]]$logFC)
+          resultDFLogFC$Row.names <- rownames(traitDFs[[i]]$LogFC)
           resultFolder <- traitDFs[[i]]$folder
         } else {
           base::print(base::paste0(sysTimePID(), " merge trait ", i, "."))
@@ -275,7 +275,7 @@ loadtraitDFs <- function(traitDFs) {
             base::rownames(traitDFs[[i]]$P_Val)
           traitDFs[[i]]$DM$Row.names <- base::rownames(traitDFs[[i]]$DM)
           traitDFs[[i]]$N$Row.names <- base::rownames(traitDFs[[i]]$N)
-          traitDFs[[i]]$logFC$Row.names <- base::rownames(traitDFs[[i]]$logFC)
+          traitDFs[[i]]$LogFC$Row.names <- base::rownames(traitDFs[[i]]$LogFC)
           # Cannot merge with rownames due to:
           # A non-empty vector of column names is required for `by.x` and `by.y`.
           resultDFP_Val <-
@@ -305,10 +305,10 @@ loadtraitDFs <- function(traitDFs) {
               all.x = TRUE,
               all.y = TRUE
             )
-            resultDFlogFC <-
+            resultDFLogFC <-
               base::merge(
-                x = resultDFlogFC,
-                y = traitDFs[[i]]$logFC,
+                x = resultDFLogFC,
+                y = traitDFs[[i]]$LogFC,
                 by.x = "Row.names",
                 by.y = "Row.names",
                 all.x = TRUE,
@@ -334,15 +334,15 @@ loadtraitDFs <- function(traitDFs) {
         rownames(resultDFN) <- resultDFN$Row.names
         resultDFN$Row.names <- NULL
       }
-      if ("Row.names" %in% colnames(resultDFlogFC)) {
-        rownames(resultDFlogFC) <- resultDFlogFC$Row.names
-        resultDFlogFC$Row.names <- NULL
+      if ("Row.names" %in% colnames(resultDFLogFC)) {
+        rownames(resultDFLogFC) <- resultDFLogFC$Row.names
+        resultDFLogFC$Row.names <- NULL
       }
       result <- base::list()
       result$resultDFP_Val <- resultDFP_Val
       result$resultDFDM <- resultDFDM
       result$resultDFN <- resultDFN
-      result$resultDFlogFC <- resultDFlogFC
+      result$resultDFLogFC <- resultDFLogFC
       result$rownames <- base::rownames(resultDFP_Val)
       result$colnames <- base::colnames(resultDFP_Val)
       result$listPHENOdata <- listPHENOdata
@@ -577,60 +577,60 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
   )
 }
 
-#' getAvailNForP_VALBorder
-#' counts traits with at least 2 elements > P_VAL_BORDER
-#' @param DF data.frame with P_Val
-#' @return data.frame with reduced data set
-# examples getAvailNForP_VALBorder(data.frame)
-getAvailNForP_VALBorder <- function(DF) {
-  id <- shiny::showNotification("Getting available n...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
-  base::tryCatch(
-    {
-      numRows <- 300
-      result <- base::matrix(nrow = numRows, ncol = 2)
-      for (i in 1:numRows) {
-        mat <- DF
-        P_VAL_BORDER <- 5 * 10^-i
-        mat[mat > P_VAL_BORDER] <- NA
-        mat <-
-          delete.na(mat, ncol(mat) - 1) # -1, because we need at least 2 traits to associate
-        n <- base::nrow(mat)
-        if (!base::is.numeric(n)) {
-          break()
-        }
-        if (n <= 1) {
-          break()
-        }
-        base::print(
-          base::paste0(
-            sysTimePID(),
-            " counting remaining probes at p = ",
-            P_VAL_BORDER,
-            " remaining n = ",
-            n
-          )
-        )
-        result[i, 1] <- P_VAL_BORDER
-        result[i, 2] <- n
-      }
-      colnames(result) <- base::c("maximum P_VAL_BORDER", "Available n")
-      result <- result[1:i - 1, ]
-      result <- base::as.data.frame((result))
-      result <- result[base::order(result[1]), ]
-    },
-    error = function(e) {
-      base::message("An error occurred in getAvailNForP_VALBorder():\n", e)
-    },
-    warning = function(w) {
-      base::message("A warning occurred in getAvailNForP_VALBorder():\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorder()."))
-      return(result)
-    }
-  )
-}
+#' #' getAvailNForP_VALBorder
+#' #' counts traits with at least 2 elements > P_VAL_BORDER
+#' #' @param DF data.frame with P_Val
+#' #' @return data.frame with reduced data set
+#' # examples getAvailNForP_VALBorder(data.frame)
+#' getAvailNForP_VALBorder <- function(DF) {
+#'   id <- shiny::showNotification("Getting available n...", duration = NULL, closeButton = FALSE)
+#'   base::on.exit(shiny::removeNotification(id), add = TRUE)
+#'   base::tryCatch(
+#'     {
+#'       numRows <- 300
+#'       result <- base::matrix(nrow = numRows, ncol = 2)
+#'       for (i in 1:numRows) {
+#'         mat <- DF
+#'         P_VAL_BORDER <- 5 * 10^-i
+#'         mat[mat > P_VAL_BORDER] <- NA
+#'         mat <-
+#'           delete.na(mat, ncol(mat) - 1) # -1, because we need at least 2 traits to associate
+#'         n <- base::nrow(mat)
+#'         if (!base::is.numeric(n)) {
+#'           break()
+#'         }
+#'         if (n <= 1) {
+#'           break()
+#'         }
+#'         base::print(
+#'           base::paste0(
+#'             sysTimePID(),
+#'             " counting remaining probes at p = ",
+#'             P_VAL_BORDER,
+#'             " remaining n = ",
+#'             n
+#'           )
+#'         )
+#'         result[i, 1] <- P_VAL_BORDER
+#'         result[i, 2] <- n
+#'       }
+#'       colnames(result) <- base::c("maximum P_VAL_BORDER", "Available n")
+#'       result <- result[1:i - 1, ]
+#'       result <- base::as.data.frame((result))
+#'       result <- result[base::order(result[1]), ]
+#'     },
+#'     error = function(e) {
+#'       base::message("An error occurred in getAvailNForP_VALBorder():\n", e)
+#'     },
+#'     warning = function(w) {
+#'       base::message("A warning occurred in getAvailNForP_VALBorder():\n", w)
+#'     },
+#'     finally = {
+#'       base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorder()."))
+#'       return(result)
+#'     }
+#'   )
+#' }
 
 #' delete.na
 #' deletes rows with all NA from data.frame DF
@@ -780,7 +780,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     minP <- extractMantissaExponent(minP)$exponent
     if (minP > -1) {
       base::print(base::paste0(sysTimePID(), "Warning: minP > -1. Please check your data.")) #that should not be the case, please check data!
-      browser()
+      browser() #should not happen
     }
     maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
     maxP <- base::max(maxP)
@@ -809,7 +809,7 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     }
     else {
       base::message(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
-      browser()
+      browser() #should not happen
     }
     numCores <- base::min(numCores, numCoresMemSize)
     nWorkers <- parallelly::availableCores(constraints = "connections")
@@ -915,7 +915,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
     }
     else {
       base::message(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
-      browser()
+      browser() #should not happen
     }
     numCores <- base::min(numCores, numCoresMemSize)
     nWorkers <- parallelly::availableCores(constraints = "connections")
@@ -925,7 +925,7 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       error = function(e) {
-        browser()
+        browser() #should not happen
         base::message("An error occurred in future::plan():\n", e)
         ##extract # of available connections
         e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
@@ -987,18 +987,18 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
     if (minN < 1) {minN <- 1}
     if (minN != as.integer(minN)) {
       base::print(base::paste0(sysTimePID(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
-      browser()
+      browser() #should not happen
     }
     maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
     maxN <- base::max(maxN)
     numRows <- maxN - minN
     if (maxN != as.integer(maxN)) {
       base::print(base::paste0(sysTimePID(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
-      browser()
+      browser() #should not happen
     }
     if (maxN < 1) {
       base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
-      browser()
+      browser() #should not happen
     }
     shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))
     result <- base::matrix(nrow = numRows, ncol = 2)
@@ -1019,7 +1019,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
     }
     else {
       base::print(base::paste0(sysTimePID(), " size of DF is too big for computers memory: ", memorySize, "MB."))
-      browser()
+      browser() #should not happen
     }
     numCores <- base::min(numCores, numCoresMemSize)
     nWorkers <- parallelly::availableCores(constraints = "connections")
@@ -1029,7 +1029,7 @@ getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
         future::plan(strategy = future::multisession, workers = numCores)
       },
       error = function(e) {
-        browser()
+        browser() #should not happen
         base::message("An error occurred in future::plan():\n", e)
         ##extract # of available connections
         e <- "Cannot create 112 parallel PSOCK nodes. Each node needs one connection, but there are only 75 connections left out of the maximum 128 available on this R installation"
@@ -1162,6 +1162,7 @@ removeTraitsMinN <- function(dfList, minN) {
         cn <- base::colnames(dfN)
         dfP_Val <- dfList$dfP_Val
         dfDM <- dfList$dfDM
+        dfLogFC <- dfList$dfLogFC
         resultOriginDF <- dfList$resultOriginDF
         resultColnames <- dfList$resultColnames
         resultOriginalColnames <- dfList$resultOriginalColnames
@@ -1171,6 +1172,8 @@ removeTraitsMinN <- function(dfList, minN) {
         rownames(dfP_Val) <- rn
         dfDM <- base::as.data.frame(dfDM)
         rownames(dfDM) <- rn
+        dfLogFC <- base::as.data.frame(dfLogFC)
+        rownames(dfLogFC) <- rn
         traitNames <-
           stats::na.omit(colnames(dfN)[matrixStats::colMins(as.matrix(dfN),
                                                             na.rm = TRUE) > base::as.integer(minN)])
@@ -1187,6 +1190,7 @@ removeTraitsMinN <- function(dfList, minN) {
         dfDM <- as.data.frame(dfDM[base::rownames(dfN), base::colnames(dfN)])
         rownames(dfDM) <- rn
         colnames(dfDM) <- cn
+        dfLogFC <- as.data.frame(dfLogFC[base::rownames(dfN), base::colnames(dfN)])
         resultOriginDF <- resultOriginDF[positions]
         resultColnames <- resultColnames[positions]
         resultOriginalColnames <- resultOriginalColnames[positions]
@@ -1194,6 +1198,7 @@ removeTraitsMinN <- function(dfList, minN) {
           dfP_Val = NULL,
           dfDM = NULL,
           dfN = NULL,
+          dfLogFC = NULL,
           resultOriginDF = NULL,
           resultColnames = NULL,
           resultOriginalColnames = NULL,
@@ -1202,6 +1207,7 @@ removeTraitsMinN <- function(dfList, minN) {
         dfList$dfP_Val <- dfP_Val
         dfList$dfDM <- dfDM
         dfList$dfN <- dfN
+        dfList$dfLogFC <- dfLogFC
         dfList$resultOriginDF <- resultOriginDF
         dfList$resultColnames <- resultColnames
         dfList$resultOriginalColnames <- resultOriginalColnames

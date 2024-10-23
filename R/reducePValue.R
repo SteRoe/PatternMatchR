@@ -11,7 +11,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
   on.exit(shiny::removeNotification(id), add = TRUE)
   if (maxN < 1) {
     base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
-    browser()
+    browser() #should not happen
   }
   base::tryCatch(
     {
@@ -20,7 +20,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         result <- combinedDFP_Val_Labels
         dfP_Val <- result$dfP_Val
         dfDM <- result$dfDM
-        dflogFC <- result$dflogFC
+        dfLogFC <- result$dfLogFC
         dfN <- result$dfN
         base::print(base::paste0(sysTimePID(),
                                  " result matrix before reduce has N(row) probes=",
@@ -39,15 +39,10 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         # omit p_values from dfs - max PVal
         #if we obtain 0 hits later, check maxP_Val and minP_Val
         cgsToRetainMaxP <- dfP_Val < maxP_Val
-        #cgsToRetainMaxP <- unique(rownames(which(cgsToRetainMaxP == TRUE, arr.ind = TRUE)))
-        #cgsToRetainMaxP <- unique(rownames(cgsToRetainMaxP == TRUE))
         cgsToRetainMaxP <- names(which((rowSums(cgsToRetainMaxP) > 0L) == TRUE))
 
         cgsToRetainMinP <- dfP_Val > minP_Val
-        #cgsToRetainMinP <- unique(rownames(which(cgsToRetainMinP == TRUE, arr.ind = TRUE)))
-        #cgsToRetainMinP <- unique(rownames(cgsToRetainMinP == TRUE))
         cgsToRetainMinP <- names(which((rowSums(cgsToRetainMinP) > 0L) == TRUE))
-#browser() #check
         if (base::exists("cgsToRetainMaxP") && base::exists("cgsToRetainMinP")) {
           cgsToRetainP <- base::intersect(cgsToRetainMaxP, cgsToRetainMinP)
         }
@@ -59,18 +54,13 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         }
         if (length(cgsToRetainP) == 0) {
           base::print(base::paste0(sysTimePID(), "Warning: length(cgsToRetainP) == 0. Please check your data.")) #that should not be the case, please check data!
-          browser()
+          browser() #should not happen
         }
         #take only DM outside slider defined range in cgsToRetainDM
         cgsToRetainMaxDM <- dfDM < maxDM
-        #cgsToRetainMaxDM <- unique(rownames(which(cgsToRetainMaxDM == TRUE, arr.ind = TRUE)))
-        #cgsToRetainMaxDM <- unique(rownames(cgsToRetainMaxDM == TRUE))
         cgsToRetainMaxDM <- names(which((rowSums(cgsToRetainMaxDM) > 0L) == TRUE))
         cgsToRetainMinDM <- dfDM > minDM
-        #cgsToRetainMinDM <- unique(rownames(which(cgsToRetainMinDM == TRUE, arr.ind = TRUE)))
-        #cgsToRetainMinDM <- unique(rownames(cgsToRetainMinDM == TRUE))
         cgsToRetainMinDM <- names(which((rowSums(cgsToRetainMinDM) > 0L) == TRUE))
-        #cgsToRetainDM <- unique(c(cgsToRetainMaxDM, cgsToRetainMinDM))
         if (base::exists("cgsToRetainMaxDM") && base::exists("cgsToRetainMinDM")) {
           cgsToRetainDM <- base::intersect(cgsToRetainMaxDM, cgsToRetainMinDM)
         }
@@ -82,15 +72,11 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         }
         if (length(cgsToRetainDM) == 0) {
           base::print(base::paste0(sysTimePID(), "Warning: length(cgsToRetainDM) == 0. Please check your data.")) #that should not be the case, please check data!
-          browser()
+          browser() #should not happen
         }
         cgsToRetainMaxN <- dfN < maxN
-        #cgsToRetainMaxN <- unique(rownames(which(cgsToRetainMaxN == TRUE, arr.ind = TRUE)))
-        #cgsToRetainMaxN <- unique(rownames(cgsToRetainMaxN == TRUE))
         cgsToRetainMaxN <- names(which((rowSums(cgsToRetainMaxN) > 0L) == TRUE))
         cgsToRetainMinN <- dfN > minN
-        #cgsToRetainMinN <- unique(rownames(which(cgsToRetainMinN == TRUE, arr.ind = TRUE)))
-        #cgsToRetainMinN <- unique(rownames(cgsToRetainMinN == TRUE))
         cgsToRetainMinN <- names(which((rowSums(cgsToRetainMinN) > 0L) == TRUE))
         if (base::exists("cgsToRetainMaxN") && base::exists("cgsToRetainMinN")) {
           cgsToRetainN <- base::intersect(cgsToRetainMaxN, cgsToRetainMinN)
@@ -106,13 +92,13 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         cgsToRetain <- intersect(cgsToRetain, cgsToRetainN)
         if (!base::exists("cgsToRetain") || length(cgsToRetain) == 0) {
           base::print(base::paste0(sysTimePID(), "Warning: length(cgsToRetain) == 0. Please check your data.")) #that should not be the case, please check data!
-          browser()
+          browser() #should not happen
           base::print(base::paste0(sysTimePID(), " max p-val border too low: ",
                                    maxP_Val, "; no remaining CpG."))
         }
         dfP_Val <- dfP_Val[cgsToRetain, ]
         dfDM <- dfDM[cgsToRetain, ]
-        dflogFC <- dflogFC[cgsToRetain, ]
+        dfLogFC <- dfLogFC[cgsToRetain, ]
         dfN <- dfN[cgsToRetain, ]
         base::print(base::paste0(sysTimePID(),
                                  " result matrix after reduce has N(row) probes=",
@@ -125,10 +111,9 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
         if (base::nrow(dfP_Val) >= 5) {
           if (debugMode == TRUE && base::nrow(dfP_Val) > session$userData$sessionVariables$debugNumber) {
             base::print(base::paste0(sysTimePID(), " debug mode n probes=session$userData$sessionVariables$debugNumber"))
-            #dfP_Val <- dfP_Val[1:session$userData$sessionVariables$debugNumber, ]
             dfP_Val <- head(dfP_Val, session$userData$sessionVariables$debugNumber)
             dfDM <- head(dfDM, session$userData$sessionVariables$debugNumber)
-            dflogFC <- head(dflogFC, session$userData$sessionVariables$debugNumber)
+            dfLogFC <- head(dfLogFC, session$userData$sessionVariables$debugNumber)
             dfN <- head(dfN, session$userData$sessionVariables$debugNumber)
           }
           base::print(base::paste0(
@@ -145,21 +130,21 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           if (!base::is.data.frame(dfN)) {
             dfN <- base::as.data.frame(dfN)
           }
-          base::print(base::paste0(sysTimePID(), " shortening dflogFC"))
-          dflogFC <- dflogFC[rownames(dfP_Val), colnames(dfP_Val)]
-          if (!base::is.data.frame(dflogFC)) {
-            dflogFC <- base::as.data.frame(dflogFC)
+          base::print(base::paste0(sysTimePID(), " shortening dfLogFC"))
+          dfLogFC <- dfLogFC[rownames(dfP_Val), colnames(dfP_Val)]
+          if (!base::is.data.frame(dfLogFC)) {
+            dfLogFC <- base::as.data.frame(dfLogFC)
           }
           base::print(base::paste0(sysTimePID(), " shortening dfN"))
           dfN <- dfN[rownames(dfP_Val), colnames(dfP_Val)]
-          combinedDFP_Val_Labels <- base::list(dfP_Val = NULL, dfDM = NULL, dflogFC = NULL,
+          combinedDFP_Val_Labels <- base::list(dfP_Val = NULL, dfDM = NULL, dfLogFC = NULL,
                                                dfN = NULL, labelsDF1 = NULL,
                                                labelsDF2 = NULL, labelsDF3 = NULL,
                                                mergedOriginDF = NULL, mergedColnames = NULL, mergedOriginalColnames = NULL,
                                                mergedOriginTrait = NULL, mergedDFList = NULL, traitID = NULL)
           combinedDFP_Val_Labels$dfP_Val <- dfP_Val
           combinedDFP_Val_Labels$dfDM <- dfDM
-          combinedDFP_Val_Labels$dflogFC <- dflogFC
+          combinedDFP_Val_Labels$dfLogFC <- dfLogFC
           combinedDFP_Val_Labels$dfN <- dfN
 
           combinedDFP_Val_Labels$labelsDF1 <- LabelsDF1
@@ -202,6 +187,7 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
 updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
   base::tryCatch(
     {
+#browser()
       result <- NULL
       if (is.valid(pReducedcombinedDFP_Val_Labels)) {
         result <- base::paste0("p reduce successful. result table is: nrow (CpG): ",
@@ -221,6 +207,7 @@ updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
     },
     finally = {
       return(shiny::HTML(result))
+      #return(shiny::renderPrint(result))
     }
   )
 }
