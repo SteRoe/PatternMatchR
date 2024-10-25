@@ -115,12 +115,12 @@ server <- function(input, output, session) {
 ################################################################################
   Clustering_SERVER("P_Val", session$userData$sessionVariables$pReducedDataStructurePVal, session$userData$sessionVariables$traitReducedDataStructurePVal, session)
   Clustering_SERVER("LogFC", session$userData$sessionVariables$pReducedDataStructureLogFC, session$userData$sessionVariables$traitReducedDataStructureLogFC, session)
-  #Search_Full_SERVER("Search", session)
+  Search_Full_SERVER("Search", session)
   GlobalSelection_SERVER("GlobalSelection", session)
   VolcanoPlot_SERVER("VolcanoPlot", session)
-  #HeatMap_SERVER("HeatMap_Full_DetailsPval", session)
+  HeatMap_SERVER("HeatMap_Full_DetailsPval", session)
+  HeatMap_SERVER("HeatMap_Full_DetailsLogFC", session)
   PCPlot_SERVER("PCPlot", session)
-#  data <- shiny::observe(session$userData$sessionVariables$pReducedDataStructurePVal())
 ################################################################################
 
   counter.invalidateLater <- local({
@@ -1022,11 +1022,6 @@ server <- function(input, output, session) {
   )
 
   #("Full Data")
-  output$traitReducedDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val_w_number))
-  output$traitReducedDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM_w_number))
-  output$traitReducedDTLogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfLogFC_w_number))
-
-  output$traitReducedDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN_w_number))
   output$traitReducedDTProbesPval <- DT::renderDataTable(as.data.frame(traitReducedDTProbesPval()),
                                                      options = list(pageLength = 1000, info = FALSE,
                                                                     lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
@@ -1256,7 +1251,7 @@ server <- function(input, output, session) {
   })
 
   session$userData$sessionVariables$traitReducedDataStructurePVal <- shiny::reactive({
-    id <- shiny::showNotification("Creating trait reduced data structure...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating trait reduced data structure (p-val)...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {
@@ -1339,33 +1334,6 @@ server <- function(input, output, session) {
             else {
               result$traitClustergram <- NULL
             }
-            # add "number" and reorder columns
-            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
-            result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
-            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
-            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
-
-            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
-            result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
-            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
-
-            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
-            result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
-            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
-            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
-
-            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
-            result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
-            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
-            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
 
             base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating distMatProbes."))
             dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
@@ -1398,13 +1366,57 @@ server <- function(input, output, session) {
               result$clustResProbes <- NULL
               browser() # should not happen
             }
+            if (is.valid(result$clustResTraits)) {
+              # add "number" and reorder columns; order comes from result$clustResTraits
+              result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+              result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+              result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[, result$clustResTraits$order]
+              result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[, result$clustResTraits$order]
+            }
+            else {
+              browser() #should not happen
+            }
+
             if (is.valid(result$clustResProbes)) {
               result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
+              #reorder rows; order comes from result$clustResProbes
+              result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+              result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+              result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[result$clustResProbes$order, ]
+              result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[result$clustResProbes$order, ]
             }
             else {
               result$probeDendrogram <- NULL
               browser() # should not happen
             }
+
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+            result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+
+            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
+            result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
+            result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+
+            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+            result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+
             Distance <- input$sld_NumNeighbours
             DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = result$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
             result$DNAdistances <- DNAdistances
@@ -1420,7 +1432,8 @@ server <- function(input, output, session) {
                 dfP_Val$probe <- row.names(dfP_Val)
                 dfP_Val <- tidyr::pivot_longer(dfP_Val, cols  = -probe, names_to = c("trait"))
                 colnames(dfP_Val)[3] <- "P_Val"
-                dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("probe","trait"), by.y = c("probe","trait"), all.x = FALSE, all.y = FALSE)
+                #dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("probe","trait"), by.y = c("probe","trait"), all.x = FALSE, all.y = FALSE)
+                dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("probe","trait"), by.y = c("probe","trait"), all.x = TRUE, all.y = FALSE)
                 #merge chr and position
                 annotation <- base::subset(session$userData$annotation, select = c("name", "chromosome", "position", "gene.symbol"))
                 dfVolcano <- base::merge(dfVolcano, annotation, by.x = "probe", by.y = "name", all.x = FALSE, all.y = FALSE)
@@ -1505,7 +1518,7 @@ browser() # should not happen
   })
 
   session$userData$sessionVariables$traitReducedDataStructureLogFC <- shiny::reactive({
-    id <- shiny::showNotification("Creating trait reduced data structure...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating trait reduced data structure (log(FC))...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {
@@ -1590,34 +1603,6 @@ browser() # should not happen
             else {
               result$traitClustergram <- NULL
             }
-            # add "number" and reorder columns
-            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
-            result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
-            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
-            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
-
-            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
-            result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
-            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
-
-            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
-            result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
-            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
-            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
-
-            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
-            nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
-            result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
-            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
-            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
-            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
-
             base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure (log(FC))) start generating distMatProbes."))
 
             dfLogFC <- na.omit(result$combinedDFP_Val_Labels$dfLogFC) #omit empty rows
@@ -1651,13 +1636,57 @@ browser() # should not happen
               result$clustResProbes <- NULL
               browser() # should not happen
             }
+
+            if (is.valid(result$clustResTraits)) {
+              # add "number" and reorder columns; order comes from result$clustResTraits
+              result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+              result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+              result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[, result$clustResTraits$order]
+              result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[, result$clustResTraits$order]
+            }
+            else {
+              browser() #should not happen
+            }
+
             if (is.valid(result$clustResProbes)) {
               result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
+              #reorder rows; order comes from result$clustResProbes
+              result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+              result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+              result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[result$clustResProbes$order, ]
+              result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[result$clustResProbes$order, ]
             }
             else {
               result$probeDendrogram <- NULL
               browser() # should not happen
             }
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+            result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+
+            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
+            result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+            result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
+            result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+
+            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+            nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+            result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+            col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+            result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+
             Distance <- input$sld_NumNeighbours
             DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = result$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
             result$DNAdistances <- DNAdistances
@@ -1672,11 +1701,10 @@ browser() # should not happen
                 dfP_Val$probe <- row.names(dfP_Val)
                 dfP_Val <- tidyr::pivot_longer(dfP_Val, cols  = -probe, names_to = c("trait"))
                 colnames(dfP_Val)[3] <- "P_Val"
-                dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("probe","trait"), by.y = c("probe","trait"), all.x = FALSE, all.y = FALSE)
+                dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("probe","trait"), by.y = c("probe","trait"), all.x = TRUE, all.y = FALSE)
                 #merge chr and position
                 annotation <- base::subset(session$userData$annotation, select = c("name", "chromosome", "position", "gene.symbol"))
                 dfVolcano <- base::merge(dfVolcano, annotation, by.x = "probe", by.y = "name", all.x = FALSE, all.y = FALSE)
-
                 #add distances to dfVolcano
                 DNAdistances <- result$DNAdistances
                 row.names(DNAdistances) <- DNAdistances$ID
@@ -1787,7 +1815,6 @@ browser() # should not happen
                               dfVolcano = NULL,
                               dfKeyShadow = NULL
           )
-          #          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
           DNAdistances <- traitReducedDataStructure$DNAdistances
           DNAdistances <- na.omit(DNAdistances)
           result$DNAdistances <- DNAdistances
@@ -1871,7 +1898,6 @@ browser() # should not happen
           else {
             result$traitClustergram <- NULL
           }
-
           # add "number" and reorder columns
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
           nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
@@ -2164,7 +2190,7 @@ browser() # should not happen
   })
 
   traitReducedDTProbesPval <- shiny::reactive({
-    id <- shiny::showNotification("Creating trait reduced data table probes p-val...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating trait reduced data table probes (p-val)...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {
@@ -2220,7 +2246,7 @@ browser() # should not happen
   })
 
   traitReducedDTProbesLogFC <- shiny::reactive({
-    id <- shiny::showNotification("Creating trait reduced data table probes log(FC)...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating trait reduced data table probes (log(FC))...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {
@@ -2461,7 +2487,7 @@ browser() # should not happen
   })
 
   DTTraitsPval <- shiny::reactive({
-    id <- shiny::showNotification("Creating data table traits p-val...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating data table traits (p-val)...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {
@@ -2498,7 +2524,7 @@ browser() # should not happen
   })
 
   DTTraitsLogFC  <- shiny::reactive({
-    id <- shiny::showNotification("Creating data table traits log(FC)...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating data table traits (log(FC))...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {

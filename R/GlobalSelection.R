@@ -2,56 +2,53 @@ GlobalSelection_UI <- function(id) {
   ns <- shiny::NS(id)
   htmltools::tagList(
     #waiter::autoWaiter()
-    # shinyBS::bsCollapsePanel(
-    #   "Global Selection",
-      shiny::fluidRow(
-        shiny::verbatimTextOutput(ns("txtGlobalSelectOut"), placeholder = TRUE),
-      ),
-      shiny::fluidRow(
-        shiny::tabsetPanel(
-          shiny::tabPanel(
-            "Selected Trait",
-            DT::dataTableOutput(ns("DTSelectedTrait"))
+    shiny::fluidRow(
+      shiny::verbatimTextOutput(ns("txtGlobalSelectOut"), placeholder = TRUE),
+    ),
+    shiny::fluidRow(
+      shiny::tabsetPanel(
+        shiny::tabPanel(
+          "Selected Trait",
+          DT::dataTableOutput(ns("DTSelectedTrait"))
+        ),
+        shiny::tabPanel(
+          "Selected Probe",
+          DT::dataTableOutput(ns("DTSelectedProbe"))
+        ),
+        shiny::tabPanel(
+          "SPLOM of Original Data for selected area",
+          shiny::selectizeInput(ns("markingVar"),
+                                label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
+                                choices = NULL,
+                                width = "100%"
           ),
-          shiny::tabPanel(
-            "Selected Probe",
-            DT::dataTableOutput(ns("DTSelectedProbe"))
-          ),
-          shiny::tabPanel(
-            "SPLOM of Original Data for selected area",
-            shiny::selectizeInput(ns("markingVar"),
-                                  label = "select variable for color marking (if no variable occurs here for selection, then there was no factor variable selected)",
-                                  choices = NULL,
-                                  width = "100%"
+          shiny::tabsetPanel(
+            shiny::tabPanel(
+              "SPLOM from selected area",
+              plotly::plotlyOutput(ns("SPLOM"),
+                                   height = '95vh', #1200, #height = "100%",
+                                   width = '95%', #100, #width = "100%",
+                                   inline = TRUE)
             ),
-            shiny::tabsetPanel(
-              shiny::tabPanel(
-                "SPLOM from selected area",
-                plotly::plotlyOutput(ns("SPLOM"),
-                                     height = '95vh', #1200, #height = "100%",
-                                     width = '95%', #100, #width = "100%",
-                                     inline = TRUE)
-              ),
-              shiny::tabPanel(
-                "SPLOM trait/trait",
-                plotly::plotlyOutput(ns("SPLOMTrait"),
-                                     height = '95vh', #1200, #height = "100%",
-                                     width = '95%', #100, #width = "100%",
-                                     inline = TRUE)
-              ),
-              shiny::tabPanel(
-                "SPLOM probe/probe",
-                shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
-                plotly::plotlyOutput(ns("SPLOMProbe"),
-                                     height = '95vh', #1200, #height = "100%",
-                                     width = '95%', #1000, #width = "100%",
-                                     inline = TRUE)
-              )
+            shiny::tabPanel(
+              "SPLOM trait/trait",
+              plotly::plotlyOutput(ns("SPLOMTrait"),
+                                   height = '95vh', #1200, #height = "100%",
+                                   width = '95%', #100, #width = "100%",
+                                   inline = TRUE)
+            ),
+            shiny::tabPanel(
+              "SPLOM probe/probe",
+              shiny::tags$html("if there is no plot visible here, then probably not the full methylation data set was loaded (for debug reasons?)"),
+              plotly::plotlyOutput(ns("SPLOMProbe"),
+                                   height = '95vh', #1200, #height = "100%",
+                                   width = '95%', #1000, #width = "100%",
+                                   inline = TRUE)
             )
           )
         )
       )
-#    )
+    )
   )
 }
 
@@ -85,8 +82,6 @@ GlobalSelection_SERVER <- function(id, session) {
 
         selectedAnnotation <- addLinkToEWASDataHub(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
         selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
-        #selectedAnnotation$probeID <- NULL
-        #session$userData$sessionVariables$selectedAnnotation(selectedAnnotation)
         result <- selectedAnnotation
       }
       return(result)
@@ -98,25 +93,6 @@ GlobalSelection_SERVER <- function(id, session) {
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " start generating DTSelectedProbes"))
-          result <- NULL
-          #browser()
-          # if (is.valid(session$userData$sessionVariables$selectedProbe())) {
-          #   selectedAnnotation <- session$userData$annotation[session$userData$sessionVariables$selectedProbe(),]
-          #   nprobes <- nrow(selectedAnnotation)
-          #   selectedAnnotation$number <- seq(1:nprobes)
-          #   selectedAnnotation$probeID <- selectedAnnotation$name
-          #   col_order <- c("number", "probeID", "type", "target",	"name", "chromosome",	"position", "meth.dye", "gene.symbol", "gene.accession", "gene.region", "cpg.island.name", "relation.to.island", "snp.exclude", "450k", "common", "epic", "epic2")
-          #   selectedAnnotation <- selectedAnnotation[, col_order]
-          #   #add links to EWAS data hub
-          #   selectedAnnotation <- addLinkToEWASDataHubShort(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
-          #   selectedAnnotation <- addLinkToMRCEWASCatalogShort(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
-          #
-          #   selectedAnnotation <- addLinkToEWASDataHub(selectedAnnotation, session$userData$config$baseURL_EWASDataHub, session$userData$config$probeAttribut)
-          #   selectedAnnotation <- addLinkToMRCEWASCatalog(selectedAnnotation, session$userData$config$baseURL_MRCEWASCatalog, session$userData$config$probeAttribut)
-          #   #selectedAnnotation$probeID <- NULL
-          #   session$userData$sessionVariables$selectedAnnotation(selectedAnnotation)
-          #   result <- selectedAnnotation
-          # }
           result <- session$userData$sessionVariables$selectedAnnotation()
         },
         error = function(e) {

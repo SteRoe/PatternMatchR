@@ -3,35 +3,43 @@ HeatMap_UI <- function(id) {
   htmltools::tagList(
     shiny::tabsetPanel(id = ns("tabsetHeatMap"),
       shiny::tabPanel(
-       "HeatMap P_Val",
-
-        # InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-        #  ns("Heatmap_P_Val"),
-        #  height1 = '95vh', #1200,
-        #  width1 = 950,
-        #  height2 = '95vh', #1200,
-        #  width2 = 950,
-        #  inline = FALSE
-        # )
-      ),
-      shiny::tabPanel(
        "Table P_VAL",
-       "Table of p-value; clustering order comes from clustering of p-values.",
+       if (id == "HeatMap_Full_DetailsPval") {
+         "Table of p-value; clustering order comes from clustering of p-values."
+       }
+       else if (id == "HeatMap_Full_DetailsLogFC") {
+         "Table of p-value; clustering order comes from clustering of log(FC)."
+       },
        DT::dataTableOutput(ns("traitReducedDTP_VAL"))
       ),
       shiny::tabPanel(
        "Table Delta Methylation",
-       "Table of delta methylation; clustering order comes from clustering of p-values.",
+       if (id == "HeatMap_Full_DetailsPval") {
+        "Table of delta methylation; clustering order comes from clustering of p-values."
+       }
+       else if (id == "HeatMap_Full_DetailsLogFC") {
+         "Table of delta methylation; clustering order comes from clustering of log(FC)."
+       },
        DT::dataTableOutput(ns("traitReducedDTDM"))
       ),
       shiny::tabPanel(
        "Table N",
-       "Table of n; clustering order comes from clustering of p-values.",
+       if (id == "HeatMap_Full_DetailsPval") {
+        "Table of n; clustering order comes from clustering of p-values."
+       }
+       else if (id == "HeatMap_Full_DetailsLogFC") {
+         "Table of n; clustering order comes from clustering of log(FC)."
+       },
        DT::dataTableOutput(ns("traitReducedDTN"))
       ),
       shiny::tabPanel(
        "Table Delta Methylation log(FC)",
-       "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
+       if (id == "HeatMap_Full_DetailsPval") {
+        "Table of log fold change(delta methylation); clustering order comes from clustering of p-values."
+       }
+       else if (id == "HeatMap_Full_DetailsLogFC") {
+         "Table of log fold change(delta methylation); clustering order comes from clustering of log(FC)."
+       },
        DT::dataTableOutput(ns("traitReducedDTLogFC"))
       )
     )
@@ -40,6 +48,21 @@ HeatMap_UI <- function(id) {
 
 HeatMap_SERVER <- function(id, session) {
   shiny::moduleServer(id, function(input, output, session) {
+    if (id == "HeatMap_Full_DetailsPval") {
+      output$traitReducedDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val_w_number))
+      output$traitReducedDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM_w_number))
+      output$traitReducedDTLogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfLogFC_w_number))
+      output$traitReducedDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN_w_number))
+    }
+    else if (id == "HeatMap_Full_DetailsLogFC") {
+      output$traitReducedDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfP_Val_w_number))
+      output$traitReducedDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfDM_w_number))
+      output$traitReducedDTLogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfLogFC_w_number))
+      output$traitReducedDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfN_w_number))
+    }
+    else{
+      browser() #should not happen
+    }
   }) #end shiny::moduleServer
 }
 
@@ -608,7 +631,7 @@ combinedDFInteractiveHeatMapP_Val <-
            selectedRowIndicesOrange = NA,
            session = session) {
     #function is not called twice (check caller function), if so, check here
-    id <- shiny::showNotification("Creating heatmap for p-val...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating heatmap for (p-val)...", duration = NULL, closeButton = FALSE)
     base::on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {
@@ -895,7 +918,7 @@ combinedDFInteractiveHeatMapLogFC <-
            selectedRowIndicesOrange = NA,
            session = session) {
     #function is not called twice (check caller function), if so, check here
-    id <- shiny::showNotification("Creating heatmap for log(FC)...", duration = NULL, closeButton = FALSE)
+    id <- shiny::showNotification("Creating heatmap for (log(FC))...", duration = NULL, closeButton = FALSE)
     base::on.exit(shiny::removeNotification(id), add = TRUE)
     base::tryCatch(
       {

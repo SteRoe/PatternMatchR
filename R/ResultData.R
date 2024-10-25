@@ -577,61 +577,6 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
   )
 }
 
-#' #' getAvailNForP_VALBorder
-#' #' counts traits with at least 2 elements > P_VAL_BORDER
-#' #' @param DF data.frame with P_Val
-#' #' @return data.frame with reduced data set
-#' # examples getAvailNForP_VALBorder(data.frame)
-#' getAvailNForP_VALBorder <- function(DF) {
-#'   id <- shiny::showNotification("Getting available n...", duration = NULL, closeButton = FALSE)
-#'   base::on.exit(shiny::removeNotification(id), add = TRUE)
-#'   base::tryCatch(
-#'     {
-#'       numRows <- 300
-#'       result <- base::matrix(nrow = numRows, ncol = 2)
-#'       for (i in 1:numRows) {
-#'         mat <- DF
-#'         P_VAL_BORDER <- 5 * 10^-i
-#'         mat[mat > P_VAL_BORDER] <- NA
-#'         mat <-
-#'           delete.na(mat, ncol(mat) - 1) # -1, because we need at least 2 traits to associate
-#'         n <- base::nrow(mat)
-#'         if (!base::is.numeric(n)) {
-#'           break()
-#'         }
-#'         if (n <= 1) {
-#'           break()
-#'         }
-#'         base::print(
-#'           base::paste0(
-#'             sysTimePID(),
-#'             " counting remaining probes at p = ",
-#'             P_VAL_BORDER,
-#'             " remaining n = ",
-#'             n
-#'           )
-#'         )
-#'         result[i, 1] <- P_VAL_BORDER
-#'         result[i, 2] <- n
-#'       }
-#'       colnames(result) <- base::c("maximum P_VAL_BORDER", "Available n")
-#'       result <- result[1:i - 1, ]
-#'       result <- base::as.data.frame((result))
-#'       result <- result[base::order(result[1]), ]
-#'     },
-#'     error = function(e) {
-#'       base::message("An error occurred in getAvailNForP_VALBorder():\n", e)
-#'     },
-#'     warning = function(w) {
-#'       base::message("A warning occurred in getAvailNForP_VALBorder():\n", w)
-#'     },
-#'     finally = {
-#'       base::print(base::paste0(sysTimePID(), " end getAvailNForP_VALBorder()."))
-#'       return(result)
-#'     }
-#'   )
-#' }
-
 #' delete.na
 #' deletes rows with all NA from data.frame DF
 #' @param df data.frame

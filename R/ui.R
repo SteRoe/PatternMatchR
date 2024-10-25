@@ -226,10 +226,10 @@ generate_ui <- function() {
                           inline = FALSE
                         )
                       ),
-                      # shiny::tabPanel(
-                      #   "HeatMap P_Val Details",
-                      #   HeatMap_UI("HeatMap_Full_DetailsPval")
-                      # ),
+                      shiny::tabPanel(
+                        "HeatMap P_Val Details",
+                        HeatMap_UI("HeatMap_Full_DetailsPval")
+                      ),
                       shiny::tabPanel(
                         "Dendrogram Probes",
                         plotly::plotlyOutput("traitReducedPlotDendrogramProbesPval", height = "80%")
@@ -273,10 +273,10 @@ generate_ui <- function() {
                           inline = FALSE
                         )
                       ),
-                      # shiny::tabPanel(
-                      #   "HeatMap log(FC) Details",
-                      #   HeatMap_UI("HeatMap_Full_DetailsLogFC")
-                      # ),
+                      shiny::tabPanel(
+                        "HeatMap log(FC) Details",
+                        HeatMap_UI("HeatMap_Full_DetailsLogFC")
+                      ),
                       shiny::tabPanel(
                         "Dendrogram Probes",
                         plotly::plotlyOutput("traitReducedPlotDendrogramProbesLogFC", height = "80%")

@@ -187,7 +187,6 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
 updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
   base::tryCatch(
     {
-#browser()
       result <- NULL
       if (is.valid(pReducedcombinedDFP_Val_Labels)) {
         result <- base::paste0("p reduce successful. result table is: nrow (CpG): ",

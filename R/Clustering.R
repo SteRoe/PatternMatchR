@@ -215,6 +215,7 @@ Clustering_SERVER <- function(id, pReducedDataStructure, traitReducedDataStructu
                                 result <- NULL
                                 if (is.valid(pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
                                   if (is.valid(session$userData$sessionVariables$numClusters())) {
+
                                     result <- pReducedDataStructure()
                                     base::print(base::paste0(sysTimePID(), " (btnOmitTraitsPval) start generating traitClusterMedoids."))
                                     if (is.valid(result$clustResTraits) && is.valid(result$distMatTraits)) {
