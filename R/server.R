@@ -1752,6 +1752,7 @@ browser() # should not happen
                 #take only first 2^16 entities to be able to plot volcano plot using plotly
                 if(nrow(dfVolcano)>2^16) {
                   dfVolcano <- dfVolcano[1:2^16-1,]
+                  dfKeyShadow <- dfKeyShadow[1:2^16-1,]
                 }
                 result$dfVolcano <- dfVolcano
                 result$dfKeyShadow <- dfKeyShadow
@@ -1836,7 +1837,6 @@ browser() # should not happen
           dfN <- dfN[which(rownames(dfN) %in% DNAdistances$ID), ]
           result$combinedDFP_Val_Labels$dfN <- dfN
           rm(dfN)
-
           # distance matrix for traits based on p-val
           result$matP_Val.t <- t(as.matrix(result$combinedDFP_Val_Labels$dfP_Val))
           numberCores <- session$userData$numCores
@@ -1905,108 +1905,37 @@ browser() # should not happen
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
           result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
 
           result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
-          result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+          result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes) #this line crashes...
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
           result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
           result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
 
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
           result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
-          # base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start generating distMatProbes."))
-          # dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-          # if (is.valid(dfP_Val)) {
-          #   dfP_Val[dfP_Val > 0.05] <- NA # 1
-          #   base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) calculating distance matrix with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
-          #   base::print(base::class(dfP_Val))
-          #   base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
-          #   dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
-          #   base::print(Cstack_info())
-          #   if (base::nrow(dfP_Val) >= 5) {
-          #     numberCores <- session$userData$numCores
-          #     # clustering for rows
-          #     base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) before distance matrix for n(probes) = ", base::nrow(dfP_Val), " (takes some time). Using n(cores) = ", numberCores, "."))
-          #     gc()
-          #     result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = dfP_Val)
-          #     base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) after distance matrix for probes.", base::nrow(dfP_Val)))
-          #   }
-          # }
-          # else {
-          #   result$distMatProbes <- NULL
-          # }
+
           result$dfVolcano <- traitReducedDataStructure$dfVolcano
           result$dfKeyShadow <- traitReducedDataStructure$dfKeyShadow
-
-          # dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC
-          # if (is.valid(dfLogFC)) {
-          #   dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-          #   if (is.valid(dfP_Val)) {
-          #     #take everything into one column...
-          #     dfLogFC$cg <- row.names(dfLogFC)
-          #     dfLogFC <- tidyr::pivot_longer(dfLogFC, cols  = -cg, names_to = c("trait"))
-          #     colnames(dfLogFC)[3] <- "LogFC"
-          #     dfP_Val$cg <- row.names(dfP_Val)
-          #     dfP_Val <- tidyr::pivot_longer(dfP_Val, cols  = -cg, names_to = c("trait"))
-          #     colnames(dfP_Val)[3] <- "P_Val"
-          #     dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("cg","trait"), by.y = c("cg","trait"), all.x = FALSE, all.y = FALSE)
-          #     #create shadow table for key assignment
-          #     #add probe trait and traitsource to key
-          #     originTrait <- result$combinedDFP_Val_Labels$mergedOriginTrait
-          #     originTrait <- rep(originTrait, nprobes)
-          #     #browser()
-          #     keys <- seq(1:nrow(dfVolcano))
-          #     dfKeyShadow <- base::data.frame(key = keys)
-          #     dfKeyShadow$probe <- dfVolcano$probe
-          #     dfKeyShadow$trait <- dfVolcano$trait
-          #     dfKeyShadow$traitSource <- originTrait
-          #     dfVolcano$key <- dfKeyShadow$key
-          #     rownames(dfVolcano) <- dfVolcano$key
-          #     rownames(dfKeyShadow) <- dfKeyShadow$key
-          #     result$dfVolcano <- dfVolcano
-          #     result$dfKeyShadow <- dfKeyShadow
-          #   }
-          #   else {
-          #     result$dfVolcano <- NULL
-          #     browser() # should not happen
-          #   }
-          # }
-          # else {
-          #   result$dfVolcano <- NULL
-          #   result$dfVolcano <- dfVolcano
-          #   result$dfKeyShadow <- dfKeyShadow
-          #
-          #   browser() # should not happen
-          # }
-          # base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) start clustResProbes."))
-          # distMat <- result$distMatProbes
-          # if (is.valid(distMat)) {
-          #   result$clustResProbes <- getClustResFast(distMat)
-          # }
-          # else {
-          #   result$clustResProbes <- NULL
-          # }
-          # if (is.valid(result$clustResProbes)) {
-          #   result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
-          # }
-          # else {
-          #   result$probeDendrogram <- NULL
-          # }
         }
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$probeReducedGeneralDataStructure):\n", e)
+        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$probeReducedDataStructure):\n", e)
         browser() #should not happen
       },
       warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$probeReducedGeneralDataStructure):\n", w)
+        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$probeReducedDataStructure):\n", w)
         browser() #should not happen
       },
       finally = {
@@ -2042,20 +1971,26 @@ browser() # should not happen
           result$DNAdistances <- DNAdistances
           dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
           dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
-          result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
-          matP_Val <- base::as.matrix(dfP_Val)
-          dt <- data.table::data.table(matP_Val)
+          if(nrow(dfP_Val)>0) {
+            result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
+            matP_Val <- base::as.matrix(dfP_Val)
+            dt <- data.table::data.table(matP_Val)
+            # build set union of vec and dt
+            DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfP_Val)), ]
+            vec <- DNAdistances$meanDistance # take means# or
+            # vec <- DNAdistances$number # take numbers
+            # normalize vec to -1...1
+            vec <-  scales::rescale(vec, to = c(-1, 1))
+            # invert vec, so that small distances become large multiplies
+            vec <- vec * -1
 
-          vec <- DNAdistances$meanDistance # take means# or
-          # vec <- DNAdistances$number # take numbers
-          # normalize vec to -1...1
-          vec <-  scales::rescale(vec, to = c(-1, 1))
-          # invert vec, so that small distances become large multiplies
-          vec <- vec * -1
-
-          result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
-          rm(dt)
-
+            result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
+            rm(dt)
+          }
+          else {
+            base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure\n"))
+            result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+          }
           result$combinedDFP_Val_Labels$dfDM <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM
           result$combinedDFP_Val_Labels$dfN <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN
           result$matP_Val.t <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$matP_Val.t
@@ -2072,12 +2007,23 @@ browser() # should not happen
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
           result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
           #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+
+          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+          result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
           result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
@@ -2128,20 +2074,25 @@ browser() # should not happen
           result$DNAdistances <- DNAdistances
           dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
           dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
-          result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
-          matP_Val <- base::as.matrix(dfP_Val)
-          dt <- data.table::data.table(matP_Val)
-
-          vec <- DNAdistances$meanDistance # take means# or
-          # vec <- DNAdistances$number # take numbers
-          # normalize vec to -1...1
-          vec <-  scales::rescale(vec, to = c(-1, 1))
-          # invert vec, so that small distances become large multiplies
-          vec <- vec * -1
-
-          result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
-          rm(dt)
-
+          if (nrow(dfP_Val)>0) {
+            result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
+            matP_Val <- base::as.matrix(dfP_Val)
+            dt <- data.table::data.table(matP_Val)
+            # build set union of vec and dt
+            DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfP_Val)), ]
+            vec <- DNAdistances$meanDistance # take means# or
+            # vec <- DNAdistances$number # take numbers
+            # normalize vec to -1...1
+            vec <-  scales::rescale(vec, to = c(-1, 1))
+            # invert vec, so that small distances become large multiplies
+            vec <- vec * -1
+            result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
+            rm(dt)
+          }
+          else {
+            base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure\n"))
+            result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+          }
           result$combinedDFP_Val_Labels$dfDM <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDM
           result$combinedDFP_Val_Labels$dfN <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfN
           result$matP_Val.t <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$matP_Val.t
@@ -2158,12 +2109,23 @@ browser() # should not happen
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
           result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
           result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
           result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
           #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+
+          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+          result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes) #this line crashes...
+          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+          nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
           result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
           col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
           result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
