@@ -11,180 +11,210 @@ Clustering_UI <- function(id) {
     ),
     shiny::verbatimTextOutput(ns("txtOmitOut"), placeholder = TRUE),
     shiny::fluidRow(
-      shiny::tabsetPanel(
-        shiny::tabPanel(
-          "Dendrogram Traits",
-          shiny::plotOutput(outputId = ns("plotDendrogramTraitsLong"))
-        #  plotly::plotlyOutput(ns("plotDendrogramTraitsLong")) #, inline = TRUE
-        ),
-        shiny::tabPanel(
-          "Clustergram Traits",
-          shiny::plotOutput(outputId = ns("plotClustergramTraitsLong"))
-        #  plotly::plotlyOutput(outputId = ns("plotClustergramTraitsLong"), width = "100%")
-        ),
-        shiny::tabPanel(
-          "DT Cluster Medoids Traits",
-          #DT::dataTableOutput(ns("DTTraitsMedoids")),
-          DT::DTOutput(outputId = ns("DTTraitsMedoids"))
-        ),
-        shiny::tabPanel(
-          "DT Cluster Assignment Traits",
-          DT::DTOutput(outputId = ns("DTTraitsClusters"))
-        ),
-        shiny::tabPanel(
-          "Histograms/DT on CpG Distances of Clustering Results",
+      shiny::tabsetPanel(#tabset
+        shiny::tabPanel( #tab non-distance weighted data
+          "Non-Distance Weighted Clustering Results",
           shiny::tabsetPanel(
             shiny::tabPanel(
-              "Mean Distance Probes = 10 CpG up/down",
-              shiny::tabsetPanel(
-                shiny::tabPanel(
-                  "Histogram",
-                  shiny::tabsetPanel(
-                    shiny::tabPanel(
-                      "min",
-                      plotly::plotlyOutput(outputId = ns("histMinDistance10"), inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "mean",
-                      plotly::plotlyOutput(outputId = ns("histMeanDistance10"), inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "max",
-                      plotly::plotlyOutput(outputId = ns("histMaxDistance10"), inline = TRUE)
-                    )
-                  )
-                ),
-                shiny::tabPanel(
-                  "Table",
-                  shiny::tabsetPanel(
-                    shiny::tabPanel(
-                      "reduced",
-                      DT::dataTableOutput(outputId = ns("DTDistance10reduced"))
-                    ),
-                    shiny::tabPanel(
-                      "full",
-                      #table with histogram values
-                      DT::dataTableOutput(outputId = ns("DTDistance10"))
-                    )
-                  )
-                )
-              )
+              "Dendrogram Traits",
+              shiny::plotOutput(outputId = ns("plotDendrogramTraitsLong"))
+            #  plotly::plotlyOutput(ns("plotDendrogramTraitsLong")) #, inline = TRUE
             ),
             shiny::tabPanel(
-              "Mean Distance Probes = 100 CpG up/down",
+              "Clustergram Traits",
+              shiny::plotOutput(outputId = ns("plotClustergramTraitsLong"))
+            #  plotly::plotlyOutput(outputId = ns("plotClustergramTraitsLong"), width = "100%")
+            ),
+            shiny::tabPanel(
+              "DT Cluster Medoids Traits",
+              #DT::dataTableOutput(ns("DTTraitsMedoids")),
+              DT::DTOutput(outputId = ns("DTTraitsMedoids"))
+            ),
+            shiny::tabPanel(
+              "DT Cluster Assignment Traits",
+              DT::DTOutput(outputId = ns("DTTraitsClusters"))
+            ),
+            shiny::tabPanel(
+              "Histograms/DT on CpG Distances of Clustering Results",
               shiny::tabsetPanel(
                 shiny::tabPanel(
-                  "Histogram",
+                  "Mean Distance Probes = 10 CpG up/down",
                   shiny::tabsetPanel(
                     shiny::tabPanel(
-                      "min",
-                      plotly::plotlyOutput(outputId = ns("histMinDistance100"), inline = TRUE)
+                      "Histogram",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "min",
+                          plotly::plotlyOutput(outputId = ns("histMinDistance10"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "mean",
+                          plotly::plotlyOutput(outputId = ns("histMeanDistance10"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "max",
+                          plotly::plotlyOutput(outputId = ns("histMaxDistance10"), inline = TRUE)
+                        )
+                      )
                     ),
                     shiny::tabPanel(
-                      "mean",
-                      plotly::plotlyOutput(outputId = ns("histMeanDistance100"), inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "max",
-                      plotly::plotlyOutput(outputId = ns("histMaxDistance100"), inline = TRUE)
+                      "Table",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "reduced",
+                          DT::dataTableOutput(outputId = ns("DTDistance10reduced"))
+                        ),
+                        shiny::tabPanel(
+                          "full",
+                          #table with histogram values
+                          DT::dataTableOutput(outputId = ns("DTDistance10"))
+                        )
+                      )
                     )
                   )
                 ),
                 shiny::tabPanel(
-                  "Table",
+                  "Mean Distance Probes = 100 CpG up/down",
                   shiny::tabsetPanel(
                     shiny::tabPanel(
-                      "reduced",
-                      DT::dataTableOutput(outputId = ns("DTDistance100reduced"))
+                      "Histogram",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "min",
+                          plotly::plotlyOutput(outputId = ns("histMinDistance100"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "mean",
+                          plotly::plotlyOutput(outputId = ns("histMeanDistance100"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "max",
+                          plotly::plotlyOutput(outputId = ns("histMaxDistance100"), inline = TRUE)
+                        )
+                      )
                     ),
                     shiny::tabPanel(
-                      "full",
-                      #table with histogram values
-                      DT::dataTableOutput(outputId = ns("DTDistance100"))
+                      "Table",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "reduced",
+                          DT::dataTableOutput(outputId = ns("DTDistance100reduced"))
+                        ),
+                        shiny::tabPanel(
+                          "full",
+                          #table with histogram values
+                          DT::dataTableOutput(outputId = ns("DTDistance100"))
+                        ) #end tabPanel
+                      ) #end tabsetPanel
                     ) #end tabPanel
                   ) #end tabsetPanel
-                ) #end tabPanel
-              ) #end tabsetPanel
-            ), #end tabPanel
-            shiny::tabPanel(
-              "Mean Distance Probes = 1000 CpG up/down",
-              shiny::tabsetPanel(
+                ), #end tabPanel
                 shiny::tabPanel(
-                  "Histogram",
+                  "Mean Distance Probes = 1000 CpG up/down",
                   shiny::tabsetPanel(
                     shiny::tabPanel(
-                      "min",
-                      plotly::plotlyOutput(outputId = ns("histMinDistance1000"), inline = TRUE)
+                      "Histogram",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "min",
+                          plotly::plotlyOutput(outputId = ns("histMinDistance1000"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "mean",
+                          plotly::plotlyOutput(outputId = ns("histMeanDistance1000"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "max",
+                          plotly::plotlyOutput(outputId = ns("histMaxDistance1000"), inline = TRUE)
+                        )
+                      )
                     ),
                     shiny::tabPanel(
-                      "mean",
-                      plotly::plotlyOutput(outputId = ns("histMeanDistance1000"), inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "max",
-                      plotly::plotlyOutput(outputId = ns("histMaxDistance1000"), inline = TRUE)
+                      "Table",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "reduced",
+                          DT::dataTableOutput(outputId = ns("DTDistance1000reduced"))
+                        ),
+                        shiny::tabPanel(
+                          "full",
+                          #table with histogram values
+                          DT::dataTableOutput(outputId = ns("DTDistance1000"))
+                        )
+                      )
                     )
                   )
                 ),
                 shiny::tabPanel(
-                  "Table",
+                  "Mean Distance Probes = 10000 CpG up/down",
                   shiny::tabsetPanel(
                     shiny::tabPanel(
-                      "reduced",
-                      DT::dataTableOutput(outputId = ns("DTDistance1000reduced"))
+                      "Histogram",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "min",
+                          plotly::plotlyOutput(outputId = ns("histMinDistance10000"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "mean",
+                          plotly::plotlyOutput(outputId = ns("histMeanDistance10000"), inline = TRUE)
+                        ),
+                        shiny::tabPanel(
+                          "max",
+                          plotly::plotlyOutput(outputId = ns("histMaxDistance10000"), inline = TRUE)
+                        )
+                      )
                     ),
                     shiny::tabPanel(
-                      "full",
-                      #table with histogram values
-                      DT::dataTableOutput(outputId = ns("DTDistance1000"))
-                    )
-                  )
-                )
-              )
-            ),
-            shiny::tabPanel(
-              "Mean Distance Probes = 10000 CpG up/down",
-              shiny::tabsetPanel(
-                shiny::tabPanel(
-                  "Histogram",
-                  shiny::tabsetPanel(
-                    shiny::tabPanel(
-                      "min",
-                      plotly::plotlyOutput(outputId = ns("histMinDistance10000"), inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "mean",
-                      plotly::plotlyOutput(outputId = ns("histMeanDistance10000"), inline = TRUE)
-                    ),
-                    shiny::tabPanel(
-                      "max",
-                      plotly::plotlyOutput(outputId = ns("histMaxDistance10000"), inline = TRUE)
-                    )
-                  )
-                ),
-                shiny::tabPanel(
-                  "Table",
-                  shiny::tabsetPanel(
-                    shiny::tabPanel(
-                      "reduced",
-                      DT::dataTableOutput(outputId = ns("DTDistance10000reduced"))
-                    ),
-                    shiny::tabPanel(
-                      "full",
-                      #table with histogram values
-                      DT::dataTableOutput(outputId = ns("DTDistance10000"))
+                      "Table",
+                      shiny::tabsetPanel(
+                        shiny::tabPanel(
+                          "reduced",
+                          DT::dataTableOutput(outputId = ns("DTDistance10000reduced"))
+                        ),
+                        shiny::tabPanel(
+                          "full",
+                          #table with histogram values
+                          DT::dataTableOutput(outputId = ns("DTDistance10000"))
+                        ) #end tabPanel
+                      ) #end tabsetPanel
                     ) #end tabPanel
                   ) #end tabsetPanel
                 ) #end tabPanel
               ) #end tabsetPanel
             ) #end tabPanel
           ) #end tabsetPanel
-        ) #end tabPanel
-      ) #end tabsetPanel
+        ), #end tab non-distance weighted data
+        # shiny::tabPanel( #tab distance weighted data
+        #   "Distance Weighted Clustering Results - experimental",
+        #   shiny::tabsetPanel(
+        #     shiny::tabPanel(
+        #       "Dendrogram Traits",
+        #       shiny::plotOutput(outputId = ns("plotDWDendrogramTraitsLong"))
+        #       #  plotly::plotlyOutput(ns("plotDWDendrogramTraitsLong")) #, inline = TRUE
+        #     ),
+        #     shiny::tabPanel(
+        #       "Clustergram Traits",
+        #       shiny::plotOutput(outputId = ns("plotDWClustergramTraitsLong"))
+        #       #  plotly::plotlyOutput(outputId = ns("plotDWClustergramTraitsLong"), width = "100%")
+        #     ),
+        #     shiny::tabPanel(
+        #       "DT Cluster Medoids Traits",
+        #       #DT::dataTableOutput(ns("DTDWTraitsMedoids")),
+        #       DT::DTOutput(outputId = ns("DTDWTraitsMedoids"))
+        #     ),
+        #     shiny::tabPanel(
+        #       "DT Cluster Assignment Traits",
+        #       DT::DTOutput(outputId = ns("DTDWTraitsClusters"))
+        #     )
+        #   )
+        # )#end tab distance weighted data
+      )#end tabset
     ) #end fluidRow
   ) #end tagList
 }
 
+#Clustering_SERVER <- function(id, pReducedDataStructure, traitReducedDataStructure, DistanceMultipliedtraitReducedDataStructure, session) {
 Clustering_SERVER <- function(id, pReducedDataStructure, traitReducedDataStructure, session) {
   shiny::moduleServer(id, function(input, output, session) {
     base::tryCatch({
@@ -357,12 +387,26 @@ Clustering_SERVER <- function(id, pReducedDataStructure, traitReducedDataStructu
         }
       })
 
+      # shiny::observe({
+      #   if(is.valid(DistanceMultipliedtraitReducedDataStructure()$traitDendrogram)) {
+      #     output$plotDWDendrogramTraitsLong <- shiny::renderPlot(getPlot(DistanceMultipliedtraitReducedDataStructure()$traitDendrogram))
+      #     #output$plotDendrogramTraitsLong <- plotly::renderPlotly(getPlot(traitReducedDataStructure()$traitDendrogram))
+      #   }
+      # })
+
       shiny::observe({
         if(is.valid(traitReducedDataStructure()$traitClustergram)) {
           output$plotClustergramTraitsLong <- shiny::renderPlot(getPlot(traitReducedDataStructure()$traitClustergram))
           #output$plotClustergramTraitsLong <- plotly::renderPlotly(getPlot(traitReducedDataStructure()$traitClustergram))
         }
       })
+
+      # shiny::observe({
+      #   if(is.valid(DistanceMultipliedtraitReducedDataStructure()$traitClustergram)) {
+      #     output$plotDWClustergramTraitsLong <- shiny::renderPlot(getPlot(DistanceMultipliedtraitReducedDataStructure()$traitClustergram))
+      #     #output$plotClustergramTraitsLong <- plotly::renderPlotly(getPlot(traitReducedDataStructure()$traitClustergram))
+      #   }
+      # })
 
       shiny::observe({
         if(is.valid(traitReducedDataStructure()$traitClusterMedoids)) {
@@ -371,10 +415,22 @@ Clustering_SERVER <- function(id, pReducedDataStructure, traitReducedDataStructu
         }
       })
 
+      # shiny::observe({
+      #   if(is.valid(DistanceMultipliedtraitReducedDataStructure()$traitClusterMedoids)) {
+      #     output$DTDWTraitsMedoids <- DT::renderDataTable(as.data.frame(getMedoidsTable(DistanceMultipliedtraitReducedDataStructure()$traitClusterMedoids)))
+      #     #output$DTTraitsMedoids <- DT::renderDataTable(as.data.frame(mtcars))
+      #   }
+      # })
+
       shiny::observe({
         output$DTTraitsClusters <- DT::renderDataTable(as.data.frame(getClustersTable(traitReducedDataStructure()$traitClusters,
                                                                                                      traitReducedDataStructure()$traitClusterMedoids)))
       })
+
+      # shiny::observe({
+      #   output$DTDWTraitsClusters <- DT::renderDataTable(as.data.frame(getClustersTable(DistanceMultipliedtraitReducedDataStructure()$traitClusters,
+      #                                                                                   DistanceMultipliedtraitReducedDataStructure()$traitClusterMedoids)))
+      # })
     },
     error = function(e) {
       base::message("An error occurred in moduleServer in Clustering_SERVER:\n", e)

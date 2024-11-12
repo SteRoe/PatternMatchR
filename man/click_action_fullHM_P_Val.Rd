@@ -2,7 +2,27 @@
 % Please edit documentation in R/HeatMap.R
 \name{click_action_fullHM_P_Val}
 \alias{click_action_fullHM_P_Val}
-\title{click_action_fullHM_P_Val}
+\title{#' plotCombinedCondDWHM_P_Val
+#' plots condensed distance weighted heatmap
+#' @param input shiny input
+#' @param output shiny output
+#' @param session shiny session
+#' @return nothing
+#' examples plotCombinedCondDWHM_P_Val(input, output, session)
+plotCombinedCondDWHM_P_Val <- function(input, output, session) {
+id <- shiny::showNotification("Plotting condensed distance weighted heatmap for p-val...", duration = NULL, closeButton = FALSE)
+base::on.exit(shiny::removeNotification(id), add = TRUE)
+base::tryCatch({
+base::print(base::paste0(sysTimePID(), " start plotting condensed distance weighted heatmap for P_Val."))
+output$txtCondDWHMDescription_P_Val <-
+shiny::renderText(base::paste0("calculating condensedDW heatmap..., current plot is not valid"))
+while (!is.null(grDevices::dev.list())) {
+grDevices::dev.off()
+}
+#combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure(numNeighbours = 10)$combinedDFP_Val_Labels
+combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels
+dfP_Val <- combinedDFP_Val_Labels$dfP_Val
+#browser() #if step 3 was omitted, we see an error here...}
 \usage{
 click_action_fullHM_P_Val(df, input, output, session)
 }
@@ -19,5 +39,16 @@ click_action_fullHM_P_Val(df, input, output, session)
 nothing; function info label for click action in HM
 }
 \description{
-click_action_fullHM_P_Val
+\if{html}{\out{<div class="sourceCode">}}\preformatted{base::print(base::paste0(sysTimePID(), " calculating combined heatmap with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+base::print(base::class(dfP_Val))
+if (nrow(dfP_Val) > 5) \{
+  startTime <- Sys.time()
+  base::print(base::paste0(sysTimePID(), " gc()"))
+  gc()
+  # check clustResProbes > 8
+  base::options(expressions = 500000)
+}\if{html}{\out{</div>}}
+}
+\details{
+
 }

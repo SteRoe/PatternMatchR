@@ -2,8 +2,23 @@
 % Please edit documentation in R/HeatMap.R
 \name{plotCombinedCondHM_P_Val}
 \alias{plotCombinedCondHM_P_Val}
-\title{plotCombinedCondHM_P_Val
-plots condensed heatmap}
+\title{#' plotCombinedDWHM_P_Val
+#' plots distance weighted heatmap
+#' @param input shiny input
+#' @param output shiny output
+#' @param session shiny session
+#' @return nothing
+#' examples plotCombinedDWHM_P_Val(input, output, session)
+plotCombinedDWHM_P_Val <- function(input, output, session) {
+id <- shiny::showNotification("Plotting distance weighted heatmap for p-val...", duration = NULL, closeButton = FALSE)
+base::on.exit(shiny::removeNotification(id), add = TRUE)
+base::print(base::paste0(sysTimePID(), " start plotting distance weighted heatmap for P_Val."))
+output$txtDWHMDescription_P_Val <-
+shiny::renderText(base::paste0("calculating DW heatmap..., current plot is not valid"))
+while (!is.null(grDevices::dev.list())) {
+grDevices::dev.off()
+}
+combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels}
 \usage{
 plotCombinedCondHM_P_Val(input, output, session)
 }
@@ -19,6 +34,13 @@ nothing
 examples plotCombinedCondHM_P_Val(input, output, session)
 }
 \description{
-plotCombinedCondHM_P_Val
-plots condensed heatmap
+dfP_Val <- combinedDFP_Val_Labels$dfP_Val
+#browser() #if step 3 was omitted, we see an error here...
 }
+\details{
+
+}
+\section{dfP_Val\link{dfP_Val > 0.05} <- NA # 1}{
+
+}
+

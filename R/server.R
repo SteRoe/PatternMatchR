@@ -114,7 +114,11 @@ server <- function(input, output, session) {
 
 ################################################################################
   Clustering_SERVER("P_Val", session$userData$sessionVariables$pReducedDataStructurePVal, session$userData$sessionVariables$traitReducedDataStructurePVal, session)
+  #Clustering_SERVER("P_Val", session$userData$sessionVariables$pReducedDataStructurePVal, session$userData$sessionVariables$traitReducedDataStructurePVal, session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal, session)
+
   Clustering_SERVER("LogFC", session$userData$sessionVariables$pReducedDataStructureLogFC, session$userData$sessionVariables$traitReducedDataStructureLogFC, session)
+  #Clustering_SERVER("LogFC", session$userData$sessionVariables$pReducedDataStructureLogFC, session$userData$sessionVariables$traitReducedDataStructureLogFC, session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructureLogFC, session)
+
   Search_Full_SERVER("Search", session)
   GlobalSelection_SERVER("GlobalSelection", session)
   VolcanoPlot_SERVER("VolcanoPlot", session)
@@ -235,35 +239,35 @@ server <- function(input, output, session) {
     }
   })
 
-  shiny::observe({
-    if (!is.valid(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
-      #shinyjs::disable("Full Distance Weighted Data")
-      shinyjs::disable("btnPlotCombinedDWHM_P_Val")
-      shinyjs::disable("numDWHMHSize")
-      shinyjs::disable("numDWHMVSize")
-    }
-    else {
-      #shinyjs::enable("Full Distance Weighted Data")
-      shinyjs::enable("btnPlotCombinedDWHM_P_Val")
-      shinyjs::enable("numDWHMHSize")
-      shinyjs::enable("numDWHMVSize")
-    }
-  })
-
-  shiny::observe({
-    if (!is.valid(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
-      #shinyjs::disable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
-      shinyjs::disable("btnPlotCombinedCondDWHM_P_Val")
-      shinyjs::disable("numCondDWHMHSize")
-      shinyjs::disable("numCondDWHMVSize")
-    }
-    else {
-      #shinyjs::enable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
-      shinyjs::enable("btnPlotCombinedCondDWHM_P_Val")
-      shinyjs::enable("numCondDWHMHSize")
-      shinyjs::enable("numCondDWHMVSize")
-    }
-  })
+  # shiny::observe({
+  #   if (!is.valid(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+  #     #shinyjs::disable("Full Distance Weighted Data")
+  #     shinyjs::disable("btnPlotCombinedDWHM_P_Val")
+  #     shinyjs::disable("numDWHMHSize")
+  #     shinyjs::disable("numDWHMVSize")
+  #   }
+  #   else {
+  #     #shinyjs::enable("Full Distance Weighted Data")
+  #     shinyjs::enable("btnPlotCombinedDWHM_P_Val")
+  #     shinyjs::enable("numDWHMHSize")
+  #     shinyjs::enable("numDWHMVSize")
+  #   }
+  # })
+  #
+  # shiny::observe({
+  #   if (!is.valid(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+  #     #shinyjs::disable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
+  #     shinyjs::disable("btnPlotCombinedCondDWHM_P_Val")
+  #     shinyjs::disable("numCondDWHMHSize")
+  #     shinyjs::disable("numCondDWHMVSize")
+  #   }
+  #   else {
+  #     #shinyjs::enable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
+  #     shinyjs::enable("btnPlotCombinedCondDWHM_P_Val")
+  #     shinyjs::enable("numCondDWHMHSize")
+  #     shinyjs::enable("numCondDWHMVSize")
+  #   }
+  # })
 
   session$userData$sessionVariables$numClusters <- shiny::reactive({input$sldNumClusters})
   session$userData$sessionVariables$numNeighbours <- shiny::reactive({input$sld_NumNeighbours})
@@ -905,24 +909,24 @@ server <- function(input, output, session) {
     })
   })
 
-  fullDWHistP_Val <- shiny::reactive({
-    base::tryCatch({
-      base::print(base::paste0(sysTimePID(), " start render plotly fullDWHistP_Val()."))
-      P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)))
-      result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "fullDWHistP_Val")
-    },
-    error = function(e) {
-      base::message("An error occurred in fullDWHistP_Val <- shiny::reactive():\n", e)
-      browser() #should not happen
-    },
-    warning = function(w) {
-      base::message("A warning occurred in fullDWHistP_Val <- shiny::reactive():\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " finished render plotly fullDWHistP_Val()."))
-      return(result)
-    })
-  })
+  # fullDWHistP_Val <- shiny::reactive({
+  #   base::tryCatch({
+  #     base::print(base::paste0(sysTimePID(), " start render plotly fullDWHistP_Val()."))
+  #     P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val)))
+  #     result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "fullDWHistP_Val")
+  #   },
+  #   error = function(e) {
+  #     base::message("An error occurred in fullDWHistP_Val <- shiny::reactive():\n", e)
+  #     browser() #should not happen
+  #   },
+  #   warning = function(w) {
+  #     base::message("A warning occurred in fullDWHistP_Val <- shiny::reactive():\n", w)
+  #   },
+  #   finally = {
+  #     base::print(base::paste0(sysTimePID(), " finished render plotly fullDWHistP_Val()."))
+  #     return(result)
+  #   })
+  # })
 
   condHistP_Val <- shiny::reactive({
     base::tryCatch({
@@ -943,24 +947,24 @@ server <- function(input, output, session) {
     })
   })
 
-  condDWHistP_Val <- shiny::reactive({
-    base::tryCatch({
-      base::print(base::paste0(sysTimePID(), " start render plotly condDWhistP_Val()."))
-      P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)))
-      result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_Val")
-    },
-    error = function(e) {
-      base::message("An error occurred in condDWHistP_Val <- shiny::reactive():\n", e)
-      browser() #should not happen
-    },
-    warning = function(w) {
-      base::message("A warning occurred in condDWHistP_Val <- shiny::reactive():\n", w)
-    },
-    finally = {
-      base::print(base::paste0(sysTimePID(), " finished render plotly condDWHistP_Val()."))
-      return(result)
-    })
-  })
+  # condDWHistP_Val <- shiny::reactive({
+  #   base::tryCatch({
+  #     base::print(base::paste0(sysTimePID(), " start render plotly condDWhistP_Val()."))
+  #     P_Val <- sort(as.numeric(unlist(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)))
+  #     result <- plotly::plot_ly(x = P_Val, type = "histogram", name = "histP_Val")
+  #   },
+  #   error = function(e) {
+  #     base::message("An error occurred in condDWHistP_Val <- shiny::reactive():\n", e)
+  #     browser() #should not happen
+  #   },
+  #   warning = function(w) {
+  #     base::message("A warning occurred in condDWHistP_Val <- shiny::reactive():\n", w)
+  #   },
+  #   finally = {
+  #     base::print(base::paste0(sysTimePID(), " finished render plotly condDWHistP_Val()."))
+  #     return(result)
+  #   })
+  # })
 
   shiny::observeEvent(input$btnExportCombinedData,
     ignoreInit = TRUE,
@@ -1050,37 +1054,37 @@ server <- function(input, output, session) {
   output$traitReducedHistLogFC <- plotly::renderPlotly(histLogFC())
 
   #("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
-  output$condDWDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
-  output$condDWDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
-  output$condDWDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
-  output$condDWDTProbes <- DT::renderDataTable(as.data.frame(condDWDTProbes()),
-                                               options = list(pageLength = 1000, info = FALSE,
-                                                              lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
-  output$condDWPlotDendrogramProbes <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResProbes,
-                                                                                  rotate = TRUE, theme_dendro = FALSE))
-  output$condDWDTTraits <- DT::renderDataTable(as.data.frame(condDWDTTraits()),
-                                               options = list(pageLength = 1000, info = FALSE,
-                                                              lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
-  output$condDWPlotDendrogramTraits <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResTraits,
-                                                                                   rotate = TRUE, theme_dendro = FALSE))
-  output$condDWHistP_Val <- plotly::renderPlotly(condDWHistP_Val())
-
-  #("Full Distance Weighted Data")
-  output$fullDWDTP_VALPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
-  output$fullDWDTDMPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
-  output$fullDWDTLogFCPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfLogFC_w_number))
-  output$fullDWDTNPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
-  output$fullDWDTProbesPval <- DT::renderDataTable(as.data.frame(fullDWDTProbes()),
-                                               options = list(pageLength = 1000, info = FALSE,
-                                                              lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
-  output$fullDWPlotDendrogramProbesPval <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$clustResProbes,
-                                                                                  rotate = TRUE, theme_dendro = FALSE))
-  output$fullDWDTTraitsPval <- DT::renderDataTable(as.data.frame(fullDWDTTraits()),
-                                               options = list(pageLength = 1000, info = FALSE,
-                                                              lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
-  output$fullDWPlotDendrogramTraitsPval <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$clustResTraits,
-                                                                                         rotate = TRUE, theme_dendro = FALSE))
-  output$fullDWHistP_Val <- plotly::renderPlotly(fullDWHistP_Val())
+  # output$condDWDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
+  # output$condDWDTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfDM_w_number))
+  # output$condDWDTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfN_w_number))
+  # output$condDWDTProbes <- DT::renderDataTable(as.data.frame(condDWDTProbes()),
+  #                                              options = list(pageLength = 1000, info = FALSE,
+  #                                                             lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
+  # output$condDWPlotDendrogramProbes <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResProbes,
+  #                                                                                 rotate = TRUE, theme_dendro = FALSE))
+  # output$condDWDTTraits <- DT::renderDataTable(as.data.frame(condDWDTTraits()),
+  #                                              options = list(pageLength = 1000, info = FALSE,
+  #                                                             lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
+  # output$condDWPlotDendrogramTraits <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResTraits,
+  #                                                                                  rotate = TRUE, theme_dendro = FALSE))
+  # output$condDWHistP_Val <- plotly::renderPlotly(condDWHistP_Val())
+  #
+  # #("Full Distance Weighted Data")
+  # output$fullDWDTP_VALPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val_w_number))
+  # output$fullDWDTDMPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM_w_number))
+  # output$fullDWDTLogFCPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfLogFC_w_number))
+  # output$fullDWDTNPval <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN_w_number))
+  # output$fullDWDTProbesPval <- DT::renderDataTable(as.data.frame(fullDWDTProbes()),
+  #                                              options = list(pageLength = 1000, info = FALSE,
+  #                                                             lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
+  # output$fullDWPlotDendrogramProbesPval <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$clustResProbes,
+  #                                                                                 rotate = TRUE, theme_dendro = FALSE))
+  # output$fullDWDTTraitsPval <- DT::renderDataTable(as.data.frame(fullDWDTTraits()),
+  #                                              options = list(pageLength = 1000, info = FALSE,
+  #                                                             lengthMenu = list(c(100, 1000, -1), c("100", "1000", "All"))))
+  # output$fullDWPlotDendrogramTraitsPval <- plotly::renderPlotly(ggdendro::ggdendrogram(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$clustResTraits,
+  #                                                                                        rotate = TRUE, theme_dendro = FALSE))
+  # output$fullDWHistP_Val <- plotly::renderPlotly(fullDWHistP_Val())
 
   #("Condensed Data (contains only CpG with nearby neighbours)")
   output$condDTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val_w_number))
@@ -1945,211 +1949,568 @@ browser() # should not happen
     )
   })
 
-  session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure <- shiny::reactive({
-    id <- shiny::showNotification("Creating distance multiplied trait reduced data structure...", duration = NULL, closeButton = FALSE)
-    on.exit(shiny::removeNotification(id), add = TRUE)
-    base::tryCatch(
-      {
-        if (is.valid(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val)) {
-          traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructurePVal()
-          result <- base::list(combinedDFP_Val_Labels = traitReducedDataStructure$combinedDFP_Val_Labels,
-                              matP_Val.t = NULL,
-                              distMatTraits = NULL,
-                              clustResTraits = NULL,
-                              traitClusters = NULL,
-                              traitClusterMedoids = NULL,
-                              traitDendrogram = NULL,
-                              traitClustergram = NULL,
-                              distMatProbes = NULL,
-                              clustResProbes = NULL,
-                              probeDendrogram = NULL,
-                              DNAdistances = NULL
-          )
-#          Distance <- input$sld_NumNeighbours
-#          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
-          DNAdistances <- session$userData$sessionVariables$traitReducedDataStructurePVal()$DNAdistances
-          result$DNAdistances <- DNAdistances
-          dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-          dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
-          if(nrow(dfP_Val)>0) {
-            result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
-            matP_Val <- base::as.matrix(dfP_Val)
-            dt <- data.table::data.table(matP_Val)
-            # build set union of vec and dt
-            DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfP_Val)), ]
-            vec <- DNAdistances$meanDistance # take means# or
-            # vec <- DNAdistances$number # take numbers
-            # normalize vec to -1...1
-            vec <-  scales::rescale(vec, to = c(-1, 1))
-            # invert vec, so that small distances become large multiplies
-            vec <- vec * -1
-
-            result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
-            rm(dt)
-          }
-          else {
-            base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure\n"))
-            result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-          }
-          result$combinedDFP_Val_Labels$dfDM <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM
-          result$combinedDFP_Val_Labels$dfN <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN
-          result$matP_Val.t <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$matP_Val.t
-          result$distMatTraits <- session$userData$sessionVariables$traitReducedDataStructurePVal()$distMatTraits
-          result$clustResTraits <- session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResTraits
-          result$traitClusters <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitClusters
-          result$traitClusterMedoids <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitClusterMedoids
-          result$traitDendrogram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitDendrogram
-          result$traitClustergram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitClustergram
-
-          result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
-          result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
-          result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
-          result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
-
-          result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
-          result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
-          result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
-          #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
-
-          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
-          result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
-          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
-          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
-
-          result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
-          result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
-          result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
-          result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
-
-          result$distMatProbes <- session$userData$sessionVariables$traitReducedDataStructurePVal()$distMatProbes
-          result$clustResProbes <- session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes
-          result$probeDendrogram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$probeDendrogram
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure):\n", e)
-        browser() #should not happen
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure):\n", w)
-        browser() #should not happen
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure\n"))
-        return(result)
-      }
-    )
-  })
-
-  session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure <- shiny::reactive({
-    id <- shiny::showNotification("Creating distance multiplied probe reduced data structure...", duration = NULL, closeButton = FALSE)
-    on.exit(shiny::removeNotification(id), add = TRUE)
-    base::tryCatch(
-      {
-        if (is.valid(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
-          probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructure()
-          result <- base::list(combinedDFP_Val_Labels = probeReducedDataStructure$combinedDFP_Val_Labels,
-                               matP_Val.t = NULL,
-                               distMatTraits = NULL,
-                               clustResTraits = NULL,
-                               traitClusters = NULL,
-                               traitClusterMedoids = NULL,
-                               traitDendrogram = NULL,
-                               traitClustergram = NULL,
-                               distMatProbes = NULL,
-                               clustResProbes = NULL,
-                               probeDendrogram = NULL,
-                               DNAdistances = NULL
-          )
-          DNAdistances <- probeReducedDataStructure$DNAdistances
-          DNAdistances <- na.omit(DNAdistances)
-          result$DNAdistances <- DNAdistances
-          dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-          dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
-          if (nrow(dfP_Val)>0) {
-            result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
-            matP_Val <- base::as.matrix(dfP_Val)
-            dt <- data.table::data.table(matP_Val)
-            # build set union of vec and dt
-            DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfP_Val)), ]
-            vec <- DNAdistances$meanDistance # take means# or
-            # vec <- DNAdistances$number # take numbers
-            # normalize vec to -1...1
-            vec <-  scales::rescale(vec, to = c(-1, 1))
-            # invert vec, so that small distances become large multiplies
-            vec <- vec * -1
-            result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
-            rm(dt)
-          }
-          else {
-            base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure\n"))
-            result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-          }
-          result$combinedDFP_Val_Labels$dfDM <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDM
-          result$combinedDFP_Val_Labels$dfN <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfN
-          result$matP_Val.t <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$matP_Val.t
-          result$distMatTraits <- session$userData$sessionVariables$probeReducedDataStructure()$distMatTraits
-          result$clustResTraits <- session$userData$sessionVariables$probeReducedDataStructure()$clustResTraits
-          result$traitClusters <- session$userData$sessionVariables$probeReducedDataStructure()$traitClusters
-          result$traitClusterMedoids <- session$userData$sessionVariables$probeReducedDataStructure()$traitClusterMedoids
-          result$traitDendrogram <- session$userData$sessionVariables$probeReducedDataStructure()$traitDendrogram
-          result$traitClustergram <- session$userData$sessionVariables$probeReducedDataStructure()$traitClustergram
-
-          result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
-          result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
-          result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
-          result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
-
-          result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
-          result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
-          result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
-          #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
-
-          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
-          result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes) #this line crashes...
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
-          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
-          result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
-
-          result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
-          nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
-          result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
-          col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
-          result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
-          result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
-
-                    result$distMatProbes <- session$userData$sessionVariables$probeReducedDataStructure()$distMatProbes
-          result$clustResProbes <- session$userData$sessionVariables$probeReducedDataStructure()$clustResProbes
-          result$probeDendrogram <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure):\n", e)
-        browser() #should not happen
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure):\n", w)
-        browser() #should not happen
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure\n"))
-        return(result)
-      }
-    )
-  })
+#   session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal <- shiny::reactive({
+#     id <- shiny::showNotification("Creating distance multiplied trait reduced data structure p-val...", duration = NULL, closeButton = FALSE)
+#     on.exit(shiny::removeNotification(id), add = TRUE)
+# browser()
+#     base::tryCatch(
+#       {
+#         if (is.valid(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val)) {
+#           traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructurePVal()
+#           result <- base::list(combinedDFP_Val_Labels = traitReducedDataStructure$combinedDFP_Val_Labels,
+#                               matP_Val.t = NULL,
+#                               distMatTraits = NULL,
+#                               clustResTraits = NULL,
+#                               traitClusters = NULL,
+#                               traitClusterMedoids = NULL,
+#                               traitDendrogram = NULL,
+#                               traitClustergram = NULL,
+#                               distMatProbes = NULL,
+#                               clustResProbes = NULL,
+#                               probeDendrogram = NULL,
+#                               DNAdistances = NULL
+#           )
+# #          Distance <- input$sld_NumNeighbours
+# #          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
+#           DNAdistances <- session$userData$sessionVariables$traitReducedDataStructurePVal()$DNAdistances
+#           if(is.valid(DNAdistances)) {
+#             result$DNAdistances <- DNAdistances
+#             dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#             dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
+#             if(nrow(dfP_Val)>0) {
+#               rownames <- rownames(dfP_Val)
+#               result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
+#               matP_Val <- base::as.matrix(dfP_Val)
+#               dt <- data.table::data.table(matP_Val)
+#               # build set union of vec and dt
+#               DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfP_Val)), ]
+#               vec <- DNAdistances$meanDistance # take means# or
+#               # vec <- DNAdistances$number # take numbers
+#               # normalize vec to -1...1
+#               vec <-  scales::rescale(vec, to = c(-1, 1))
+#               # invert vec, so that small distances become large multiplies
+#               vec <- vec * -1
+#
+#               result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
+#               rownames(result$combinedDFP_Val_Labels$dfP_Val) <- rownames
+#               rm(dt)
+#             }
+#             else {
+#               base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal\n"))
+#               result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#             }
+# # browser()
+# #             #build subset
+# #             rowlabels <- rownames(result$combinedDFP_Val_Labels$dfP_Val)
+# #             columnlabels <- colnames(result$combinedDFP_Val_Labels$dfP_Val) #tbc() apply for all the other df's; notice, that if no results inside DW results, then there is no union set between neighbouring cpg and prior selection (distance to look too small)
+# #             dfDM <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM
+# #             dfDM <- dfDM[which(rownames(dfDM) %in% rowlabels), which(colnames(dfDM) %in% columnlabels)]
+# #             result$combinedDFP_Val_Labels$dfDM <- dfDM
+# #             result$combinedDFP_Val_Labels$dfDM
+# #             dfN <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN
+# #             dfN <- dfN[which(rownames(dfN) %in% rowlabels), which(colnames(dfN) %in% columnlabels)]
+# #             result$combinedDFP_Val_Labels$dfN <- dfN
+#
+#             # calculate transposed matP_Val and clustering
+#             matP_Val <- na.omit(result$combinedDFP_Val_Labels$dfP_Val) #omit empty rows
+#             result$matP_Val.t <- t(as.matrix(matP_Val))
+#             numberCores <- session$userData$numCores
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) before distance matrix (log(FC)) for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
+#             if (!is.null(result$matP_Val.t)) {
+#               result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matP_Val.t)
+#             }
+#             else {
+#               result$distMatTraits <- NULL
+#             }
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) after distance matrix (log(FC)) for reduced traits."))
+#
+#             #calculate result$traitClusters and beyond from above clustering results
+#             #for unknown reason getClustResFast() crashes, if executed without Sys.sleep in advance...
+#             Sys.sleep(1)
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) before clustering for traits.", base::nrow(result$matP_Val.t)))
+# browser() #tbc() check is.valid -> yes, it has too many missings, if neighbours window is too narrow ; therefore no clustering
+#             if (is.valid(result$distMatTraits)) {
+#               result$clustResTraits <- getClustResFast(result$distMatTraits)
+#             }
+#             else {
+#               result$clustResTraits <- NULL
+#             }
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) after clustering results for traits."))
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) start generating traitClusters."))
+#             numClusters <- length(result$clustResTraits$order)
+#             if (is.valid(result$clustResTraits) && numClusters > 1) {
+#               result$traitClusters <- cutree(result$clustResTraits,
+#                                              k = numClusters)
+#             }
+#             else {
+#               result$traitClusters <- NULL
+#             }
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) start generating traitClusterMedoids."))
+#             if (is.valid(result$clustResTraits) && is.valid(result$distMatTraits)) {
+#               result$traitClusterMedoids <- getTraitClusterMedoids(clustResTraits = result$clustResTraits,
+#                                                                    distMatTraits = result$distMatTraits,
+#                                                                    numClusters = numClusters)
+#             }
+#             else {
+#               result$traitClusterMedoids <- NULL
+#             }
+#
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) start generating traitDendrogram."))
+#             #do this only, if a dataset is already loaded
+#             if (is.valid(result$clustResTraits)) {
+#               result$traitDendrogram <- getDendTraits(clustResTraits = result$clustResTraits, traitClusters = numClusters)
+#               base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) after making traitDendrogram."))
+#             }
+#             else {
+#               result$traitDendrogram <- NULL
+#             }
+#
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) start generating traitClustergram."))
+#             if (is.valid(result$matP_Val.t) && is.valid(result$clustResTraits)) {
+#               result$traitClustergram <- getplotClustergramTraitsLong(mat.t = result$matP_Val.t,
+#                                                                       clustResTraits = result$clustResTraits,
+#                                                                       traitClusters = numClusters)
+#             }
+#             else {
+#               result$traitClustergram <- NULL
+#             }
+#
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
+#             result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+#             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+#             #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
+#             result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+#
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) start generating distMatProbes."))
+#             dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#             if (is.valid(dfP_Val)) {
+#               dfP_Val[dfP_Val > 0.05] <- NA # 1
+#               base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) calculating distance matrix with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+#               base::print(base::class(dfP_Val))
+#               base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
+#               dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
+#               base::print(Cstack_info())
+#               if (base::nrow(dfP_Val) >= 5) {
+#                 numberCores <- session$userData$numCores
+#                 # clustering for rows
+#                 base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) before distance matrix for n(probes) = ", base::nrow(dfP_Val), " (takes some time). Using n(cores) = ", numberCores, "."))
+#                 gc()
+#                 result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = dfP_Val)
+#                 base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) after distance matrix for probes.", base::nrow(dfP_Val)))
+#               }
+#             }
+#             else {
+#               result$distMatProbes <- NULL
+#               browser() # should not happen
+#             }
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) start clustResProbes."))
+#             distMat <- result$distMatProbes
+#             if (is.valid(distMat)) {
+#               result$clustResProbes <- getClustResFast(distMat)
+#             }
+#             else {
+#               result$clustResProbes <- NULL
+#               browser() # should not happen
+#             }
+#             if (is.valid(result$clustResTraits)) {
+#               # add "number" and reorder columns; order comes from result$clustResTraits
+#               result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+#               result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+#               result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[, result$clustResTraits$order]
+#               result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[, result$clustResTraits$order]
+#             }
+#             else {
+#               browser() #should not happen
+#             }
+#
+#             if (is.valid(result$clustResProbes)) {
+#               result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
+#               #reorder rows; order comes from result$clustResProbes
+#               result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+#               result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+#               result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[result$clustResProbes$order, ]
+#               result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[result$clustResProbes$order, ]
+#             }
+#             else {
+#               result$probeDendrogram <- NULL
+#               browser() # should not happen
+#             }
+#             # result$distMatProbes <- session$userData$sessionVariables$traitReducedDataStructurePVal()$distMatProbes
+#             # result$clustResProbes <- session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes
+#             # result$probeDendrogram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$probeDendrogram
+#           }
+#           else {
+#             result <- NULL
+#           }
+#         }
+#       },
+#       error = function(e) {
+#         base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal):\n", e)
+#         browser() #should not happen
+#       },
+#       warning = function(w) {
+#         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal):\n", w)
+#         browser() #should not happen
+#       },
+#       finally = {
+#         base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal\n"))
+#         return(result)
+#       }
+#     )
+#   })
+#
+#   session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructureLogFC <- shiny::reactive({
+#     id <- shiny::showNotification("Creating distance multiplied trait reduced data structure log(FC)...", duration = NULL, closeButton = FALSE)
+#     on.exit(shiny::removeNotification(id), add = TRUE)
+#     browser()
+#     base::tryCatch(
+#       {
+#         if (is.valid(session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfP_Val)) {
+#           traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructurePVal()
+#           result <- base::list(combinedDFP_Val_Labels = traitReducedDataStructure$combinedDFP_Val_Labels,
+#                                matP_Val.t = NULL,
+#                                distMatTraits = NULL,
+#                                clustResTraits = NULL,
+#                                traitClusters = NULL,
+#                                traitClusterMedoids = NULL,
+#                                traitDendrogram = NULL,
+#                                traitClustergram = NULL,
+#                                distMatProbes = NULL,
+#                                clustResProbes = NULL,
+#                                probeDendrogram = NULL,
+#                                DNAdistances = NULL
+#           )
+#           #          Distance <- input$sld_NumNeighbours
+#           #          DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructure()$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = session$userData$numCores)
+#           DNAdistances <- session$userData$sessionVariables$traitReducedDataStructurePVal()$DNAdistances
+#           if(is.valid(DNAdistances)) {
+#             result$DNAdistances <- DNAdistances
+#             dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC
+#             dfLogFC <- dfLogFC[which(rownames(dfLogFC) %in% DNAdistances$ID), ]
+#             if(nrow(dfLogFC)>0) {
+#               rownames <- rownames(dfLogFC)
+#               matLogFC <- base::as.matrix(dfLogFC)
+#               dt <- data.table::data.table(matLogFC)
+#               # build set union of vec and dt
+#               DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfLogFC)), ]
+#               vec <- DNAdistances$meanDistance # take means# or
+#               # vec <- DNAdistances$number # take numbers
+#               # normalize vec to -1...1
+#               vec <-  scales::rescale(vec, to = c(-1, 1))
+#               # invert vec, so that small distances become large multiplies
+#               vec <- vec * -1
+#
+#               result$combinedDFP_Val_Labels$dfLogFC <- data.table::data.table(t(t(dt) * vec))
+#               rownames(result$combinedDFP_Val_Labels$dfLogFC) <- rownames
+#               rm(dt)
+#             }
+#             else {
+#               base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal\n"))
+#               result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC
+#             }
+#             # calculate transposed LogFC
+#             matLogFC <- na.omit(result$combinedDFP_Val_Labels$dfLogFC) #omit empty rows
+#             result$matLogFC.t <- t(as.matrix(matLogFC))
+#             numberCores <- session$userData$numCores
+#             base::print(paste0(sysTimePID(), " (pReducedDataStructureLogFC) before distance matrix (log(FC)) for n(reduced traits) = ", base::nrow(result$matP_Val.t), " (takes some time). Using n(cores) = ", numberCores, "."))
+#             if (!is.null(result$matLogFC.t)) {
+#               result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matLogFC.t)
+#             }
+#             else {
+#               result$distMatTraits <- NULL
+#             }
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) after distance matrix (log(FC)) for reduced traits."))
+#             #calculate result$traitClusters and beyond from above clustering results
+#             #for unknown reason getClustResFast() crashes, if executed without Sys.sleep in advance...
+#             Sys.sleep(1)
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) before clustering for traits.", base::nrow(result$matP_Val.t)))
+# browser() #tbc() check is.valid
+#             if (is.valid(result$distMatTraits)) {
+#               result$clustResTraits <- getClustResFast(result$distMatTraits)
+#             }
+#             else {
+#               result$clustResTraits <- NULL
+#             }
+#             base::print(paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) after clustering results for traits."))
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) start generating traitClusters."))
+#             numClusters <- length(result$clustResTraits$order)
+#             if (is.valid(result$clustResTraits) && numClusters > 1) {
+#               result$traitClusters <- cutree(result$clustResTraits,
+#                                              k = numClusters)
+#             }
+#             else {
+#               result$traitClusters <- NULL
+#             }
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) start generating traitClusterMedoids."))
+#             if (is.valid(result$clustResTraits) && is.valid(result$distMatTraits)) {
+#               result$traitClusterMedoids <- getTraitClusterMedoids(clustResTraits = result$clustResTraits,
+#                                                                    distMatTraits = result$distMatTraits,
+#                                                                    numClusters = numClusters)
+#             }
+#             else {
+#               result$traitClusterMedoids <- NULL
+#             }
+#
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) start generating traitDendrogram."))
+#             #do this only, if a dataset is already loaded
+#             if (is.valid(result$clustResTraits)) {
+#               result$traitDendrogram <- getDendTraits(clustResTraits = result$clustResTraits, traitClusters = numClusters)
+#               base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) after making traitDendrogram."))
+#             }
+#             else {
+#               result$traitDendrogram <- NULL
+#             }
+#
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) start generating traitClustergram."))
+#             if (is.valid(result$matP_Val.t) && is.valid(result$clustResTraits)) {
+#               result$traitClustergram <- getplotClustergramTraitsLong(mat.t = result$matP_Val.t,
+#                                                                       clustResTraits = result$clustResTraits,
+#                                                                       traitClusters = numClusters)
+#             }
+#             else {
+#               result$traitClustergram <- NULL
+#             }
+#             # result$traitClusters <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitClusters
+#             # result$traitClusterMedoids <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitClusterMedoids
+#             # result$traitDendrogram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitDendrogram
+#             # result$traitClustergram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitClustergram
+#
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
+#             result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+#             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+#             #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
+#             result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+#
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) start generating distMatProbes."))
+#             dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#             if (is.valid(dfP_Val)) {
+#               dfP_Val[dfP_Val > 0.05] <- NA # 1
+#               base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) calculating distance matrix with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+#               base::print(base::class(dfP_Val))
+#               base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
+#               dfP_Val[base::is.na(dfP_Val)] <- 1 # set missing P_VAL to 1
+#               base::print(Cstack_info())
+#               if (base::nrow(dfP_Val) >= 5) {
+#                 numberCores <- session$userData$numCores
+#                 # clustering for rows
+#                 base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) before distance matrix for n(probes) = ", base::nrow(dfP_Val), " (takes some time). Using n(cores) = ", numberCores, "."))
+#                 gc()
+#                 result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = dfP_Val)
+#                 base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructurePVal) after distance matrix for probes.", base::nrow(dfP_Val)))
+#               }
+#             }
+#             else {
+#               result$distMatProbes <- NULL
+#               browser() # should not happen
+#             }
+#             base::print(base::paste0(sysTimePID(), " (distanceMultipliedTraitReducedDataStructureLogFC) start clustResProbes."))
+#             distMat <- result$distMatProbes
+#             if (is.valid(distMat)) {
+#               result$clustResProbes <- getClustResFast(distMat)
+#             }
+#             else {
+#               result$clustResProbes <- NULL
+#               browser() # should not happen
+#             }
+#             if (is.valid(result$clustResTraits)) {
+#               # add "number" and reorder columns; order comes from result$clustResTraits
+#               result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+#               result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[, result$clustResTraits$order]
+#               result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[, result$clustResTraits$order]
+#               result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[, result$clustResTraits$order]
+#             }
+#             else {
+#               browser() #should not happen; happens mostly in debug mode, if there are too few valid cases
+#             }
+#
+#             if (is.valid(result$clustResProbes)) {
+#               result$probeDendrogram <- stats::as.dendrogram(result$clustResProbes)
+#               #reorder rows; order comes from result$clustResProbes
+#               result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+#               result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+#               result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[result$clustResProbes$order, ]
+#               result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[result$clustResProbes$order, ]
+#             }
+#             else {
+#               result$probeDendrogram <- NULL
+#               browser() # should not happen
+#             }
+#
+#             # result$distMatProbes <- session$userData$sessionVariables$traitReducedDataStructurePVal()$distMatProbes
+#             # result$clustResProbes <- session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes
+#             # result$probeDendrogram <- session$userData$sessionVariables$traitReducedDataStructurePVal()$probeDendrogram
+#           }
+#           else {
+#             result <- NULL
+#           }
+#         }
+#       },
+#       error = function(e) {
+#         base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructureLogFC):\n", e)
+#         browser() #should not happen
+#       },
+#       warning = function(w) {
+#         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructureLogFC):\n", w)
+#         browser() #should not happen
+#       },
+#       finally = {
+#         base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructureLogFC\n"))
+#         return(result)
+#       }
+#     )
+#   })
+#
+#   session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure <- shiny::reactive({
+#     id <- shiny::showNotification("Creating distance multiplied probe reduced data structure...", duration = NULL, closeButton = FALSE)
+#     on.exit(shiny::removeNotification(id), add = TRUE)
+# browser()
+#     base::tryCatch(
+#       {
+#         if (is.valid(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+#           probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructure()
+#           result <- base::list(combinedDFP_Val_Labels = probeReducedDataStructure$combinedDFP_Val_Labels,
+#                                matP_Val.t = NULL,
+#                                distMatTraits = NULL,
+#                                clustResTraits = NULL,
+#                                traitClusters = NULL,
+#                                traitClusterMedoids = NULL,
+#                                traitDendrogram = NULL,
+#                                traitClustergram = NULL,
+#                                distMatProbes = NULL,
+#                                clustResProbes = NULL,
+#                                probeDendrogram = NULL,
+#                                DNAdistances = NULL
+#           )
+#           DNAdistances <- probeReducedDataStructure$DNAdistances
+#           if(is.valid(DNAdistances)) {
+#             DNAdistances <- na.omit(DNAdistances)
+#             result$DNAdistances <- DNAdistances
+#             dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#             dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
+#             if (nrow(dfP_Val)>0) {
+#               result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
+#               matP_Val <- base::as.matrix(dfP_Val)
+#               dt <- data.table::data.table(matP_Val)
+#               # build set union of vec and dt
+#               DNAdistances <- DNAdistances[which(DNAdistances$ID %in% rownames(dfP_Val)), ]
+#               vec <- DNAdistances$meanDistance # take means# or
+#               # vec <- DNAdistances$number # take numbers
+#               # normalize vec to -1...1
+#               vec <-  scales::rescale(vec, to = c(-1, 1))
+#               # invert vec, so that small distances become large multiplies
+#               vec <- vec * -1
+#               result$combinedDFP_Val_Labels$dfP_Val <- data.table::data.table(t(t(dt) * vec))
+#               rm(dt)
+#             }
+#             else {
+#               base::print(base::paste0(sysTimePID(), " no set union between DNAdistances and dfP_Val in session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure\n"))
+#               result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+#             }
+#             result$combinedDFP_Val_Labels$dfDM <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfDM
+#             result$combinedDFP_Val_Labels$dfN <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$dfN
+#             result$matP_Val.t <- session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels$matP_Val.t
+#             result$distMatTraits <- session$userData$sessionVariables$probeReducedDataStructure()$distMatTraits
+#             result$clustResTraits <- session$userData$sessionVariables$probeReducedDataStructure()$clustResTraits
+#             result$traitClusters <- session$userData$sessionVariables$probeReducedDataStructure()$traitClusters
+#             result$traitClusterMedoids <- session$userData$sessionVariables$probeReducedDataStructure()$traitClusterMedoids
+#             result$traitDendrogram <- session$userData$sessionVariables$probeReducedDataStructure()$traitDendrogram
+#             result$traitClustergram <- session$userData$sessionVariables$probeReducedDataStructure()$traitClustergram
+#
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
+#             result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+#             result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+#             #              result$dfDM_w_number <- result$dfDM[ , -which(colnames(result$dfDM_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes) #this line crashes...
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+#
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+#             nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
+#             result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+#             col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+#             result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+#
+#                       result$distMatProbes <- session$userData$sessionVariables$probeReducedDataStructure()$distMatProbes
+#             result$clustResProbes <- session$userData$sessionVariables$probeReducedDataStructure()$clustResProbes
+#             result$probeDendrogram <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
+#           }
+#           else {
+#             result <- NULL
+#           }
+#         }
+#       },
+#       error = function(e) {
+#         base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure):\n", e)
+#         browser() #should not happen
+#       },
+#       warning = function(w) {
+#         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure):\n", w)
+#         browser() #should not happen
+#       },
+#       finally = {
+#         base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure\n"))
+#         return(result)
+#       }
+#     )
+#   })
 
   traitReducedDTProbesPval <- shiny::reactive({
     id <- shiny::showNotification("Creating trait reduced data table probes (p-val)...", duration = NULL, closeButton = FALSE)
@@ -2263,97 +2624,97 @@ browser() # should not happen
     )
   })
 
-  fullDWDTProbes <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating fullDWDTProbes"))
-        base::print(base::paste0(sysTimePID(), " before making probe table."))
-        if (!is.null(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$clustResProbes)) {
-          dendProbes <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$probeDendrogram
-          listProbes <- (base::labels(dendProbes))
-          DTProbes <-
-            base::data.frame(row.names = seq_along(listProbes))
-          DTProbes$probeID <- listProbes
-          DTProbes$order <- base::seq_len(base::nrow(DTProbes))
-          rownames(DTProbes) <- DTProbes$probeID
-          # add annotation
-          DTProbes <-
-            base::merge(
-              x = DTProbes,
-              y = session$userData$annotation,
-              by.x = "probeID",
-              by.y = "name",
-              all.x = TRUE,
-              all.y = FALSE
-            )
-          # sort
-          DTProbes <- DTProbes[base::order(DTProbes$order), ]
-          rownames(DTProbes) <- DTProbes$probeID
-          result <- DTProbes
-          base::print(base::paste0(sysTimePID(), " after making probe table."))
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(fullDWDTProbes):\n", e)
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(fullDWDTProbes):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating fullDWDTProbes"))
-        return(result)
-      }
-    )
-  })
-
-  DWDTProbes <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating DWDTProbes"))
-        base::print(base::paste0(sysTimePID(), " before making probe table."))
-        if (!is.null(session$userData$sessionVariables$probeReducedDataStructure()$clustResProbes)) {
-          dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
-          listProbes <- (base::labels(dendProbes)) # base::as.numeric
-          DTProbes <-
-            base::data.frame(row.names = seq_along(listProbes))
-          DTProbes$probeID <- listProbes
-          DTProbes$order <- base::seq_len(base::nrow(DTProbes))
-          rownames(DTProbes) <- DTProbes$probeID
-          # add annotation
-          DTProbes <-
-            base::merge(
-              x = DTProbes,
-              y = session$userData$annotation, #y = globalVariables$annotation,
-              by.x = "probeID",
-              by.y = "name",
-              all.x = TRUE,
-              all.y = FALSE
-            )
-          # sort
-          DTProbes <- DTProbes[base::order(DTProbes$order), ]
-          rownames(DTProbes) <- DTProbes$probeID
-          result <- DTProbes
-          base::print(base::paste0(sysTimePID(), " after making probe table."))
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(DWDTProbes):\n", e)
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(DWDTProbes):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating DWDTProbes"))
-        return(result)
-      }
-    )
-  })
+  # fullDWDTProbes <- shiny::reactive({
+  #   base::tryCatch(
+  #     {
+  #       base::print(base::paste0(sysTimePID(), " start generating fullDWDTProbes"))
+  #       base::print(base::paste0(sysTimePID(), " before making probe table."))
+  #       if (!is.null(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$clustResProbes)) {
+  #         dendProbes <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$probeDendrogram
+  #         listProbes <- (base::labels(dendProbes))
+  #         DTProbes <-
+  #           base::data.frame(row.names = seq_along(listProbes))
+  #         DTProbes$probeID <- listProbes
+  #         DTProbes$order <- base::seq_len(base::nrow(DTProbes))
+  #         rownames(DTProbes) <- DTProbes$probeID
+  #         # add annotation
+  #         DTProbes <-
+  #           base::merge(
+  #             x = DTProbes,
+  #             y = session$userData$annotation,
+  #             by.x = "probeID",
+  #             by.y = "name",
+  #             all.x = TRUE,
+  #             all.y = FALSE
+  #           )
+  #         # sort
+  #         DTProbes <- DTProbes[base::order(DTProbes$order), ]
+  #         rownames(DTProbes) <- DTProbes$probeID
+  #         result <- DTProbes
+  #         base::print(base::paste0(sysTimePID(), " after making probe table."))
+  #       }
+  #       else {
+  #         result <- NULL
+  #       }
+  #     },
+  #     error = function(e) {
+  #       base::message("An error occurred in shiny::reactive(fullDWDTProbes):\n", e)
+  #     },
+  #     warning = function(w) {
+  #       base::message("A warning occurred in shiny::reactive(fullDWDTProbes):\n", w)
+  #     },
+  #     finally = {
+  #       base::print(base::paste0(sysTimePID(), " finished generating fullDWDTProbes"))
+  #       return(result)
+  #     }
+  #   )
+  # })
+  #
+  # DWDTProbes <- shiny::reactive({
+  #   base::tryCatch(
+  #     {
+  #       base::print(base::paste0(sysTimePID(), " start generating DWDTProbes"))
+  #       base::print(base::paste0(sysTimePID(), " before making probe table."))
+  #       if (!is.null(session$userData$sessionVariables$probeReducedDataStructure()$clustResProbes)) {
+  #         dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
+  #         listProbes <- (base::labels(dendProbes)) # base::as.numeric
+  #         DTProbes <-
+  #           base::data.frame(row.names = seq_along(listProbes))
+  #         DTProbes$probeID <- listProbes
+  #         DTProbes$order <- base::seq_len(base::nrow(DTProbes))
+  #         rownames(DTProbes) <- DTProbes$probeID
+  #         # add annotation
+  #         DTProbes <-
+  #           base::merge(
+  #             x = DTProbes,
+  #             y = session$userData$annotation, #y = globalVariables$annotation,
+  #             by.x = "probeID",
+  #             by.y = "name",
+  #             all.x = TRUE,
+  #             all.y = FALSE
+  #           )
+  #         # sort
+  #         DTProbes <- DTProbes[base::order(DTProbes$order), ]
+  #         rownames(DTProbes) <- DTProbes$probeID
+  #         result <- DTProbes
+  #         base::print(base::paste0(sysTimePID(), " after making probe table."))
+  #       }
+  #       else {
+  #         result <- NULL
+  #       }
+  #     },
+  #     error = function(e) {
+  #       base::message("An error occurred in shiny::reactive(DWDTProbes):\n", e)
+  #     },
+  #     warning = function(w) {
+  #       base::message("A warning occurred in shiny::reactive(DWDTProbes):\n", w)
+  #     },
+  #     finally = {
+  #       base::print(base::paste0(sysTimePID(), " finished generating DWDTProbes"))
+  #       return(result)
+  #     }
+  #   )
+  # })
 
   condDTProbes <- shiny::reactive({
     base::tryCatch(
@@ -2402,51 +2763,51 @@ browser() # should not happen
     )
   })
 
-  condDWDTProbes <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating condDWDTProbes"))
-        base::print(base::paste0(sysTimePID(), " before making probe table."))
-        if (!is.null(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResProbes)) {
-          dendProbes <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$probeDendrogram
-          listProbes <- (base::labels(dendProbes)) # base::as.numeric
-          DTProbes <-
-            base::data.frame(row.names = seq_along(listProbes))
-          DTProbes$probeID <- listProbes
-          DTProbes$order <- base::seq_len(base::nrow(DTProbes))
-          rownames(DTProbes) <- DTProbes$probeID
-          # add annotation
-          DTProbes <-
-            base::merge(
-              x = DTProbes,
-              y = session$userData$annotation, #y = globalVariables$annotation,
-              by.x = "probeID",
-              by.y = "name",
-              all.x = TRUE,
-              all.y = FALSE
-            )
-          # sort
-          DTProbes <- DTProbes[base::order(DTProbes$order), ]
-          rownames(DTProbes) <- DTProbes$probeID
-          result <- DTProbes
-          base::print(base::paste0(sysTimePID(), " after making probe table."))
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(condDWDTProbes):\n", e)
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(condDWDTProbes):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating condDWDTProbes"))
-        return(result)
-      }
-    )
-  })
+  # condDWDTProbes <- shiny::reactive({
+  #   base::tryCatch(
+  #     {
+  #       base::print(base::paste0(sysTimePID(), " start generating condDWDTProbes"))
+  #       base::print(base::paste0(sysTimePID(), " before making probe table."))
+  #       if (!is.null(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResProbes)) {
+  #         dendProbes <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$probeDendrogram
+  #         listProbes <- (base::labels(dendProbes)) # base::as.numeric
+  #         DTProbes <-
+  #           base::data.frame(row.names = seq_along(listProbes))
+  #         DTProbes$probeID <- listProbes
+  #         DTProbes$order <- base::seq_len(base::nrow(DTProbes))
+  #         rownames(DTProbes) <- DTProbes$probeID
+  #         # add annotation
+  #         DTProbes <-
+  #           base::merge(
+  #             x = DTProbes,
+  #             y = session$userData$annotation, #y = globalVariables$annotation,
+  #             by.x = "probeID",
+  #             by.y = "name",
+  #             all.x = TRUE,
+  #             all.y = FALSE
+  #           )
+  #         # sort
+  #         DTProbes <- DTProbes[base::order(DTProbes$order), ]
+  #         rownames(DTProbes) <- DTProbes$probeID
+  #         result <- DTProbes
+  #         base::print(base::paste0(sysTimePID(), " after making probe table."))
+  #       }
+  #       else {
+  #         result <- NULL
+  #       }
+  #     },
+  #     error = function(e) {
+  #       base::message("An error occurred in shiny::reactive(condDWDTProbes):\n", e)
+  #     },
+  #     warning = function(w) {
+  #       base::message("A warning occurred in shiny::reactive(condDWDTProbes):\n", w)
+  #     },
+  #     finally = {
+  #       base::print(base::paste0(sysTimePID(), " finished generating condDWDTProbes"))
+  #       return(result)
+  #     }
+  #   )
+  # })
 
   DTTraitsPval <- shiny::reactive({
     id <- shiny::showNotification("Creating data table traits (p-val)...", duration = NULL, closeButton = FALSE)
@@ -2522,40 +2883,40 @@ browser() # should not happen
     )
   })
 
-  fullDWDTTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating fullDWDTTraits"))
-        base::print(base::paste0(sysTimePID(), " before making traits table."))
-        if (!is.null(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$clustResTraits)) {
-          listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$clustResTraits, type = "rectangle")$labels$label
-
-          base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
-          DTTraits <-
-            base::data.frame(row.names = seq_along(listTraits))
-          DTTraits$Name <- listTraits
-          DTTraits$order <- base::seq_len(base::nrow(DTTraits))
-          rownames(DTTraits) <- DTTraits$Name
-          DTTraits <- DTTraits[order(DTTraits$order), ]
-          base::print(base::paste0(sysTimePID(), " after making traits table."))
-          result <- DTTraits
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(fullDWDTTraits):\n", e)
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(fullDWDTTraits):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating fullDWDTTraits"))
-        return(result)
-      }
-    )
-  })
+  # fullDWDTTraits <- shiny::reactive({
+  #   base::tryCatch(
+  #     {
+  #       base::print(base::paste0(sysTimePID(), " start generating fullDWDTTraits"))
+  #       base::print(base::paste0(sysTimePID(), " before making traits table."))
+  #       if (!is.null(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$clustResTraits)) {
+  #         listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$clustResTraits, type = "rectangle")$labels$label
+  #
+  #         base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
+  #         DTTraits <-
+  #           base::data.frame(row.names = seq_along(listTraits))
+  #         DTTraits$Name <- listTraits
+  #         DTTraits$order <- base::seq_len(base::nrow(DTTraits))
+  #         rownames(DTTraits) <- DTTraits$Name
+  #         DTTraits <- DTTraits[order(DTTraits$order), ]
+  #         base::print(base::paste0(sysTimePID(), " after making traits table."))
+  #         result <- DTTraits
+  #       }
+  #       else {
+  #         result <- NULL
+  #       }
+  #     },
+  #     error = function(e) {
+  #       base::message("An error occurred in shiny::reactive(fullDWDTTraits):\n", e)
+  #     },
+  #     warning = function(w) {
+  #       base::message("A warning occurred in shiny::reactive(fullDWDTTraits):\n", w)
+  #     },
+  #     finally = {
+  #       base::print(base::paste0(sysTimePID(), " finished generating fullDWDTTraits"))
+  #       return(result)
+  #     }
+  #   )
+  # })
 
   condDTTraits <- shiny::reactive({
     base::tryCatch(
@@ -2592,40 +2953,40 @@ browser() # should not happen
     )
   })
 
-  condDWDTTraits <- shiny::reactive({
-    base::tryCatch(
-      {
-        base::print(base::paste0(sysTimePID(), " start generating condDWDTTraits"))
-        base::print(base::paste0(sysTimePID(), " before making traits table."))
-        if (!is.null(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResTraits)) {
-          listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResTraits, type = "rectangle")$labels$label
-
-          base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
-          DTTraits <-
-            base::data.frame(row.names = seq_along(listTraits))
-          DTTraits$Name <- listTraits
-          DTTraits$order <- base::seq_len(base::nrow(DTTraits))
-          rownames(DTTraits) <- DTTraits$Name
-          DTTraits <- DTTraits[order(DTTraits$order), ]
-          base::print(base::paste0(sysTimePID(), " after making traits table."))
-          result <- DTTraits
-        }
-        else {
-          result <- NULL
-        }
-      },
-      error = function(e) {
-        base::message("An error occurred in shiny::reactive(condDWDTTraits):\n", e)
-      },
-      warning = function(w) {
-        base::message("A warning occurred in shiny::reactive(condDWDTTraits):\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished generating condDWDTTraits"))
-        return(result)
-      }
-    )
-  })
+  # condDWDTTraits <- shiny::reactive({
+  #   base::tryCatch(
+  #     {
+  #       base::print(base::paste0(sysTimePID(), " start generating condDWDTTraits"))
+  #       base::print(base::paste0(sysTimePID(), " before making traits table."))
+  #       if (!is.null(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResTraits)) {
+  #         listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$clustResTraits, type = "rectangle")$labels$label
+  #
+  #         base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
+  #         DTTraits <-
+  #           base::data.frame(row.names = seq_along(listTraits))
+  #         DTTraits$Name <- listTraits
+  #         DTTraits$order <- base::seq_len(base::nrow(DTTraits))
+  #         rownames(DTTraits) <- DTTraits$Name
+  #         DTTraits <- DTTraits[order(DTTraits$order), ]
+  #         base::print(base::paste0(sysTimePID(), " after making traits table."))
+  #         result <- DTTraits
+  #       }
+  #       else {
+  #         result <- NULL
+  #       }
+  #     },
+  #     error = function(e) {
+  #       base::message("An error occurred in shiny::reactive(condDWDTTraits):\n", e)
+  #     },
+  #     warning = function(w) {
+  #       base::message("A warning occurred in shiny::reactive(condDWDTTraits):\n", w)
+  #     },
+  #     finally = {
+  #       base::print(base::paste0(sysTimePID(), " finished generating condDWDTTraits"))
+  #       return(result)
+  #     }
+  #   )
+  # })
 
   observeEvent(input$keypressed,
    {

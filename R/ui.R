@@ -184,7 +184,7 @@ generate_ui <- function() {
                     min = 10,
                     max = 10000,
                     step = 10,
-                    value = 10
+                    value = 5000
                   ))
                 )
               ), #end fluidRow
@@ -300,74 +300,74 @@ generate_ui <- function() {
                       )
                     )
                   ), ## full non-modified data log(FC) end
-                  shiny::tabPanel(
-                    ##full DW data start
-                    "Distance weighted Data (negative p-values due to distance weighting) - experimental",
-                    shiny::tabsetPanel(
-                      shiny::tabPanel(
-                        "HeatMap P_Val",
-                        shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 5c: Plot distance weighted Heatmap P_Val"),
-                        shiny::verbatimTextOutput("txtDWHMDescription_P_Val", placeholder = TRUE),
-                        # shiny::column(
-                        #   width = 6,
-                        #   shinyjs::disabled(shiny::numericInput(inputId = "numDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
-                        # ),
-                        # shiny::column(
-                        #   width = 6,
-                        #   shinyjs::disabled(shiny::numericInput(inputId = "numDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
-                        # ),
-                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
-                          "DWHeatmap_P_Val",
-                          height1 = '95vh',
-                          width1 = 950,
-                          height2 = '95vh',
-                          width2 = 950,
-                          inline = FALSE
-                        )
-                      ),
-                      shiny::tabPanel(
-                        "Table P_Val",
-                        "Table of p-value; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTP_VALPval")
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation",
-                        "Table of delta methylation; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTDMPval")
-                      ),
-                      shiny::tabPanel(
-                        "Table Delta Methylation log(FC)",
-                        "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTlogFCPval")
-                      ),
-                      shiny::tabPanel(
-                        "Table N",
-                        "Table of n; clustering order comes from clustering of p-values.",
-                        DT::dataTableOutput("fullDWDTNPval")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Probes",
-                        plotly::plotlyOutput("fullDWPlotDendrogramProbesPval", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Annotated Table Probes",
-                        DT::dataTableOutput("fullDWDTProbesPval")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Traits",
-                        plotly::plotlyOutput("fullDWPlotDendrogramTraitsPval", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Table Traits",
-                        DT::dataTableOutput("fullDWDTTraitsPval")
-                      ),
-                      shiny::tabPanel(
-                        "Histogram P_Val",
-                        "Histogram of all p-values in condensed heatmap (number of p-values = number probes * number traits)",
-                        plotly::plotlyOutput("fullDWHistP_Val", inline = TRUE)
-                      )
-                    )
-                  ) ##full DW data end
+                  # shiny::tabPanel(
+                  #   ##full DW data start
+                  #   "Distance weighted Data (negative p-values due to distance weighting) - experimental",
+                  #   shiny::tabsetPanel(
+                  #     shiny::tabPanel(
+                  #       "HeatMap P_Val",
+                  #       shiny::actionButton("btnPlotCombinedDWHM_P_Val", label = "Step 5c: Plot distance weighted Heatmap P_Val"),
+                  #       shiny::verbatimTextOutput("txtDWHMDescription_P_Val", placeholder = TRUE),
+                  #       # shiny::column(
+                  #       #   width = 6,
+                  #       #   shinyjs::disabled(shiny::numericInput(inputId = "numDWHMHSize", label = "Width", value = 4000, min = 1000, max = 10000))
+                  #       # ),
+                  #       # shiny::column(
+                  #       #   width = 6,
+                  #       #   shinyjs::disabled(shiny::numericInput(inputId = "numDWHMVSize", label = "Height", value = 4000, min = 1000, max = 10000))
+                  #       # ),
+                  #       InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                  #         "DWHeatmap_P_Val",
+                  #         height1 = '95vh',
+                  #         width1 = 950,
+                  #         height2 = '95vh',
+                  #         width2 = 950,
+                  #         inline = FALSE
+                  #       )
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Table P_Val",
+                  #       "Table of p-value; clustering order comes from clustering of p-values.",
+                  #       DT::dataTableOutput("fullDWDTP_VALPval")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Table Delta Methylation",
+                  #       "Table of delta methylation; clustering order comes from clustering of p-values.",
+                  #       DT::dataTableOutput("fullDWDTDMPval")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Table Delta Methylation log(FC)",
+                  #       "Table of log fold change(delta methylation); clustering order comes from clustering of p-values.",
+                  #       DT::dataTableOutput("fullDWDTlogFCPval")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Table N",
+                  #       "Table of n; clustering order comes from clustering of p-values.",
+                  #       DT::dataTableOutput("fullDWDTNPval")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Dendrogram Probes",
+                  #       plotly::plotlyOutput("fullDWPlotDendrogramProbesPval", height = "80%")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Annotated Table Probes",
+                  #       DT::dataTableOutput("fullDWDTProbesPval")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Dendrogram Traits",
+                  #       plotly::plotlyOutput("fullDWPlotDendrogramTraitsPval", height = "80%")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Table Traits",
+                  #       DT::dataTableOutput("fullDWDTTraitsPval")
+                  #     ),
+                  #     shiny::tabPanel(
+                  #       "Histogram P_Val",
+                  #       "Histogram of all p-values in condensed heatmap (number of p-values = number probes * number traits)",
+                  #       plotly::plotlyOutput("fullDWHistP_Val", inline = TRUE)
+                  #     )
+                  #   )
+                  # ) ##full DW data end
                 )
               )
             ) #end bsCollapsePanel "Heatmap"
