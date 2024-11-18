@@ -1495,12 +1495,12 @@ server <- function(input, output, session) {
               }
               else {
                 result$dfVolcano <- NULL
-browser() # should not happen
+                browser() # should not happen
               }
             }
             else {
               result$dfVolcano <- NULL
-browser() # should not happen
+              browser() # should not happen
             }
 
           }

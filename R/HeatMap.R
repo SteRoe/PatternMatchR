@@ -1424,121 +1424,121 @@ plotCombinedHM_DMLogFC <- function(input, output, session) {
   })
 }
 
-#' #' plotCombinedDWHM_P_Val
-#' #' plots distance weighted heatmap
-#' #' @param input shiny input
-#' #' @param output shiny output
-#' #' @param session shiny session
-#' #' @return nothing
-#' #' examples plotCombinedDWHM_P_Val(input, output, session)
-#' plotCombinedDWHM_P_Val <- function(input, output, session) {
-#'   id <- shiny::showNotification("Plotting distance weighted heatmap for p-val...", duration = NULL, closeButton = FALSE)
-#'   base::on.exit(shiny::removeNotification(id), add = TRUE)
-#'   base::print(base::paste0(sysTimePID(), " start plotting distance weighted heatmap for P_Val."))
-#'   output$txtDWHMDescription_P_Val <-
-#'     shiny::renderText(base::paste0("calculating DW heatmap..., current plot is not valid"))
-#'   while (!is.null(grDevices::dev.list())) {
-#'     grDevices::dev.off()
-#'   }
-#'   combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels
-#'
-#'   dfP_Val <- combinedDFP_Val_Labels$dfP_Val
-#'   #browser() #if step 3 was omitted, we see an error here...
-#'   #  dfP_Val[dfP_Val > 0.05] <- NA # 1
-#'   base::print(
-#'     base::paste0(
-#'       sysTimePID(),
-#'       " calculating combined heatmap with rows= ",
-#'       nrow(dfP_Val),
-#'       " cols= ",
-#'       ncol(dfP_Val)
-#'     )
-#'   )
-#'   base::print(base::class(dfP_Val))
-#'   if (nrow(dfP_Val) > 5) {
-#'     startTime <- Sys.time()
-#'     base::print(base::paste0(sysTimePID(), " gc()"))
-#'     gc()
-#'     base::tryCatch({
-#'       # check clustResProbes > 8
-#'       #base::length(session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes)
-#'       #base::options(expression = 500000)
-#'       base::options(expressions = 500000)
-#'       dendProbes <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$probeDendrogram
-#'       maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
-#'       if (maxClassesProbes <= 7) {
-#'         dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
-#'       }
-#'       dendTraits <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$traitDendrogram
-#'
-#'       Distances <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$DNAdistances
-#'
-#'       base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
-#'
-#'       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
-#'       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-#'       length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
-#'       length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
-#'       selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
-#'       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
-#'       selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
-#'       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
-#'       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
-#'       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
-#'       #browser() #check, whether this is called twice
-#'       l <-
-#'         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
-#'       base::print(base::paste0(sysTimePID(), " before combinedHM <- l$combinedHM"))
-#'       combinedHM <- l$combinedHM
-#'
-#'       endTime <- Sys.time()
-#'       elapsedTime <- endTime - startTime
-#'       base::print(base::paste0(sysTimePID(), " after calculating heatmap. Elapsed time: ", elapsedTime, " sec."))
-#'       base::print(base::paste0(sysTimePID(), " before plotting heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
-#'       while (!base::is.null(grDevices::dev.list())) {
-#'         grDevices::dev.off()
-#'       }
-#'       startTime <- Sys.time()
-#'       InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
-#'         input = input,
-#'         output = output,
-#'         session = session,
-#'         ht_list = combinedHM,
-#'         heatmap_id = "DWHeatmap_P_Val",
-#'         show_layer_fun = TRUE
-#'         #        click_action = click_action_HM_P_Val,
-#'         #        brush_action = brush_action_HM_P_Val,
-#'         #        hover_action = hover_action_HM_P_Val
-#'       )
-#'     },
-#'     error = function(e) {
-#'       base::message("An error occurred in plotCombinedDWHM_P_Val():\n", e)
-#'       Cstack_info()
-#'       browser() #should not happen
-#'     },
-#'     warning = function(w) {
-#'       base::message("A warning occurred in plotCombinedDWHM_P_Val():\n", w)
-#'       browser() #should not happen
-#'     },
-#'     finally = {
-#'       endTime <- Sys.time()
-#'       elapsedTime <- endTime - startTime
-#'       base::print(base::paste0(sysTimePID(), " after plotting heatmap for DWP_Val; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
-#'       output$txtDWHMDescription_P_Val <-
-#'         shiny::renderText(
-#'           base::paste0(
-#'             sysTimePID(),
-#'             " done plotting heatmap for DWP_Val..., current plot is valid. n(probe) = ",
-#'             base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-#'             "; n(trait) = ",
-#'             base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-#'             "; elapsed time: ",
-#'             elapsedTime, " sec."
-#'           )
-#'         )
-#'     })
-#'   }
-#' }
+# plotCombinedDWHM_P_Val
+# plots distance weighted heatmap
+# @param input shiny input
+# @param output shiny output
+# @param session shiny session
+# @return nothing
+# examples plotCombinedDWHM_P_Val(input, output, session)
+# plotCombinedDWHM_P_Val <- function(input, output, session) {
+#   id <- shiny::showNotification("Plotting distance weighted heatmap for p-val...", duration = NULL, closeButton = FALSE)
+#   base::on.exit(shiny::removeNotification(id), add = TRUE)
+#   base::print(base::paste0(sysTimePID(), " start plotting distance weighted heatmap for P_Val."))
+#   output$txtDWHMDescription_P_Val <-
+#     shiny::renderText(base::paste0("calculating DW heatmap..., current plot is not valid"))
+#   while (!is.null(grDevices::dev.list())) {
+#     grDevices::dev.off()
+#   }
+#   combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$combinedDFP_Val_Labels
+#
+#   dfP_Val <- combinedDFP_Val_Labels$dfP_Val
+#   #browser() #if step 3 was omitted, we see an error here...
+#   #  dfP_Val[dfP_Val > 0.05] <- NA # 1
+#   base::print(
+#     base::paste0(
+#       sysTimePID(),
+#       " calculating combined heatmap with rows= ",
+#       nrow(dfP_Val),
+#       " cols= ",
+#       ncol(dfP_Val)
+#     )
+#   )
+#   base::print(base::class(dfP_Val))
+#   if (nrow(dfP_Val) > 5) {
+#     startTime <- Sys.time()
+#     base::print(base::paste0(sysTimePID(), " gc()"))
+#     gc()
+#     base::tryCatch({
+#       # check clustResProbes > 8
+#       #base::length(session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes)
+#       #base::options(expression = 500000)
+#       base::options(expressions = 500000)
+#       dendProbes <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$probeDendrogram
+#       maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+#       if (maxClassesProbes <= 7) {
+#         dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
+#       }
+#       dendTraits <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$traitDendrogram
+#
+#       Distances <- session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructurePVal()$DNAdistances
+#
+#       base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
+#
+#       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+#       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+#       length(unlist(dendTraits)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[2]
+#       length(unlist(dendProbes)) == base::dim(combinedDFP_Val_Labels$dfP_Val)[1]
+#       selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
+#       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
+#       selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
+#       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
+#       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
+#       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
+#       #browser() #check, whether this is called twice
+#       l <-
+#         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
+#       base::print(base::paste0(sysTimePID(), " before combinedHM <- l$combinedHM"))
+#       combinedHM <- l$combinedHM
+#
+#       endTime <- Sys.time()
+#       elapsedTime <- endTime - startTime
+#       base::print(base::paste0(sysTimePID(), " after calculating heatmap. Elapsed time: ", elapsedTime, " sec."))
+#       base::print(base::paste0(sysTimePID(), " before plotting heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
+#       while (!base::is.null(grDevices::dev.list())) {
+#         grDevices::dev.off()
+#       }
+#       startTime <- Sys.time()
+#       InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+#         input = input,
+#         output = output,
+#         session = session,
+#         ht_list = combinedHM,
+#         heatmap_id = "DWHeatmap_P_Val",
+#         show_layer_fun = TRUE
+#         #        click_action = click_action_HM_P_Val,
+#         #        brush_action = brush_action_HM_P_Val,
+#         #        hover_action = hover_action_HM_P_Val
+#       )
+#     },
+#     error = function(e) {
+#       base::message("An error occurred in plotCombinedDWHM_P_Val():\n", e)
+#       Cstack_info()
+#       browser() #should not happen
+#     },
+#     warning = function(w) {
+#       base::message("A warning occurred in plotCombinedDWHM_P_Val():\n", w)
+#       browser() #should not happen
+#     },
+#     finally = {
+#       endTime <- Sys.time()
+#       elapsedTime <- endTime - startTime
+#       base::print(base::paste0(sysTimePID(), " after plotting heatmap for DWP_Val; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
+#       output$txtDWHMDescription_P_Val <-
+#         shiny::renderText(
+#           base::paste0(
+#             sysTimePID(),
+#             " done plotting heatmap for DWP_Val..., current plot is valid. n(probe) = ",
+#             base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+#             "; n(trait) = ",
+#             base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+#             "; elapsed time: ",
+#             elapsedTime, " sec."
+#           )
+#         )
+#     })
+#   }
+# }
 
 #' plotCombinedCondHM_P_Val
 #' plots condensed heatmap
@@ -1645,108 +1645,108 @@ plotCombinedCondHM_P_Val <- function(input, output, session) {
   })
 }
 
-#' #' plotCombinedCondDWHM_P_Val
-#' #' plots condensed distance weighted heatmap
-#' #' @param input shiny input
-#' #' @param output shiny output
-#' #' @param session shiny session
-#' #' @return nothing
-#' #' examples plotCombinedCondDWHM_P_Val(input, output, session)
-#' plotCombinedCondDWHM_P_Val <- function(input, output, session) {
-#'   id <- shiny::showNotification("Plotting condensed distance weighted heatmap for p-val...", duration = NULL, closeButton = FALSE)
-#'   base::on.exit(shiny::removeNotification(id), add = TRUE)
-#'   base::tryCatch({
-#'     base::print(base::paste0(sysTimePID(), " start plotting condensed distance weighted heatmap for P_Val."))
-#'     output$txtCondDWHMDescription_P_Val <-
-#'       shiny::renderText(base::paste0("calculating condensedDW heatmap..., current plot is not valid"))
-#'     while (!is.null(grDevices::dev.list())) {
-#'       grDevices::dev.off()
-#'     }
-#'     #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure(numNeighbours = 10)$combinedDFP_Val_Labels
-#'     combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels
-#'     dfP_Val <- combinedDFP_Val_Labels$dfP_Val
-#'     #browser() #if step 3 was omitted, we see an error here...
-#'
-#'     base::print(base::paste0(sysTimePID(), " calculating combined heatmap with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
-#'     base::print(base::class(dfP_Val))
-#'     if (nrow(dfP_Val) > 5) {
-#'       startTime <- Sys.time()
-#'       base::print(base::paste0(sysTimePID(), " gc()"))
-#'       gc()
-#'       # check clustResProbes > 8
-#'       base::options(expressions = 500000)
-#'
-#'       #      if (is.valid(combinedDF_Labels$dfP_Val)) {
-#'       dendProbes <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$probeDendrogram
-#'       #browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
-#'       maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
-#'       if (maxClassesProbes <= 7) {
-#'         dendProbes <- dendextend::color_branches(dendProbes, as.integer(maxClassesProbes))
-#'       }
-#'       dendTraits <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$traitDendrogram
-#'
-#'       Distances <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$DNAdistances
-#'
-#'       base::print(base::paste0(sysTimePID(), " before calculating condensed DW heatmap"))
-#'       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
-#'       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
-#'       selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
-#'       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
-#'       selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
-#'       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
-#'       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
-#'       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
-#'       #browser() #check, whether this is called twice
-#'       l <-
-#'         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
-#'       base::print(base::paste0(sysTimePID(), " before combinedHM <- l$combinedHM"))
-#'       combinedHM <- l$combinedHM
-#'
-#'       endTime <- Sys.time()
-#'       elapsedTime <- endTime - startTime
-#'       base::print(base::paste0(sysTimePID(), " after calculating condensed DW heatmap. Elapsed time: ", elapsedTime, " sec."))
-#'       base::print(base::paste0(sysTimePID(), " before plotting condensed DW heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
-#'       while (!base::is.null(grDevices::dev.list())) {
-#'         grDevices::dev.off()
-#'       }
-#'       startTime <- Sys.time()
-#'       InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
-#'         input = input,
-#'         output = output,
-#'         session = session,
-#'         ht_list = combinedHM,
-#'         heatmap_id = "condDWHeatmap_P_Val",
-#'         show_layer_fun = TRUE
-#'       )
-#'     }
-#'   },
-#'   error = function(e) {
-#'     base::message("An error occurred in plotCombinedDWHM_P_Val():\n", e)
-#'     Cstack_info()
-#'     browser() #should not happen
-#'   },
-#'   warning = function(w) {
-#'     base::message("A warning occurred in plotCombinedDWHM_P_Val():\n", w)
-#'     browser() #should not happen
-#'   },
-#'   finally = {
-#'     endTime <- Sys.time()
-#'     elapsedTime <- endTime - startTime
-#'     base::print(base::paste0(sysTimePID(), " after plotting heatmap for DWP_Val; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
-#'     output$txtCondDWHMDescription_P_Val <-
-#'       shiny::renderText(
-#'         base::paste0(
-#'           sysTimePID(),
-#'           " done plotting heatmap for condensed DWP_Val..., current plot is valid. n(probe) = ",
-#'           base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-#'           "; n(trait) = ",
-#'           base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
-#'           "; elapsed time: ",
-#'           elapsedTime, " sec."
-#'         )
-#'       )
-#'   })
-#' }
+# plotCombinedCondDWHM_P_Val
+# plots condensed distance weighted heatmap
+# @param input shiny input
+# @param output shiny output
+# @param session shiny session
+# @return nothing
+# examples plotCombinedCondDWHM_P_Val(input, output, session)
+# plotCombinedCondDWHM_P_Val <- function(input, output, session) {
+#   id <- shiny::showNotification("Plotting condensed distance weighted heatmap for p-val...", duration = NULL, closeButton = FALSE)
+#   base::on.exit(shiny::removeNotification(id), add = TRUE)
+#   base::tryCatch({
+#     base::print(base::paste0(sysTimePID(), " start plotting condensed distance weighted heatmap for P_Val."))
+#     output$txtCondDWHMDescription_P_Val <-
+#       shiny::renderText(base::paste0("calculating condensedDW heatmap..., current plot is not valid"))
+#     while (!is.null(grDevices::dev.list())) {
+#       grDevices::dev.off()
+#     }
+#     #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructure(numNeighbours = 10)$combinedDFP_Val_Labels
+#     combinedDFP_Val_Labels <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels
+#     dfP_Val <- combinedDFP_Val_Labels$dfP_Val
+#     #browser() #if step 3 was omitted, we see an error here...
+#
+#     base::print(base::paste0(sysTimePID(), " calculating combined heatmap with rows= ", nrow(dfP_Val), " cols= ", ncol(dfP_Val)))
+#     base::print(base::class(dfP_Val))
+#     if (nrow(dfP_Val) > 5) {
+#       startTime <- Sys.time()
+#       base::print(base::paste0(sysTimePID(), " gc()"))
+#       gc()
+#       # check clustResProbes > 8
+#       base::options(expressions = 500000)
+#
+#       #      if (is.valid(combinedDF_Labels$dfP_Val)) {
+#       dendProbes <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$probeDendrogram
+#       #browser() #we can either try to make a subset of dendrogram or to create a new dendrogram from the base data from the heatmap... we then need also a new clustering for the subset...
+#       maxClassesProbes <- as.integer(input$txtMaxClassesProbes)
+#       if (maxClassesProbes <= 7) {
+#         dendProbes <- dendextend::color_branches(dendProbes, as.integer(maxClassesProbes))
+#       }
+#       dendTraits <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$traitDendrogram
+#
+#       Distances <- session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$DNAdistances
+#
+#       base::print(base::paste0(sysTimePID(), " before calculating condensed DW heatmap"))
+#       base::print(base::paste0(sysTimePID(), " length(unlist(dendProbes)): ", length(unlist(dendProbes))))
+#       base::print(base::paste0(sysTimePID(), " length(unlist(dendTraits)): ", length(unlist(dendTraits))))
+#       selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " "))
+#       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesYellow): ", length(selectedRowIndicesYellow)))
+#       selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
+#       selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
+#       base::message(base::paste0(sysTimePID(), " length(selectedRowIndicesOrange): ", length(selectedRowIndicesOrange)))
+#       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
+#       #browser() #check, whether this is called twice
+#       l <-
+#         combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
+#       base::print(base::paste0(sysTimePID(), " before combinedHM <- l$combinedHM"))
+#       combinedHM <- l$combinedHM
+#
+#       endTime <- Sys.time()
+#       elapsedTime <- endTime - startTime
+#       base::print(base::paste0(sysTimePID(), " after calculating condensed DW heatmap. Elapsed time: ", elapsedTime, " sec."))
+#       base::print(base::paste0(sysTimePID(), " before plotting condensed DW heatmap; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap()"))
+#       while (!base::is.null(grDevices::dev.list())) {
+#         grDevices::dev.off()
+#       }
+#       startTime <- Sys.time()
+#       InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
+#         input = input,
+#         output = output,
+#         session = session,
+#         ht_list = combinedHM,
+#         heatmap_id = "condDWHeatmap_P_Val",
+#         show_layer_fun = TRUE
+#       )
+#     }
+#   },
+#   error = function(e) {
+#     base::message("An error occurred in plotCombinedDWHM_P_Val():\n", e)
+#     Cstack_info()
+#     browser() #should not happen
+#   },
+#   warning = function(w) {
+#     base::message("A warning occurred in plotCombinedDWHM_P_Val():\n", w)
+#     browser() #should not happen
+#   },
+#   finally = {
+#     endTime <- Sys.time()
+#     elapsedTime <- endTime - startTime
+#     base::print(base::paste0(sysTimePID(), " after plotting heatmap for DWP_Val; InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(). Elapsed time: ", elapsedTime, " sec."))
+#     output$txtCondDWHMDescription_P_Val <-
+#       shiny::renderText(
+#         base::paste0(
+#           sysTimePID(),
+#           " done plotting heatmap for condensed DWP_Val..., current plot is valid. n(probe) = ",
+#           base::nrow(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+#           "; n(trait) = ",
+#           base::ncol(base::as.matrix(combinedDFP_Val_Labels[[1]])),
+#           "; elapsed time: ",
+#           elapsedTime, " sec."
+#         )
+#       )
+#   })
+# }
 
 #' click_action_fullHM_P_Val
 #' @param df data.frame containing data which is enclosed by brush action

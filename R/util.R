@@ -79,35 +79,16 @@ loadDirLists <- function(session, input, output) {
 # examples loadObjects(session)
 #loadObjects <- function(globalVariables) {
 loadObjects <- function(session) {
-  id <- shiny::showNotification("Loading annotation...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  if (shiny::isRunning()){
+    id <- shiny::showNotification("Loading annotation...", duration = NULL, closeButton = FALSE)
+    base::on.exit(shiny::removeNotification(id), add = TRUE)
+  }
   base::print(base::paste0(sysTimePID(), " loading annotation."))
   annotation <- meffil::meffil.get.features("450k")
   rownames(annotation) <- annotation$name
   session$userData$annotation <- annotation
   base::print(base::paste0(sysTimePID(), " finished loading annotation with dim: nrow = ", nrow(annotation), ", ncol = ", ncol(annotation), "."))
-  base::print(base::paste0(sysTimePID(), " detecting cores."))
-  numCores <- parallelly::availableCores() # parallel::detectCores()
-  nWorkers <- parallelly::availableCores(constraints = "connections")
-  numCores <- base::min(numCores, nWorkers)
-  if (!is.null(numCores)) {
-    if (numCores >= 64) {
-      #numCores <- as.integer(numCores / 2)
-      numCores <- as.integer(numCores * 0.75) #take 3/4 of available cores
-    }
-    else if (numCores >= 8) {
-      numCores <- numCores - 4
-    }
-    else {
-      numCores <- numCores - 1
-    }
-  } else {
-    numCores <- 1
-  }
-  if (numCores < 1) {
-    numCores <- 1
-  }
-  session$userData$numCores <- numCores
+  session$userData$numCores <- getNumCores()
   base::print(base::paste0(sysTimePID(), " finished detecting cores."))
 
   #check config file for "/inst"
@@ -154,6 +135,33 @@ loadObjects <- function(session) {
   session$userData$baseData <- as.data.frame(session$userData$baseData)
   base::print(base::paste0(sysTimePID(), " finished read base data with nrow = ", nrow(session$userData$baseData), " and ncol = ", ncol(session$userData$baseData), "."))
   return(session)
+}
+
+getNumCores <- function(){
+  base::print(base::paste0(sysTimePID(), " detecting cores."))
+  numCores <- parallelly::availableCores() # parallel::detectCores()
+  nWorkers <- parallelly::availableCores(constraints = "connections")
+  numCores <- base::min(numCores, nWorkers)
+  if (!is.null(numCores)) {
+    if (numCores >= 64) {
+      #numCores <- as.integer(numCores / 2)
+      numCores <- as.integer(numCores * 0.75) #take 3/4 of available cores
+    }
+    else if (numCores >= 8) {
+      numCores <- numCores - 4
+    }
+    else {
+      numCores <- numCores - 1
+    }
+  } else {
+    numCores <- 1
+  }
+  if (numCores < 1) {
+    numCores <- 1
+  }
+  base::print(base::paste0(sysTimePID(), " using ", numCores, " cores for calculations."))
+  base::print(base::paste0(sysTimePID(), " finished detecting cores."))
+  return(numCores)
 }
 
 # setBaseSciPen<-function(){
