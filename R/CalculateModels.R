@@ -199,7 +199,7 @@ calculateEpigeneticEffectsAdjusted <- function(ExposureVariable, config) {
       data.table::fwrite(result.write, file=fileName, sep="\t", dec=".", col.names=TRUE)
 
       # Extract P_VAL columns
-      P_VALS <- result$P_VAL
+      P_VAL <- result$P_VAL
       lambda <- lambda_fun(P_VAL)
       N<-dim(beta)[1]
       CpGFails <- sum(is.na(result[, 2]))
