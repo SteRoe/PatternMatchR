@@ -29,12 +29,6 @@ result$dfP_Val for p-values
 result$dfDM for delta methylation values
 
 result$dfN for n
-
-result$labelsDF1 for labels belonging to original df1
-
-result$labelsDF2 for labels belonging to original df2
-
-result$labelsDF3 for labels belonging to original df3
 }
 \description{
 mergeDFP_Val_Labels

@@ -4,7 +4,7 @@
 \alias{PatternMatchRApp}
 \title{starts the app}
 \usage{
-PatternMatchRApp()
+PatternMatchRApp(configFileLocation = NULL)
 }
 \description{
 function to start the app

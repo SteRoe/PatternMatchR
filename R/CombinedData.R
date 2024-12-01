@@ -1,9 +1,6 @@
 #' combinedDFP_Val_Labels$dfP_Val - data frame with p-values from regression results
 #' combinedDFP_Val_Labels$dfDM - data frame with delta methylations from regression results
 #' combinedDFP_Val_Labels$dfN - data frame with n from regression results
-#' combinedDFP_Val_Labels$labelsDF1 - variable labels from data frame for trait 1
-#' combinedDFP_Val_Labels$labelsDF2 - variable labels from data frame for trait 2
-#' combinedDFP_Val_Labels$labelsDF3 - variable labels from data frame for trait 3
 #' combinedDFP_Val_Labels$labelsDF <- c(LabelsDF1, LabelsDF2, LabelsDF3) - combined variable labels for all three traits
 #' combinedDFP_Val_Labels$mergedOriginDF - number (label) of original data frame
 #' combinedDFP_Val_Labels$mergedColnames <- merged original Colnames
@@ -15,8 +12,8 @@
 #' @return merged data.frame
 # examples getResultDfP_D_N(listDF, "P")
 getResultDfP_D_N <- function(listOfResultDF, P_D_N_F) {
-  id <- shiny::showNotification("Getting result data frame...", duration = NULL, closeButton = FALSE)
-  on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Getting result data frame...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start getResultDfP_D_N(): ", P_D_N_F, "."))
@@ -87,13 +84,10 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N_F) {
 #' @return result$dfP_Val for p-values
 #' @return result$dfDM for delta methylation values
 #' @return result$dfN for n
-#' @return result$labelsDF1 for labels belonging to original df1
-#' @return result$labelsDF2 for labels belonging to original df2
-#' @return result$labelsDF3 for labels belonging to original df3
 # examples mergeDFP_Val_Labels(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN)
 mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDFListTrait3, minN) {
-  id <- shiny::showNotification("Merging data frames...", duration = NULL, closeButton = FALSE)
-  on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Merging data frames...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " start mergeDFP_Val_Labels()."))
@@ -446,7 +440,6 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
           mergedDFList <- DFList3
         }
       }
-# browser() #check mergedDFList
       if (base::exists("mergedDFP_Val")) {
         if ("Row.names" %in% base::colnames(mergedDFP_Val)) {
           rownames(mergedDFP_Val) <- mergedDFP_Val$Row.names
@@ -470,57 +463,56 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
         if ("Row.names" %in% base::colnames(dfP_Val1)) {
           dfP_Val1$Row.names <- NULL
         }
-        splitPointStart <- 1
-        splitPointEnd <- base::ncol(dfP_Val1)
-        LabelsDF1 <-
-          base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
+        # splitPointStart <- 1
+        # splitPointEnd <- base::ncol(dfP_Val1)
+        # #LabelsDF1 <- base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
+        # LabelsDF1 <- mergedColnames[splitPointStart:splitPointEnd]
       }
       if (base::exists("dfP_Val2")) {
         if ("Row.names" %in% base::colnames(dfP_Val2)) {
           dfP_Val2$Row.names <- NULL
         }
-        if (base::exists("splitPointEnd")) {
-          splitPointStart <- splitPointEnd + 1
-        } else {
-          splitPointStart <- 1
-        }
-        splitPointEnd <- splitPointStart + base::ncol(dfP_Val2) - 1
-        LabelsDF2 <-
-          base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
+        # if (base::exists("splitPointEnd")) {
+        #   splitPointStart <- splitPointEnd + 1
+        # } else {
+        #   splitPointStart <- 1
+        # }
+        # splitPointEnd <- splitPointStart + base::ncol(dfP_Val2) - 1
+        # #LabelsDF2 <- base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
+        # LabelsDF2 <- mergedColnames[splitPointStart:splitPointEnd]
       }
       if (base::exists("dfP_Val3")) {
         if ("Row.names" %in% base::colnames(dfP_Val3)) {
           dfP_Val3$Row.names <- NULL
         }
-        if (base::exists("splitPointEnd")) {
-          splitPointStart <- splitPointEnd + 1
-        } else {
-          splitPointStart <- 1
-        }
-        splitPointEnd <- splitPointStart + base::ncol(dfP_Val3) - 1
-        LabelsDF3 <-
-          base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
+        # if (base::exists("splitPointEnd")) {
+        #   splitPointStart <- splitPointEnd + 1
+        # } else {
+        #   splitPointStart <- 1
+        # }
+        # splitPointEnd <- splitPointStart + base::ncol(dfP_Val3) - 1
+        # #LabelsDF3 <- base::colnames(mergedDFP_Val)[splitPointStart:splitPointEnd]
+        # LabelsDF3 <- mergedColnames[splitPointStart:splitPointEnd]
       }
       if (base::exists("mergedDFP_Val")) {
         result <- base::list(dfP_Val = NULL, dfDM = NULL, dfN = NULL, dfLogFC = NULL,
-                             labelsDF1 = NULL, labelsDF2 = NULL,
-                             labelsDF3 = NULL, mergedOriginDF = NULL,
-                             mergedColnames = NULL, mergedOriginalColnames = NULL, mergedOriginTrait = NULL,
+#                             labelsDF1 = NULL, labelsDF2 = NULL, labelsDF3 = NULL,
+                             mergedOriginDF = NULL, mergedColnames = NULL, mergedOriginalColnames = NULL, mergedOriginTrait = NULL,
                              mergedDFList = NULL, traitID = NULL)
         result$dfP_Val <- mergedDFP_Val
         mergedDFDM <- base::abs(mergedDFDM) # all Values to positive values
         result$dfDM <- mergedDFDM
         result$dfN <- mergedDFN
         result$dfLogFC <- mergedDFLogFC
-        if (base::exists("LabelsDF1")) {
-          result$labelsDF1 <- LabelsDF1
-        }
-        if (base::exists("LabelsDF2")) {
-          result$labelsDF2 <- LabelsDF2
-        }
-        if (base::exists("LabelsDF3")) {
-          result$labelsDF3 <- LabelsDF3
-        }
+        # if (base::exists("LabelsDF1")) {
+        #   result$labelsDF1 <- LabelsDF1
+        # }
+        # if (base::exists("LabelsDF2")) {
+        #   result$labelsDF2 <- LabelsDF2
+        # }
+        # if (base::exists("LabelsDF3")) {
+        #   result$labelsDF3 <- LabelsDF3
+        # }
         result$mergedOriginDF <- mergedOriginDF
         result$mergedColnames <- mergedColnames
         result$mergedOriginalColnames <- mergedOriginalColnames
@@ -553,10 +545,8 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
 #' @return data.frame with contents of traitDirList
 # examples loadDir(session, traitDirList)
 loadDir <- function(session, traitDirList) {
-  id <- shiny::showNotification("Loading regression result data fom directory...", duration = NULL, closeButton = FALSE)
-  on.exit(shiny::removeNotification(id), add = TRUE)
-#  waiter::waiter_show()
-#  on.exit(waiter::waiter_hide(), add = TRUE)
+  shinyId <- shiny::showNotification("Loading regression result data fom directory...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       #load all trait folders
@@ -668,57 +658,6 @@ updateTxtMergeOut <- function(combinedDataStructure) {
       #return(shiny::renderPrint(result))
     }
   )
-}
-
-updateReduceDataSliders <- function(session, combinedDFP_Val_Labels) {
-  DF <- combinedDFP_Val_Labels$dfP_Val
-  DF <- as.matrix(DF)
-  minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
-  minP <- base::min(minP)
-  minP <- extractMantissaExponent(minP)$exponent #base::round(extractMantissaExponent(minP)$exponent, 5)
-  maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-  maxP <- base::max(maxP)
-  maxP <- extractMantissaExponent(maxP)$exponent #base::round(extractMantissaExponent(maxP)$exponent, 5)
-  shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
-  DF <- combinedDFP_Val_Labels$dfDM
-  DF <- as.matrix(DF)
-  minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
-  minDM <- base::min(minDM)
-  if (minDM < 0) {
-    base::message(base::paste0(sysTimePID(), " Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
-    minDM <- 0
-  }
-  maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
-  maxDM <- base::max(maxDM)
-  if (maxDM > 1) {
-    base::message(base::paste0(sysTimePID(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
-    maxDM <- 1
-  }
-  #shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
-  shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = 0.001)
-  DF <- combinedDFP_Val_Labels$dfN
-  DF <- as.matrix(DF)
-  minN <- base::apply(DF, 2, FUN = function(x) {base::min(as.integer(x[x > 0]), na.rm = TRUE)})
-  minN <- base::min(minN)
-  if (minN < 1) {
-    base::message(base::paste0(sysTimePID(), "Warning: minN < 1. Please check your data.")) #that should not be the case, please check data!
-    minN <- 1
-  }
-  if (minN != as.integer(minN)) {
-    base::message(base::paste0(sysTimePID(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
-    minN <- as.integer(minN)
-  }
-  maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
-  maxN <- base::max(maxN)
-  if (maxN != as.integer(maxN)) {
-    base::message(base::paste0(sysTimePID(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
-    maxN <- as.integer(maxN)
-  }
-  if (maxN < 1) {
-    base::message(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
-    browser() #should not happen
-  }
-  shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))
 }
 
 # mergeDFP_Val_Labels <- compiler::cmpfun(mergeDFP_Val_Labels)

@@ -88,8 +88,8 @@ GlobalSelection_SERVER <- function(id, session) {
     })
 
     DTSelectedProbes <- shiny::reactive({
-      id <- shiny::showNotification("Creating table selected probes...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Creating table selected probes...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " start generating DTSelectedProbes"))
@@ -109,8 +109,8 @@ GlobalSelection_SERVER <- function(id, session) {
     })
 
     DTSelectedTraits <- shiny::reactive({
-      id <- shiny::showNotification("Creating table selected traits...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Creating table selected traits...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       base::tryCatch(
         {
           base::print(base::paste0(sysTimePID(), " start generating DTSelectedTraits"))
@@ -137,8 +137,8 @@ GlobalSelection_SERVER <- function(id, session) {
     })
 
     session$userData$sessionVariables$selectedOriginalData <- shiny::reactive({
-      id <- shiny::showNotification("Getting selected original data...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Getting selected original data...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       selectedOriginalData <- getSelectedOriginalData(session$userData$sessionVariables$probeReducedDataStructure()$combinedDFP_Val_Labels, session)
 
       if (!is.null(selectedOriginalData)) {
@@ -171,8 +171,8 @@ GlobalSelection_SERVER <- function(id, session) {
     })
 
     SPLOM <- shiny::reactive({
-      id <- shiny::showNotification("Creating SPLOM...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Creating SPLOM...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       if (!is.null(session$userData$sessionVariables$selectedOriginalData())) {
         base::print(base::paste0(sysTimePID(), " number of traits and probes in SPLOM (columns in selectedDF): ", ncol(session$userData$sessionVariables$selectedOriginalData()))) #thats sum of probes and traits
         base::print(base::paste0(sysTimePID(), " number of cases in SPLOM (rows in selectedDF): ", nrow(session$userData$sessionVariables$selectedOriginalData()))) #thats number of cases in data set
@@ -184,8 +184,8 @@ GlobalSelection_SERVER <- function(id, session) {
     })
 
     SPLOMTrait <- shiny::reactive({
-      id <- shiny::showNotification("Creating SPLOM trait...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Creating SPLOM trait...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       if (!is.null(session$userData$sessionVariables$selectedOriginalDataTraits())) {
         fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataTraits(), XVars = session$userData$sessionVariables$selectedOriginalDataTraits(), YVars = session$userData$sessionVariables$selectedOriginalDataTraits(), markingVar = session$userData$sessionVariables$markingVar())
         return(fig)
@@ -193,8 +193,8 @@ GlobalSelection_SERVER <- function(id, session) {
     })
 
     SPLOMProbe <- shiny::reactive({
-      id <- shiny::showNotification("Creating SPLOM probe...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Creating SPLOM probe...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       if (!is.null(session$userData$sessionVariables$selectedOriginalDataProbes())) {
         fig <- getSPLOM(session$userData$sessionVariables$selectedOriginalDataProbes(), XVars = session$userData$sessionVariables$selectedOriginalDataProbes(), YVars = session$userData$sessionVariables$selectedOriginalDataProbes(), markingVar = session$userData$sessionVariables$markingVar())
         return(fig)
@@ -207,8 +207,8 @@ GlobalSelection_SERVER <- function(id, session) {
     #' @return df with merged original data
     # examples getSelectedOriginalData(combinedDFP_Val_Labels, session)
     getSelectedOriginalData <- function(combinedDFP_Val_Labels, session) {
-      id <- shiny::showNotification("Getting selected original data...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Getting selected original data...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       base::print(base::paste0(sysTimePID(), " start getSelectedOriginalData()"))
       base::tryCatch(
         {
@@ -323,8 +323,8 @@ GlobalSelection_SERVER <- function(id, session) {
     #' @return df with merged original data
     # examples getSelectedOriginalDataTraits(combinedDFP_Val_Labels, selectedOnly = TRUE, session)
     getSelectedOriginalDataTraits <- function(combinedDFP_Val_Labels, selectedOnly = TRUE, session) {
-      id <- shiny::showNotification("Getting selected original data traits...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Getting selected original data traits...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       base::print(base::paste0(sysTimePID(), " start getSelectedOriginalDataTraits()"))
       base::tryCatch(
         {
@@ -365,13 +365,13 @@ GlobalSelection_SERVER <- function(id, session) {
           }
           #place suffix after all colnames
           if (is.valid(selectedColnamesTrait1)) {
-            colnames(selectedDFTrait1) <- paste0(colnames(selectedDFTrait1),".1")
+            colnames(selectedDFTrait1) <- paste0("red_", colnames(selectedDFTrait1))
           }
           if (is.valid(selectedColnamesTrait2)) {
-            colnames(selectedDFTrait2) <- paste0(colnames(selectedDFTrait2),".2")
+            colnames(selectedDFTrait2) <- paste0("green_", colnames(selectedDFTrait2))
           }
           if (is.valid(selectedColnamesTrait3)) {
-            colnames(selectedDFTrait3) <- paste0(colnames(selectedDFTrait3),".3")
+            colnames(selectedDFTrait3) <- paste0("blue_", colnames(selectedDFTrait3))
           }
           # merge all trait data together by Kind_ID or rowname (better)
           if (is.valid(selectedColnamesTrait1)) {
@@ -406,8 +406,10 @@ GlobalSelection_SERVER <- function(id, session) {
               selectedDF <- selectedDFTrait3
             }
             else {
-              selectedDF <- NULL
-              browser() #should not happen
+              if (!is.valid(selectedDF)) {
+                selectedDF <- NULL
+                browser() #should not happen
+              }
             }
           }
           rownames(selectedDF) <- selectedDF$Row.names
@@ -447,16 +449,17 @@ GlobalSelection_SERVER <- function(id, session) {
     #' @return df with merged original data
     # examples getSelectedOriginalDataProbes(combinedDFP_Val_Labels, session)
     getSelectedOriginalDataProbes <- function(combinedDFP_Val_Labels, selectedOnly, session) {
-      id <- shiny::showNotification("Getting selected original data probes...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+      shinyId <- shiny::showNotification("Getting selected original data probes...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
+
       base::print(base::paste0(sysTimePID(), " start getSelectedOriginalDataProbes()"))
       base::tryCatch(
         {
           if (selectedOnly == TRUE) {
             row_index <- session$userData$sessionVariables$selectedProbe()
             # get selected methylation data...
-            rowInd <- which(rownames(combinedDFP_Val_Labels$dfP_Val) %in% row_index)
-            selectedRownames <- rownames(combinedDFP_Val_Labels$dfP_Val)[rowInd]
+            #rowInd <- which(rownames(combinedDFP_Val_Labels$dfP_Val) %in% row_index)
+            selectedRownames <- session$userData$sessionVariables$selectedProbe() # row_index #rownames(combinedDFP_Val_Labels$dfP_Val)[rowInd]
             #subset selectedRownames to only keep those, that are loaded in $Beta_tDF
             selectedRownames <- intersect(colnames(session$userData$Beta_tDF), selectedRownames)
             selectedBeta <- session$userData$Beta_tDF[, selectedRownames] #if error

@@ -7,40 +7,42 @@ CalculateModels <- function(workDir) {
   configFileLocation <- paste0(workDir, "/config.yml")
   base::print(base::paste0(sysTimePID(), " read config from: ", configFileLocation))
   config <- config::get(file = configFileLocation)
+  originalDir <- getwd()
+  setwd(workDir)
   loadObjectsForCalculation(config)
   numCores <- getNumCores()
   if (numCores < config$no_cores) {
     config$no_cores <- numCores
   }
-  originalDir <- getwd()
+
   base::print(base::paste0(sysTimePID(), " starting calculations."))
-  baseDir <-  paste0(workDir,"/all")
-  if(!base::dir.exists(baseDir)) {
+  baseDir <-  paste0(workDir, "/all")
+  if (!base::dir.exists(baseDir)) {
     base::dir.create(baseDir)
   }
   setwd(baseDir)
-  ExposureVariableList<-PHENO[,config$firstPHENOVar:config$lastPHENOVar]
-  res<-mclapply_preserve_names(ExposureVariableList, calculateEpigeneticEffectsAdjusted, config = config)
+  ExposureVariableList <- PHENO[, config$firstPHENOVar:config$lastPHENOVar]
+  res <- mclapply_preserve_names(ExposureVariableList, calculateEpigeneticEffectsAdjusted, config = config)
 
   base::print(base::paste0(sysTimePID(), " starting calculations for females."))
-  baseDir <-  paste0(workDir,"/female")
-  if(!base::dir.exists(baseDir)) {
+  baseDir <-  paste0(workDir, "/female")
+  if (!base::dir.exists(baseDir)) {
     base::dir.create(baseDir)
   }
   setwd(baseDir)
-  P <- PHENO[PHENO$sex=="w",]
-  ExposureVariableList<-P[,config$firstPHENOVar:config$lastPHENOVar]
-  res<-mclapply_preserve_names(ExposureVariableList, calculateEpigeneticEffectsAdjusted, config = config)
+  P <- PHENO[PHENO[, config$genderAttribut] == "w",]
+  ExposureVariableList <- P[, config$firstPHENOVar:config$lastPHENOVar]
+  res <- mclapply_preserve_names(ExposureVariableList, calculateEpigeneticEffectsAdjusted, config = config)
 
   base::print(base::paste0(sysTimePID(), " starting calculations for males."))
-  baseDir <-  paste0(workDir,"/male")
-  if(!base::dir.exists(baseDir)) {
+  baseDir <-  paste0(workDir, "/male")
+  if (!base::dir.exists(baseDir)) {
     base::dir.create(baseDir)
   }
   setwd(baseDir)
-  P <- PHENO[PHENO$sex=="m",]
-  ExposureVariableList<-P[,config$firstPHENOVar:config$lastPHENOVar]
-  res<-mclapply_preserve_names(ExposureVariableList, calculateEpigeneticEffectsAdjusted, config = config)
+  P <- PHENO[PHENO[, config$genderAttribut] == "m", ]
+  ExposureVariableList <- P[, config$firstPHENOVar:config$lastPHENOVar]
+  res <- mclapply_preserve_names(ExposureVariableList, calculateEpigeneticEffectsAdjusted, config = config)
 
   setwd(originalDir)
   base::print(base::paste0(sysTimePID(), " finished calculations in ", workDir, "."))
@@ -49,54 +51,48 @@ CalculateModels <- function(workDir) {
 #' load required data for model calculation
 #' @description function to load all data to calculate regression model into memory
 loadObjectsForCalculation <- function(config) {
-  library(foreach)
-  library(psych)
+  #library(foreach)
+  #library(psych)
   annotation <- meffil::meffil.get.features("450k")
-  assign("annotation",annotation,envir=globalenv())
+  assign("annotation",annotation,envir = globalenv())
 
-  beta <- data.table::fread(file = config$betaFileName, stringsAsFactors=FALSE, header=TRUE, sep="\t")
-  #  beta<-data.frame(column_to_rownames(beta, var = "PROBEID"))
-  #rownames(beta) <- beta$probeID
+  beta <- data.table::fread(file = config$betaFileName, stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   #beta$probeID <- NULL
-  beta<-as.data.frame(beta)
+  beta <- as.data.frame(beta)
   rownames(beta) <- beta$probeID
   beta$probeID <- NULL
   beta_wo_outliers <- removeOutliers(as.matrix(beta))
   beta <- as.data.frame(beta_wo_outliers[[1]])
   rm(beta_wo_outliers)
   #head(beta)
-  #typeof(beta)
-  #typeof(beta[5,5])
-  assign("beta", beta, envir=globalenv())
+  assign("beta", beta, envir = globalenv())
 
-  PHENO<-data.table::fread(file=config$PHENOFileName, sep="\t", dec=".", header=TRUE)
-  #PHENO[,3] <- NULL
+  PHENO <- data.table::fread(file = config$PHENOFileName, sep = "\t", dec = ".", header = TRUE)
   rownames(PHENO) <- PHENO[[config$mergeAttribut]]
   PHENO <- as.data.frame(PHENO)
   rownames(PHENO) <- PHENO[[config$mergeAttribut]]
-  #typeof(PHENO[5,5])
-  adjustDF <- data.table::fread(file= config$adjustFileName, sep="\t", dec=".")
-  adjustDF <- base::subset(adjustDF, select=c("ID_Kind", "PC1_cp", "PC2_cp", "PC3_cp", "PC4_cp", "PC5_cp", "PC6_cp", "sex", "age_mother_yrs", "gestational_age", "mat_smoking", "ME", "CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran", "nRBC", "batch"))
+  adjustDF <- data.table::fread(file = config$adjustFileName, sep = "\t", dec = ".")
+  adjustDF <- base::subset(adjustDF, select = c("sex", "ID_Kind", "CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran", "nRBC"))
   PHENO <- base::merge(PHENO, adjustDF, by.x = config$mergeAttribut, by.y = config$mergeAttribut)
   #winsorize PHENO
-  PHE<-PHENO
-  foreach(i = config$firstPHENOVar:config$lastPHENOVar, .combine = cbind, .verbose=FALSE) %do% {
-    PHE[,i] <- psych::winsor(PHENO[, i])
+  PHE <- PHENO
+  foreach::foreach(i = config$firstPHENOVar:config$lastPHENOVar, .combine = cbind, .verbose = FALSE) %do% {
+    PHE[, i] <- psych::winsor(PHENO[, i])
   }
-  PHENO<-PHE
+  PHENO <- PHE
   rm(PHE)
-  assign("PHENO", PHENO, envir=globalenv())
+  assign("PHENO", PHENO, envir = globalenv())
   #typeof(PHENO[15,15])
 
   #load list of multimodal CpG
-  MultiModCpG <- data.table::fread(file = config$MultiModProbesFileName, sep="\t", dec=".")
-  assign("MultiModCpG",MultiModCpG,envir=globalenv())
+  MultiModCpG <- data.table::fread(file = config$MultiModProbesFileName, sep = "\t", dec = ".")
+  assign("MultiModCpG", MultiModCpG, envir = globalenv())
   beta <- removeMultiModelCpGFromBeta(beta, MultiModCpG, config)
-  assign("beta", beta, envir=globalenv())
+  assign("beta", beta, envir = globalenv())
 }
 
 removeOutliers <- function(probes) {
-  require(matrixStats)
+#  require(matrixStats)
   if(nrow(probes) < ncol(probes)) {
     base::message(base::paste0(sysTimePID(), " expect probes in rows (long dataset)"))
   }
@@ -143,13 +139,13 @@ calculateEpigeneticEffectsAdjusted <- function(ExposureVariable, config) {
   ExV <- ExposureVariable
   Name <- (names(ExposureVariable)[1])
   base::message(base::paste0(sysTimePID(), " start calculating regression models for ", Name))
-  analysisname <- paste0(as.character(Name),"adj")
+  analysisname <- as.character(Name) #paste0(as.character(Name),"adj")
   fileName <- paste0(analysisname,".csv")
   if (is.list(ExposureVariable)) {
-    ExposureVariableValues<-unlist(ExposureVariable)
+    ExposureVariableValues <- unlist(ExposureVariable)
   }
   else {
-    ExposureVariableValues<-as.numeric(ExposureVariable)
+    ExposureVariableValues <- as.numeric(ExposureVariable)
   }
   if (file_test("-f", fileName) != TRUE || file.size(fileName) == 0) {
     if ((is.numeric(ExposureVariableValues)) && (min(ExposureVariableValues, na.rm=TRUE)!=Inf && max(ExposureVariableValues, na.rm=TRUE)!=-Inf) && (min(ExposureVariableValues, na.rm=TRUE) != max(ExposureVariableValues, na.rm=TRUE))) {
@@ -204,9 +200,9 @@ calculateEpigeneticEffectsAdjusted <- function(ExposureVariable, config) {
       N<-dim(beta)[1]
       CpGFails <- sum(is.na(result[, 2]))
       Tablestats <- t(c(N, CpGFails, lambda))
-      colnames(Tablestats) <- c("Sample_Count", "CpGFails", "lambda")
+      colnames(Tablestats) <- c("n", "CpGFails", "lambda")
       #  Write file
-      fileName <- paste0(analysisname,"SampleSizeLambda.csv")
+      fileName <- paste0(analysisname,"NLambda.csv")
       data.table::fwrite(Tablestats, file=fileName, sep="\t", dec=".", col.names=TRUE)
     }
   }

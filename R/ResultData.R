@@ -22,10 +22,11 @@
 #'
 # examples loadResultDF(session, folder, FALSE)
 loadResultDF <- function(session, folder, loadRDS = FALSE) {
-  id <- shiny::showNotification("Loading result data frame...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Loading result data frame...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
+#browser() #check for example_ in colnames ...
       fileNameLPV <- "listResultP_Val_DeltaMeth_N.RDS"
       fileNameLPV <- base::paste0(folder, fileNameLPV)
       doLoadFolderDFList <- TRUE
@@ -91,6 +92,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               in_files = "\\config.yml$",
               recursive = FALSE
             ) #look into data folder
+          folderUp <- ""
           if (base::length(PHENOFileNameLine) == 0 || PHENOFileNameLine == FALSE) {
           PHENOFileNameLine <-
             findInFiles(
@@ -99,6 +101,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               in_files = "\\config.yml$",
               recursive = FALSE
             ) #look one folder above
+            folderUp <- "../"
           }
           if (base::length(PHENOFileNameLine) == 0 || PHENOFileNameLine == FALSE) {
             base::message(base::paste0(sysTimePID(), " config.yml in data folder or
@@ -114,7 +117,7 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
             }
             else {
               if (!file.exists(PHENOFileName)) {
-                PHENOFileName <- paste0(folder, PHENOFileName)
+                PHENOFileName <- paste0(folder, folderUp, PHENOFileName)
               }
               listPrimaryKeys <- as.list(session$userData$config$keyAttributes)
               PHENOdata <- list(PHENODF = getPHENODF(PHENOFileName, listPrimaryKeys), PHENOFileName = PHENOFileName)
@@ -126,22 +129,22 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
               cn <- paste0(traitListName, "_", cn) #colnames are with traitListName!!!
               listResultP_Val <- base::as.data.frame(listResultP_Val)
               rownames(listResultP_Val) <- rn
-              colnames(listResultP_Val) <- cn
+              colnames(listResultP_Val) <- OriginalColnames #cn
               listResultDeltaMeth <- getResultDfP_D_N(listOfResultDF, "D")
               rn <- rownames(listResultDeltaMeth)
               listResultDeltaMeth <- base::as.data.frame(listResultDeltaMeth)
               rownames(listResultDeltaMeth) <- rn
-              colnames(listResultDeltaMeth) <- cn
+              colnames(listResultDeltaMeth) <- OriginalColnames #cn
               listResultN <- getResultDfP_D_N(listOfResultDF, "N")
               rn <- rownames(listResultN)
               listResultN <- base::as.data.frame(listResultN)
               rownames(listResultN) <- rn
-              colnames(listResultN) <- cn
+              colnames(listResultN) <- OriginalColnames #cn
               listResultLogFC <- getResultDfP_D_N(listOfResultDF, "F")
               rn <- rownames(listResultLogFC)
               listResultLogFC <- base::as.data.frame(listResultLogFC)
               rownames(listResultLogFC) <- rn
-              colnames(listResultLogFC) <- cn
+              colnames(listResultLogFC) <- OriginalColnames #cn
 
               listResultP_Val_DeltaMeth_N <-
                 list(
@@ -243,8 +246,8 @@ loadResultDF <- function(session, folder, loadRDS = FALSE) {
 #' list resultColnames
 # examples loadtraitDFs(traitDFs)
 loadtraitDFs <- function(traitDFs) {
-  id <- shiny::showNotification("Loading trait data frame...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Loading trait data frame...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       #browser() #everything seems fine until here (all DFs become loaded)
@@ -319,6 +322,7 @@ loadtraitDFs <- function(traitDFs) {
           resultOriginalColnames <- base::c(resultOriginalColnames, OriginalColnames)
           resultFolder <- traitDFs[[i]]$folder
         }
+        rn <- rownames(traitDFs[[i]]$PHENOdata$PHENODF)
         listPHENOdata[[i]] <- traitDFs[[i]]$PHENOdata
       }
       # omit column Row.names
@@ -371,8 +375,8 @@ loadtraitDFs <- function(traitDFs) {
 #' @return list of data.frame from folder
 # examples getlistOfResultsDF(session, folder)
 getlistOfResultsDF <- function(session, folder) {
-  id <- shiny::showNotification("Getting list of result data frames...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Getting list of result data frames...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       base::print(base::paste0(sysTimePID(), " before list.files()"))
@@ -478,8 +482,8 @@ getlistOfResultsDF <- function(session, folder) {
 #' @return list of data.frame from folder
 # examples loadFolderDFList(session, folder)
 loadFolderDFList <- function(session, folder) {
-  id <- shiny::showNotification("Load folder data frame list...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Load folder data frame list...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       fileNameLR <- "listOfResultsDF.RDS"
@@ -526,8 +530,8 @@ loadFolderDFList <- function(session, folder) {
 #' @return pheno DF for a certain PHENOFileName
 # examples getPHENODF(PHENOFileName)
 getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
-  id <- shiny::showNotification("Getting pheno data frame...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Getting pheno data frame...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
       if (utils::file_test("-f", PHENOFileName) == TRUE) {
@@ -548,16 +552,13 @@ getPHENODF <- function(PHENOFileName, listPrimaryKeys) {
             break
           }
         }
+        PHENO <- as.data.frame(PHENO)
         if (found == TRUE) {
-          # PHENO <-
-          #   data.frame(tibble::column_to_rownames(PHENO, var = "ID_Kind2"))
-          PHENO <-
-            data.frame(tibble::column_to_rownames(PHENO, var = keyvar))
+          rownames(PHENO) <- PHENO[, keyvar] #data.frame(tibble::column_to_rownames(PHENO, var = keyvar))
         }
         else {
           base::message(base::paste0(sysTimePID(), " no key found in data. (from list:", as.character(listPrimaryKeys), "."))
         }
-        PHENO <- as.data.frame(PHENO)
         result <- PHENO
       } else {
         base::message(base::paste0(sysTimePID(), " file not found: ", PHENOFileName))
@@ -595,8 +596,8 @@ delete.na <- function(df, n = 0) {
 #' @return data.frame with results
 # examples getNForP_ValBorder(mat, n)
 getNForP_ValBorder <- function(mat, n) {
-  id <- shiny::showNotification("Counting n for p-value border...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Counting n for p-value border...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
     P_VAL_BORDER <- 5 * 10^-n
@@ -633,8 +634,8 @@ getNForP_ValBorder <- function(mat, n) {
 #' @return data.frame with results
 # examples getNForDMBorder(mat, n)
 getNForDMBorder <- function(mat, DMBorder) {
-  id <- shiny::showNotification("Counting n for delta methylation border...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Counting n for delta methylation border...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
     if (DMBorder > 0) {
@@ -675,8 +676,8 @@ getNForDMBorder <- function(mat, DMBorder) {
 #' @return data.frame with results
 # examples getNForNBorder(mat, n)
 getNForNBorder <- function(mat, NBorder) {
-  id <- shiny::showNotification("Counting n for n border...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Counting n for n border...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
     result <- base::matrix(nrow = 1, ncol = 2)
     mat[mat > NBorder] <- NA
@@ -714,8 +715,8 @@ getNForNBorder <- function(mat, NBorder) {
 #' @return data.frame with results
 # examples getAvailNForP_VALBorderParallel(session, wd, numCores, DF)
 getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
-  id <- shiny::showNotification("Counting n for p-value border parallel...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Counting n for p-value border parallel...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
     base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     i <- NULL
@@ -732,7 +733,6 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
     maxP <- extractMantissaExponent(maxP)$exponent
     # if (maxP < 1) {
     #   base::print(base::paste0(sysTimePID(), "Warning: maxP < 1. Please check your data.")) #that should not be the case, please check data!
-    #   browser()
     # }
     numRows <- maxP - minP
     shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
@@ -815,8 +815,8 @@ getAvailNForP_VALBorderParallel <- function(session, wd, numCores, DF) {
 }
 
 getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
-  id <- shiny::showNotification("Counting n for delta methylation border parallel...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Counting n for delta methylation border parallel...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
     base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     result <- NULL
@@ -920,8 +920,8 @@ getAvailNForDMBorderParallel <- function(session, wd, numCores, DF) {
 }
 
 getAvailNForNBorderParallel <- function(session, wd, numCores, DF) {
-  id <- shiny::showNotification("Counting n for n border parallel...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Counting n for n border parallel...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
     base::print(base::paste0(sysTimePID(), " start getAvailNForP_VALBorderParallel()."))
     result <- NULL
@@ -1037,8 +1037,8 @@ getReducedP_Valdf <-
            numRows,
            upperP_VALborder,
            lowerP_VALborder) {
-    id <- shiny::showNotification("Getting reduced p-val data frame...", duration = NULL, closeButton = FALSE)
-    base::on.exit(shiny::removeNotification(id), add = TRUE)
+    shinyId <- shiny::showNotification("Getting reduced p-val data frame...", duration = NULL, closeButton = FALSE)
+    base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
     base::tryCatch(
       {
         if (!base::is.data.frame(df)) {

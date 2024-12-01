@@ -5,9 +5,6 @@
 \title{combinedDFP_Val_Labels$dfP_Val - data frame with p-values from regression results
 combinedDFP_Val_Labels$dfDM - data frame with delta methylations from regression results
 combinedDFP_Val_Labels$dfN - data frame with n from regression results
-combinedDFP_Val_Labels$labelsDF1 - variable labels from data frame for trait 1
-combinedDFP_Val_Labels$labelsDF2 - variable labels from data frame for trait 2
-combinedDFP_Val_Labels$labelsDF3 - variable labels from data frame for trait 3
 combinedDFP_Val_Labels$labelsDF <- c(LabelsDF1, LabelsDF2, LabelsDF3) - combined variable labels for all three traits
 combinedDFP_Val_Labels$mergedOriginDF - number (label) of original data frame
 combinedDFP_Val_Labels$mergedColnames <- merged original Colnames
@@ -28,9 +25,6 @@ merged data.frame
 combinedDFP_Val_Labels$dfP_Val - data frame with p-values from regression results
 combinedDFP_Val_Labels$dfDM - data frame with delta methylations from regression results
 combinedDFP_Val_Labels$dfN - data frame with n from regression results
-combinedDFP_Val_Labels$labelsDF1 - variable labels from data frame for trait 1
-combinedDFP_Val_Labels$labelsDF2 - variable labels from data frame for trait 2
-combinedDFP_Val_Labels$labelsDF3 - variable labels from data frame for trait 3
 combinedDFP_Val_Labels$labelsDF <- c(LabelsDF1, LabelsDF2, LabelsDF3) - combined variable labels for all three traits
 combinedDFP_Val_Labels$mergedOriginDF - number (label) of original data frame
 combinedDFP_Val_Labels$mergedColnames <- merged original Colnames

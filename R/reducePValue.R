@@ -1,4 +1,213 @@
-#' reduceTraitData
+ReduceData_UI <- function(id) {
+  ns <- shiny::NS(id)
+  shiny::tagList(
+  shiny::fluidRow(
+    shiny::column(
+      width = 4,
+      shinyjs::disabled(shiny::sliderInput(
+        ns("sldP_Val"),
+        "maximum (left slider) and minimum (right slider) p-val, 5e-x",
+        min = 0,
+        max = 0,
+        step = 0, #-1, #1
+        value = c(0, 0)
+      ))
+    ),
+    shiny::column(
+      width = 4,
+      shinyjs::disabled(shiny::sliderInput(
+        ns("sldDM"),
+        "minimum (left slider) and maximum (right slider) delta methylation",
+        min = 0,
+        max = 0,
+        step = 0, #.01,
+        value = c(0, 0)
+      ))
+    ),
+    shiny::column(
+      width = 4,
+      shinyjs::disabled(shiny::sliderInput(
+        ns("sldN"),
+        "minimum (left slider) and maximum (right slider) n",
+        min = 0,
+        max = 0,
+        step = 0,
+        value = c(0, 0)
+      ))
+    )
+  ),
+  shinyjs::disabled(shiny::actionButton(ns("btnReduce"), label = "Step 3: Reduce data (omit CpGs) by applying thresholds for p-value, DM or n limit")),
+  shiny::verbatimTextOutput(ns("txtPReduceOut"), placeholder = TRUE)
+  ) #end tagList
+}
+
+ReduceData_SERVER <- function(id, session) {
+  shiny::moduleServer(id, function(input, output, session) {
+    base::tryCatch({
+      shiny::observe({
+        if (!is.valid(session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
+          shinyjs::disable("Count Borders")
+          shinyjs::disable("btnCountProbesP_ValParallel")
+          shinyjs::disable("btnCountProbesDeltaMethParallel")
+          shinyjs::disable("btnCountProbesNParallel")
+
+          shinyjs::disable("Reduce Data")
+          shinyjs::disable("sldP_Val")
+          shinyjs::disable("sldDM")
+          shinyjs::disable("sldN")
+          shinyjs::disable("btnReduce")
+        }
+        else {
+          shinyjs::enable("Count Borders")
+          shinyjs::enable("btnCountProbesP_ValParallel")
+          shinyjs::enable("btnCountProbesDeltaMethParallel")
+          shinyjs::enable("btnCountProbesNParallel")
+
+          shinyjs::enable("Reduce Data")
+          shinyjs::enable("sldP_Val")
+          shinyjs::enable("sldDM")
+          shinyjs::enable("sldN")
+          shinyjs::enable("btnReduce")
+        }
+      })
+
+      shiny::observe({
+        result <- session$userData$sessionVariables$combinedData()
+        if (is.valid(result)) {
+          updateReduceDataSliders(session, result)
+        }
+      })
+
+      shiny::observeEvent(input$btnReduce,
+        ignoreInit = TRUE,
+        {
+          base::tryCatch(
+            {
+              if (is.valid(session$userData$sessionVariables$combinedDataStructure())) {
+                base::print(base::paste0(sysTimePID(), " Step 3: start reducing data by p-value."))
+                minP_Val <- 5 * 10^base::as.integer(input$sldP_Val[1]) #minP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[2])
+                maxP_Val <- 5 * 10^base::as.integer(input$sldP_Val[2]) #maxP_Val <- 5 * 10^-base::as.integer(input$sldP_Val[1])
+                if (maxP_Val < minP_Val) { #exchange, if in wrong order
+                  t <- minP_Val
+                  minP_Val <- maxP_Val
+                  maxP_Val <- t
+                  browser() #should not happen
+                }
+                minDM <- input$sldDM[1]
+                maxDM <- input$sldDM[2]
+                minN <- base::as.integer(input$sldN[1])
+                maxN <- base::as.integer(input$sldN[2])
+                combinedDFP_Val_Labels <- session$userData$sessionVariables$combinedDataStructure()$combinedDFP_Val_Labels
+                #if (is.valid(combinedDFP_Val_Labels)) {
+                if (minP_Val != maxP_Val && minDM != maxDM && minN != maxN) {
+                  result <- getPReducedTraitData(session = session,
+                                                 combinedDFP_Val_Labels =
+                                                   combinedDFP_Val_Labels,
+                                                 minP_Val = minP_Val,
+                                                 maxP_Val = maxP_Val,
+                                                 minDM = minDM,
+                                                 maxDM = maxDM,
+                                                 minN = minN,
+                                                 maxN = maxN,
+                                                 debugMode = session$userData$config$debugMode)
+                }
+                else {
+                  result <- NULL
+                  base::print(base::paste0(sysTimePID(), " minP_Val == maxP_Val && minDM == maxDM && minN == maxN."))
+                }
+              }
+              else {
+                result <- NULL
+                base::print(base::paste0(sysTimePID(), " is.valid(session$userData$sessionVariables$combinedDataStructure()) == FALSE."))
+              }
+            },
+            error = function(e) {
+              base::message("An error occurred in shiny::observeEvent(input$btnReduce):\n", e)
+            },
+            warning = function(w) {
+              base::message("A warning occurred in shiny::observeEvent(input$btnReduce):\n", w)
+            },
+            finally = {
+              session$userData$sessionVariables$pReducedData(result)
+#              session$userData$sessionVariables$pReducedDataStructure(result)
+              base::print(base::paste0(sysTimePID(), " finished reducing data by p-value."))
+            }
+          )
+        },
+        ignoreNULL = FALSE
+      )
+
+      output$txtPReduceOut <- shiny::reactive({
+        return(updateTxtpReduceOut(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels))
+      })
+
+    },
+    error = function(e) {
+      base::message("An error occurred in moduleServer in ReduceData_SERVER:\n", e)
+      browser() #should not happen
+    },
+    warning = function(w) {
+      base::message("An error occurred in moduleServer in ReduceData_SERVER:\n", w)
+      browser() #should not happen
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished moduleServer in ReduceData_SERVER"))
+    })
+  } #end moduleServer
+)} #end Clustering_TraitsSERVER
+
+updateReduceDataSliders <- function(session, combinedDFP_Val_Labels) {
+  DF <- combinedDFP_Val_Labels$dfP_Val
+  DF <- as.matrix(DF)
+  minP <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+  minP <- base::min(minP)
+  minP <- extractMantissaExponent(minP)$exponent #base::round(extractMantissaExponent(minP)$exponent, 5)
+  maxP <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+  maxP <- base::max(maxP)
+  maxP <- extractMantissaExponent(maxP)$exponent #base::round(extractMantissaExponent(maxP)$exponent, 5)
+  shiny::updateSliderInput(session = session, inputId = "sldP_Val", min = minP, max = maxP, value = c(minP, maxP))
+  DF <- combinedDFP_Val_Labels$dfDM
+  DF <- as.matrix(DF)
+  minDM <- base::apply(DF, 2, FUN = function(x) {base::min(x[x > 0], na.rm = TRUE)})
+  minDM <- base::min(minDM)
+  if (minDM < 0) {
+    base::message(base::paste0(sysTimePID(), " Warning: minDM < 0. Please check your data.")) #that should not be the case, please check data!
+    minDM <- 0
+  }
+  maxDM <- base::apply(DF, 2, FUN = function(x) {base::max(x[x > 0], na.rm = TRUE)})
+  maxDM <- base::max(maxDM)
+  if (maxDM > 1) {
+    base::message(base::paste0(sysTimePID(), "Warning: maxDM > 1. Please check your data.")) #that should not be the case, please check data!
+    maxDM <- 1
+  }
+  #shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = NULL)
+  shiny::updateSliderInput(session = session, inputId = "sldDM", min = minDM, max = maxDM, value = c(minDM, maxDM), step = 0.001)
+  DF <- combinedDFP_Val_Labels$dfN
+  DF <- as.matrix(DF)
+  minN <- base::apply(DF, 2, FUN = function(x) {base::min(as.integer(x[x > 0]), na.rm = TRUE)})
+  minN <- base::min(minN)
+  if (minN < 1) {
+    base::message(base::paste0(sysTimePID(), "Warning: minN < 1. Please check your data.")) #that should not be the case, please check data!
+    minN <- 1
+  }
+  if (minN != as.integer(minN)) {
+    base::message(base::paste0(sysTimePID(), "Warning: minN != as.integer(minN). Please check your data.")) #that should not be the case, please check data!
+    minN <- as.integer(minN)
+  }
+  maxN <- base::apply(DF, 2, FUN = function(x) {base::max(as.integer(x[x > 0]), na.rm = TRUE)})
+  maxN <- base::max(maxN)
+  if (maxN != as.integer(maxN)) {
+    base::message(base::paste0(sysTimePID(), "Warning: maxN != as.integer(maxN). Please check your data.")) #that should not be the case, please check data!
+    maxN <- as.integer(maxN)
+  }
+  if (maxN < 1) {
+    base::message(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
+    browser() #should not happen
+  }
+  shiny::updateSliderInput(session = session, inputId = "sldN", min = minN, max = maxN, value = c(minN, maxN))
+}
+
+#' getPReducedTraitData
 #' reduces data in structure combinedDFP_Val_Labels by p-value range and minimum n; entire CpGs will be removed
 #' @param combinedDFP_Val_Labels data structure which should become p_val-reduced
 #' @param minP_Val minimum p-value to retain
@@ -7,8 +216,8 @@
 #' @param debugMode return smaller data structure (only session$userData$sessionVariables$debugNumber records) for faster debugging
 #' @return result list()
 getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP_Val, minDM, maxDM, minN, maxN, debugMode) {
-  id <- shiny::showNotification("Getting p reduced trait data...", duration = NULL, closeButton = FALSE)
-  on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Getting p reduced trait data...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(shinyId), add = TRUE)
   if (maxN < 1) {
     base::print(base::paste0(sysTimePID(), "Warning: maxN < 1. Please check your data.")) #that should not be the case, please check data!
     browser() #should not happen
@@ -27,9 +236,9 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
                                  base::nrow(dfP_Val),
                                  " and n(col) traits=",
                                  base::ncol(dfP_Val), "."))
-        LabelsDF1 <- result$labelsDF1
-        LabelsDF2 <- result$labelsDF2
-        LabelsDF3 <- result$labelsDF3
+        # LabelsDF1 <- result$labelsDF1
+        # LabelsDF2 <- result$labelsDF2
+        # LabelsDF3 <- result$labelsDF3
         mergedOriginDF <- result$mergedOriginDF
         mergedColnames <- result$mergedColnames
         mergedOriginalColnames <- result$mergedOriginalColnames
@@ -147,9 +356,6 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
           combinedDFP_Val_Labels$dfLogFC <- dfLogFC
           combinedDFP_Val_Labels$dfN <- dfN
 
-          combinedDFP_Val_Labels$labelsDF1 <- LabelsDF1
-          combinedDFP_Val_Labels$labelsDF2 <- LabelsDF2
-          combinedDFP_Val_Labels$labelsDF3 <- LabelsDF3
           combinedDFP_Val_Labels$mergedOriginDF <- mergedOriginDF
           combinedDFP_Val_Labels$mergedColnames <- mergedColnames
           combinedDFP_Val_Labels$mergedOriginalColnames <- mergedOriginalColnames

@@ -51,7 +51,8 @@ originalWd <- NULL
 #' starts the app
 #' @description function to start the app
 #' @export
-PatternMatchRApp <- function() {
+PatternMatchRApp <- function(configFileLocation = NULL) {
+  base::options(configFileLocation = configFileLocation)
   shiny::shinyApp(generate_ui(), server)
 }
 
@@ -80,8 +81,8 @@ loadDirLists <- function(session, input, output) {
 #loadObjects <- function(globalVariables) {
 loadObjects <- function(session) {
   if (shiny::isRunning()){
-    id <- shiny::showNotification("Loading annotation...", duration = NULL, closeButton = FALSE)
-    base::on.exit(shiny::removeNotification(id), add = TRUE)
+    shinyId <- shiny::showNotification("Loading annotation...", duration = NULL, closeButton = FALSE)
+    base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   }
   base::print(base::paste0(sysTimePID(), " loading annotation."))
   annotation <- meffil::meffil.get.features("450k")
@@ -174,11 +175,11 @@ getNumCores <- function(){
 #
 
 loadBaseData <- function(session, baseFileName) {
-  id <- shiny::showNotification("Loading base data...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Loading base data...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   result <- NULL
   result <- data.table::fread(file=baseFileName, sep="\t", dec=".", data.table = FALSE)
-  result <- base::subset(result, select=c(session$userData$config$mergeAttribut, session$userData$config$sexAttribut))
+  result <- base::subset(result, select=c(session$userData$config$mergeAttribut, session$userData$config$genderAttribut))
   rownames(result) <- result[, session$userData$config$mergeAttribut]
   result <- as.data.frame(result)
   return(result)
@@ -191,8 +192,8 @@ loadBaseData <- function(session, baseFileName) {
 #' @return data.frame with regression results from file
 # examples loadResultFile(folder, fileName)
 loadResultFile <- function(session, folder, fileName) {
-  id <- shiny::showNotification("Loading result file...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Loading result file...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   options(warn = 2)
   fileName <- base::paste0(folder, fileName, ".csv")
   base::print(base::paste0(sysTimePID(), " before fread()."))
@@ -285,8 +286,8 @@ addInstToPath <- function(fileName) {
 #' @return data frame with measured beta values
 # examples loadDNAm(betaFileName)
 loadDNAm <- function(betaFileName, config) {
-  id <- shiny::showNotification("Loading raw methylation data...", duration = NULL, closeButton = FALSE)
-  base::on.exit(shiny::removeNotification(id), add = TRUE)
+  shinyId <- shiny::showNotification("Loading raw methylation data...", duration = NULL, closeButton = FALSE)
+  base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   waiter::waiter_show()
   waiter::transparent(alpha = 0)
   base::on.exit(waiter::waiter_hide(), add = TRUE)

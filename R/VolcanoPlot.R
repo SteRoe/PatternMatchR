@@ -4,7 +4,7 @@ VolcanoPlot_UI <- function(id) {
     shiny::tabsetPanel(id = ns("tabsetVolcano"),
       shiny::tabPanel(
         "Table",
-        DT::dataTableOutput(ns("traitReducedDTVolcano"))
+        DT::dataTableOutput(ns("DTVolcano"))
       ),
       shiny::tabPanel(
         "Plot",
@@ -18,7 +18,7 @@ VolcanoPlot_UI <- function(id) {
                             choiceValues = list("chr", "sel", "DistanceNumber", "DistanceMin"),
                             inline = TRUE
         ),
-        plotly::plotlyOutput(ns("traitReducedPlotVolcano"), height = "150%")
+        plotly::plotlyOutput(ns("PlotVolcano"), height = "150%")
       )
     )
   )
@@ -27,8 +27,8 @@ VolcanoPlot_UI <- function(id) {
 VolcanoPlot_SERVER <- function(id, session) {
   shiny::moduleServer(id, function(input, output, session) {
 
-    output$traitReducedDTVolcano <- DT::renderDataTable(traitReducedDTVolcano())
-    output$traitReducedPlotVolcano <- plotly::renderPlotly(traitReducedVolcano())
+    output$DTVolcano <- DT::renderDataTable(DTVolcano())
+    output$PlotVolcano <- plotly::renderPlotly(plotVolcano())
 
     shiny::observeEvent(plotly::event_data(event = "plotly_selected", source = "A"), {
       selected <- plotly::event_data(event = "plotly_selected", source = "A")
@@ -36,8 +36,7 @@ VolcanoPlot_SERVER <- function(id, session) {
       if (is.valid(selected)) {
         session$userData$sessionVariables$selectedKey(selected$key)
         #get dfKeyShadow
-        # dfKeyShadow <- session$userData$sessionVariables$traitReducedDataStructurePVal()$dfKeyShadow
-        dfKeyShadow <- session$userData$sessionVariables$probeReducedDataStructure()$dfKeyShadow
+        dfKeyShadow <- session$userData$sessionVariables$probeReducedDataStructurePVal()$dfKeyShadow
         #get probe, trait and traitSource from keyShadow
         rowindex <- which(dfKeyShadow$key %in% selected$key)
         dfKeyShadow <- dfKeyShadow[rowindex,]
@@ -80,17 +79,15 @@ VolcanoPlot_SERVER <- function(id, session) {
     #   #or highlight single point by plotly::add_trace
     # })
 
-    traitReducedVolcano <- shiny::reactive({
-      id <- shiny::showNotification("Creating trait reduced volcano plot...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+    plotVolcano <- shiny::reactive({
+      shinyId <- shiny::showNotification("Creating volcano plot...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       base::tryCatch({
-        base::print(base::paste0(sysTimePID(), " start render plotly traitReducedVolcano()."))
-        #req(session$userData$sessionVariables$traitReducedDataStructurePVal()$dfVolcano)
+        base::print(base::paste0(sysTimePID(), " start render plotly probeReducedVolcano()."))
+        #req(session$userData$sessionVariables$probeReducedDataStructurePVal()$dfVolcano)
         highlightMode <- input$RbHighlightVolcano
-        #if (is.valid(session$userData$sessionVariables$traitReducedDataStructurePVal()$dfVolcano)) {
-        if (is.valid(session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano)) {
-          #volcano <- session$userData$sessionVariables$traitReducedDataStructurePVal()$dfVolcano
-          volcano <- session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano
+        if (is.valid(session$userData$sessionVariables$probeReducedDataStructurePVal()$dfVolcano)) {
+          volcano <- session$userData$sessionVariables$probeReducedDataStructurePVal()$dfVolcano
           volcano$chr <- as.factor(volcano$chr)
           volcano$label <- paste0(volcano$probe, " ", volcano$trait, " chr=", volcano$chr, " pos=", volcano$position)
           if (highlightMode == "chr") {
@@ -152,58 +149,30 @@ VolcanoPlot_SERVER <- function(id, session) {
         }
       },
       error = function(e) {
-        base::message("An error occurred in traitReducedVolcano <- shiny::reactive():\n", e)
+        base::message("An error occurred in plotVolcano <- shiny::reactive():\n", e)
         browser() #should not happen
       },
       warning = function(w) {
-        base::message("A warning occurred in traitReducedVolcano <- shiny::reactive():\n", w)
+        base::message("A warning occurred in plotVolcano <- shiny::reactive():\n", w)
       },
       finally = {
-        base::print(base::paste0(sysTimePID(), " finished render plotly traitReducedVolcano()."))
+        base::print(base::paste0(sysTimePID(), " finished render plotly plotVolcano()."))
         plot # return(plot)
       })
     })
 
-    traitReducedDTVolcano <- shiny::reactive({
-      id <- shiny::showNotification("Creating trait reduced data table...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
+    DTVolcano <- shiny::reactive({
+      shinyId <- shiny::showNotification("Creating data table for volcano plot...", duration = NULL, closeButton = FALSE)
+      on.exit(shiny::removeNotification(shinyId), add = TRUE)
       selectedKey <- session$userData$sessionVariables$selectedKey()
       if(isTruthy(selectedKey)) {
-        DT <- session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano
-        #DT <- session$userData$sessionVariables$traitReducedDataStructurePVal()$dfVolcano
+        DT <- session$userData$sessionVariables$probeReducedDataStructurePVal()$dfVolcano
         DT <- dplyr::filter(DT, key %in% selectedKey)
       }
       else {
-        #DT <- as.data.frame(session$userData$sessionVariables$traitReducedDataStructurePVal()$dfVolcano)
-        DT <- as.data.frame(session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano)
+        DT <- as.data.frame(session$userData$sessionVariables$probeReducedDataStructurePVal()$dfVolcano)
       }
       return(DT)
-    })
-
-    probeReducedVolcano <- shiny::reactive({
-      id <- shiny::showNotification("Creating probe reduced volcano plot...", duration = NULL, closeButton = FALSE)
-      on.exit(shiny::removeNotification(id), add = TRUE)
-      base::tryCatch({
-        base::print(base::paste0(sysTimePID(), " start render plotly traitReducedVolcano()."))
-        volcano <- session$userData$sessionVariables$probeReducedDataStructure()$dfVolcano
-        volcano$label <- paste0(volcano$probe, " ", volcano$trait)
-        plot <- plotly::plot_ly(volcano, x = ~LogFC, y = ~P_Val, text = ~label, key = ~key, type = "scatter", mode = "markers", name = "volcano", source = "B") %>%
-          plotly::layout(yaxis = list(title = "-log(p-val)", type = "log", autorange = "reversed")) %>%
-          plotly::layout(xaxis = list(title = "log(FC)"))
-        #tbc() #add user defined hover function to show similar cg# (same trait, same cg#)
-        #plotly::event_register(plot, "plotly_hover")
-      },
-      error = function(e) {
-        base::message("An error occurred in traitReducedVolcano <- shiny::reactive():\n", e)
-        browser() #should not happen
-      },
-      warning = function(w) {
-        base::message("A warning occurred in traitReducedVolcano <- shiny::reactive():\n", w)
-      },
-      finally = {
-        base::print(base::paste0(sysTimePID(), " finished render plotly traitReducedVolcano()."))
-        return(plot)
-      })
     })
   }) #end shiny::moduleServer
 }

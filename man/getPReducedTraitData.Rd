@@ -2,7 +2,7 @@
 % Please edit documentation in R/reducePValue.R
 \name{getPReducedTraitData}
 \alias{getPReducedTraitData}
-\title{reduceTraitData
+\title{getPReducedTraitData
 reduces data in structure combinedDFP_Val_Labels by p-value range and minimum n; entire CpGs will be removed}
 \usage{
 getPReducedTraitData(
@@ -32,6 +32,6 @@ getPReducedTraitData(
 result list()
 }
 \description{
-reduceTraitData
+getPReducedTraitData
 reduces data in structure combinedDFP_Val_Labels by p-value range and minimum n; entire CpGs will be removed
 }

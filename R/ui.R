@@ -1,6 +1,8 @@
 generate_ui <- function() {
   shiny::shinyUI(
     shiny::fluidPage(
+      shiny::useBusyIndicators(),
+      shiny::busyIndicatorOptions(spinner_type = "ring"),
       # waiter::useWaiter(), # dependencies
       # waiter::transparent(alpha = 0.1),
       # waiter::waiterShowOnLoad(), # shows before anything else
@@ -26,7 +28,7 @@ generate_ui <- function() {
           #shiny::tagList(
           shinyBS::bsCollapse(
           id = "clpPreprocess",
-          open = c("Folders", "Merge", "Reduce Data"),
+          open = c("Folders", "Merge Data", "Reduce Data"),
             multiple = TRUE,
             shinyBS::bsCollapsePanel(
               "Folders",
@@ -57,7 +59,7 @@ generate_ui <- function() {
               shiny::verbatimTextOutput("txtLoadOut", placeholder = TRUE)
             ), #end bsCollapsePanel
             shinyBS::bsCollapsePanel(
-              "Merge",
+              "Merge Data",
               shiny::fluidRow(
                 shiny::actionButton("btnMerge", label = "Step 2: Merge data from all folders"),
                 shiny::verbatimTextOutput("txtMergeOut", placeholder = TRUE)
@@ -116,90 +118,43 @@ generate_ui <- function() {
             ), #end bsCollapsePanel
             shinyBS::bsCollapsePanel(
               "Reduce Data",
-#              shiny::verbatimTextOutput("txtTest", placeholder = TRUE),
-              shiny::fluidRow(
-                shiny::column(
-                  width = 4,
-                  shinyjs::disabled(shiny::sliderInput(
-                    "sldP_Val",
-                    "maximum (left slider) and minimum (right slider) p-val, 5e-x",
-                    min = 0,
-                    max = 0,
-                    step = 0, #-1, #1
-                    value = c(0, 0)
-                  ))
-                ),
-                shiny::column(
-                  width = 4,
-                  shinyjs::disabled(shiny::sliderInput(
-                    "sldDM",
-                    "minimum (left slider) and maximum (right slider) delta methylation",
-                    min = 0,
-                    max = 0,
-                    step = 0, #.01,
-                    value = c(0, 0)
-                  ))
-                ),
-                shiny::column(
-                  width = 4,
-                  shinyjs::disabled(shiny::sliderInput(
-                    "sldN",
-                    "minimum (left slider) and maximum (right slider) n",
-                    min = 0,
-                    max = 0,
-                    step = 0,
-                    value = c(0, 0)
-                  ))
-                )
-              ),
-              shinyjs::disabled(shiny::actionButton("btnReduce", label = "Step 3: Reduce data (omit CpGs) by applying thresholds for p-value, DM or n limit")),
-              shiny::verbatimTextOutput("txtPReduceOut", placeholder = TRUE)
+              ReduceData_UI("Reduce")
             ) #end bsCollapsePanel "Reduce Data"
           ), #end bsCollapse "clpPreprocess"
           shinyBS::bsCollapse(
             id = "clpClustering",
-            open = c("Clustering"),
+            open = c("Clustering for Traits", "Clustering for Probes and Filtering for Neighbours"),
             multiple = TRUE,
             shinyBS::bsCollapsePanel(
-              "Clustering",
-              shiny::fluidRow(
-                shiny::column(
-                  width = 4,
-                  shinyjs::disabled(shiny::sliderInput(
-                    "sldNumClusters",
-                    "number of clusters (omit traits based on p-value)",
-                    min = 0,
-                    max = 0,
-                    step = 0,
-                    value = 0 # value = c(1, 10)
-                  ))
-                )
-              ), #end fluidRow
-              shiny::fluidRow(
-                shiny::column(
-                  width = 4,
-                  shinyjs::disabled(shiny::sliderInput(
-                    "sld_NumNeighbours",
-                    "distance to look for neighbours",
-                    min = 10,
-                    max = 10000,
-                    step = 10,
-                    value = 5000
-                  ))
-                )
-              ), #end fluidRow
+              "Clustering for Traits",
+              Clustering_UI("Traits"),
               shiny::tabsetPanel(
                 shiny::tabPanel(
                   "Clustering based on p-value",
-                  Clustering_UI("P_Val")
+                  ClusteringTraits_UI("PVal")
                 ),
                 shiny::tabPanel(
                   "Clustering based on log(FC)",
-                  Clustering_UI("LogFC")
+                  ClusteringTraits_UI("LogFC")
                 )
               ) #end tabSetPanel
-            ) #end bsCollapsePanel "Clustering"
-          ), #end bsCollapse "clpClustering"
+            ), #end bsCollapsePanel "Clustering Traits"
+            shinyBS::bsCollapsePanel(
+              "Clustering for Probes and Filtering for Neighbours",
+              ClusteringProbesGeneral_UI("Probes"),
+              shiny::tabsetPanel(
+                shiny::tabPanel(
+                  "Clustering based on p-value",
+                  ClusteringProbes_UI("PVal")
+                ),
+                shiny::tabPanel(
+                  "Clustering based on log(FC)",
+                  ClusteringProbes_UI("LogFC")
+                )
+              ) #end tabSetPanel
+            )
+          ), #end bsCollapse "clpClusteringTraits"
+
           shinyBS::bsCollapse(
             id = "clpHeatmap",
             shinyBS::bsCollapsePanel(
@@ -228,28 +183,7 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "HeatMap P_Val Details",
-                        HeatMap_UI("HeatMap_Full_DetailsPval")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Probes",
-                        plotly::plotlyOutput("traitReducedPlotDendrogramProbesPval", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Annotated Table Probes",
-                        DT::dataTableOutput("traitReducedDTProbesPval")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Traits",
-                        plotly::plotlyOutput("traitReducedPlotDendrogramTraitsPval", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Table Traits",
-                        DT::dataTableOutput("traitReducedDTTraitsPval")
-                      ),
-                      shiny::tabPanel(
-                        "Histogram",
-                        "Histogram of all p-values in full heatmap (number of p-values = number probes * number traits)",
-                        plotly::plotlyOutput("traitReducedHistP_Val", inline = TRUE)
+                        HeatMap_UI("HeatMap_Full_DetailsPVal")
                       ) #end tabPanel
                     ) #end tabSetPanel
                   ), #end tabPanel ##full non-modified data p-val end
@@ -276,29 +210,8 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "HeatMap log(FC) Details",
                         HeatMap_UI("HeatMap_Full_DetailsLogFC")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Probes",
-                        plotly::plotlyOutput("traitReducedPlotDendrogramProbesLogFC", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Annotated Table Probes",
-                        DT::dataTableOutput("traitReducedDTProbesLogFC")
-                      ),
-                      shiny::tabPanel(
-                        "Dendrogram Traits",
-                        plotly::plotlyOutput("traitReducedPlotDendrogramTraitsLogFC", height = "80%")
-                      ),
-                      shiny::tabPanel(
-                        "Table Traits",
-                        DT::dataTableOutput("traitReducedDTTraitsLogFC")
-                      ),
-                      shiny::tabPanel(
-                        "Histogram",
-                        "Histogram of all log(FC) in full heatmap (number of log(FC) = number probes * number traits)",
-                        plotly::plotlyOutput("traitReducedHistLogFC", inline = TRUE)
-                      )
-                    )
+                      ) #end tabPanel
+                    ) #end tabSetPanel
                   ), ## full non-modified data log(FC) end
                   # shiny::tabPanel(
                   #   ##full DW data start
