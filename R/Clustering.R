@@ -734,7 +734,14 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
   } #end moduleServer
 )} #end ClusteringProbes_SERVER
 
-
+#' getTraitReducedDataStructure
+#' delivers clustering results for traits
+#' @param id either "PVal" or "LogFC"
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#' @return nested list with results of trait clustering
+#' examples getTraitReducedDataStructure(id, input, output, session)
 getTraitReducedDataStructure <- function(id, input, output, session) {
   shinyId <- shiny::showNotification("Creating trait reduced data structure...", duration = NULL, closeButton = FALSE)
   on.exit(shiny::removeNotification(shinyId), add = TRUE)
@@ -814,7 +821,6 @@ getTraitReducedDataStructure <- function(id, input, output, session) {
         else {
           result$traitClustergram <- NULL
         }
-
         if (is.valid(result$traitClusterMedoids)) {
           #select only medoid CpG for further analyses...
           medoids <- which(colnames(result$combinedDFP_Val_Labels$dfP_Val) %in% unlist(result$traitClusterMedoids))
@@ -830,31 +836,33 @@ getTraitReducedDataStructure <- function(id, input, output, session) {
           result$combinedDFP_Val_Labels$mergedOriginalColnames <- result$combinedDFP_Val_Labels$mergedOriginalColnames[medoids]
           result$combinedDFP_Val_Labels$mergedOriginTrait <- result$combinedDFP_Val_Labels$mergedOriginTrait[medoids]
 
-          #clustering again
-          if (id == "PVal") {
-            mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
-          }
-          else if (id == "LogFC") {
-            mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
-          }
-          mat <- na.omit(mat)
-          gc()
-          result$matP_Val.t<- t(mat)
-          # clustering for traits
-          base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for medoids n(traits) = ", base::ncol(mat), " (takes some time). Using n(cores) = ", numberCores, "."))
-          if (is.valid(result$matP_Val.t)) {
-            result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matP_Val.t)
-          }
-          else {
-            result$distMatTraits <- NULL
-          }
-          base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure start clustResTraits for medoids."))
-          if (is.valid(result$distMatTraits)) {
-            result$clustResTraits <- getClustResFast(result$distMatTraits)
-          }
-          else {
-            result$clustResTraits <- NULL
-            browser() # should not happen
+          if (length(result$traitClusterMedoids) < ncol(mat)) { #do this only if we have less medoids than before
+            #clustering again
+            if (id == "PVal") {
+              mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
+            }
+            else if (id == "LogFC") {
+              mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
+            }
+            mat <- na.omit(mat)
+            gc()
+            result$matP_Val.t<- t(mat)
+            # clustering for traits
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure) before distance matrix for medoids n(traits) = ", base::ncol(mat), " (takes some time). Using n(cores) = ", numberCores, "."))
+            if (is.valid(result$matP_Val.t)) {
+              result$distMatTraits <- getDistMat(numberCores = numberCores, matrix = result$matP_Val.t)
+            }
+            else {
+              result$distMatTraits <- NULL
+            }
+            base::print(base::paste0(sysTimePID(), " (traitReducedDataStructure start clustResTraits for medoids."))
+            if (is.valid(result$distMatTraits)) {
+              result$clustResTraits <- getClustResFast(result$distMatTraits)
+            }
+            else {
+              result$clustResTraits <- NULL
+              browser() # should not happen
+            }
           }
         }
         else {
@@ -904,12 +912,18 @@ getTraitReducedDataStructure <- function(id, input, output, session) {
   )
 }
 
-# this function delivers probes that are within a defined range (DNAdistances) around each selected probe
+#' getProbeReducedDataStructure
+#' delivers clustering results for probes as well as probes that are within a defined range (DNAdistances) around each selected probe
+#' @param id either "PVal" or "LogFC"
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#' @return nested list with results of probe clustering
+#' examples getProbeReducedDataStructure(id, input, output, session)
 getProbeReducedDataStructure <- function(id, input, output, session) {
   shinyId <- shiny::showNotification("Creating probe reduced data structure...", duration = NULL, closeButton = FALSE)
   on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch({
-#browser()
     if (id == "PVal") {
       p <- session$userData$sessionVariables$traitReducedDataStructurePVal()
     }
@@ -1017,29 +1031,29 @@ getProbeReducedDataStructure <- function(id, input, output, session) {
           result$combinedDFP_Val_Labels$dfN_Original <- result$combinedDFP_Val_Labels$dfN_Original[medoids, ]
           result$combinedDFP_Val_Labels$dfLogFC_Original <- result$combinedDFP_Val_Labels$dfLogFC_Original[medoids, ]
 
-          #clustering again
-          #dfP_Val <- na.omit(result$combinedDFP_Val_Labels$dfP_Val) #omit empty rows
-          if (id == "PVal") {
-            mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
-          }
-          else if (id == "LogFC") {
-            mat <- as.matrix(result$combinedDFP_Val_Labels$dfLogFC)
-          }
-          mat <- na.omit(mat)
-          # clustering for probes
-          base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) before distance matrix for medoids n(probes) = ", base::nrow(mat), " (takes some time). Using n(cores) = ", numberCores, "."))
-          gc()
-          #dfP_Val <- as.matrix(dfP_Val)
-          result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = mat)
+          if (length(result$probeClusterMedoids) < nrow(mat)) { #do this only if we have less medoids than before
+            #clustering again
+            if (id == "PVal") {
+              mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
+            }
+            else if (id == "LogFC") {
+              mat <- as.matrix(result$combinedDFP_Val_Labels$dfLogFC)
+            }
+            mat <- na.omit(mat)
+            # clustering for probes
+            base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) before distance matrix for medoids n(probes) = ", base::nrow(mat), " (takes some time). Using n(cores) = ", numberCores, "."))
+            gc()
+            result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = mat)
 
-          base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start clustResProbes for medoids."))
-          distMat <- result$distMatProbes
-          if (is.valid(distMat)) {
-            result$clustResProbes <- getClustResFast(distMat)
-          }
-          else {
-            result$clustResProbes <- NULL
-            browser() # should not happen
+            base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start clustResProbes for medoids."))
+            distMat <- result$distMatProbes
+            if (is.valid(distMat)) {
+              result$clustResProbes <- getClustResFast(distMat)
+            }
+            else {
+              result$clustResProbes <- NULL
+              browser() # should not happen
+            }
           }
         }
         else {

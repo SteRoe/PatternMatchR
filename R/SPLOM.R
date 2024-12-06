@@ -8,7 +8,7 @@
 #' @param df data frame
 #' @param omitVar Variable to leave out of nested list
 #' @return nested list for plotly with variable labels and formulae
-# examples getDimensionsForPlotlySPLOM(df, omitVar)
+#' examples getDimensionsForPlotlySPLOM(df, omitVar)
 getDimensionsForPlotlySPLOM <- function(df, omitVar) {
   dimensionList <- list()
   for (i in seq_along(df)) {

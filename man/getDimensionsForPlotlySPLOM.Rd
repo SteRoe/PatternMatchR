@@ -18,6 +18,7 @@ getDimensionsForPlotlySPLOM(df, omitVar)
 }
 \value{
 nested list for plotly with variable labels and formulae
+examples getDimensionsForPlotlySPLOM(df, omitVar)
 }
 \description{
 structure of sessionVariables for SPLOM:
