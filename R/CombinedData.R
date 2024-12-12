@@ -62,7 +62,9 @@ getResultDfP_D_N <- function(listOfResultDF, P_D_N_F) {
       base::print(base::paste0(sysTimePID(), " finished getResultDfP_D_N()"))
     },
     error = function(e) {
-      base::message("An error occurred in getResultDfP_D_N():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getResultDfP_D_N():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getResultDfP_D_N():\n", w)
@@ -526,7 +528,9 @@ mergeDFP_Val_Labels <- function(resultDFListTrait1, resultDFListTrait2, resultDF
       }
     },
     error = function(e) {
-      base::message("An error occurred in mergeDFP_Val_Labels():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in mergeDFP_Val_Labels():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in mergeDFP_Val_Labels():\n", w)
@@ -564,7 +568,9 @@ loadDir <- function(session, traitDirList) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in loadDir():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in loadDir():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in loadDir():\n", w)
@@ -619,7 +625,9 @@ updateTxtLoadOut <- function(session, resultDFListTrait1, resultDFListTrait2, re
       }
     },
     error = function(e) {
-      base::message("An error occurred in updateTxtLoadOut():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in updateTxtLoadOut():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in updateTxtLoadOut():\n", w)
@@ -648,7 +656,9 @@ updateTxtMergeOut <- function(combinedDataStructure) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in updateTxtMergeOut():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in updateTxtMergeOut():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in updateTxtMergeOut():\n", w)

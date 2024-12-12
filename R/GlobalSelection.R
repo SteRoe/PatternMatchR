@@ -96,7 +96,9 @@ GlobalSelection_SERVER <- function(id, session) {
           result <- session$userData$sessionVariables$selectedAnnotation()
         },
         error = function(e) {
-          base::message("An error occurred in shiny::reactive(DTSelectedProbes):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::reactive(DTSelectedProbes):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::reactive(DTSelectedProbes):\n", w)
@@ -120,7 +122,9 @@ GlobalSelection_SERVER <- function(id, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::reactive(DTSelectedTraits):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::reactive(DTSelectedTraits):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::reactive(DTSelectedTraits):\n", w)
@@ -304,7 +308,9 @@ GlobalSelection_SERVER <- function(id, session) {
           # return df with merged original data from selected area
         },
         error = function(e) {
-          base::message("An error occurred in getSelectedOriginalData():\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in getSelectedOriginalData():\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in getSelectedOriginalData():\n", w)
@@ -431,7 +437,9 @@ GlobalSelection_SERVER <- function(id, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in getSelectedOriginalDataTraits():\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in getSelectedOriginalDataTraits():\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in getSelectedOriginalDataTraits():\n", w)
@@ -499,7 +507,9 @@ GlobalSelection_SERVER <- function(id, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in getSelectedOriginalDataProbes():\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in getSelectedOriginalDataProbes():\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in getSelectedOriginalDataProbes():\n", w)

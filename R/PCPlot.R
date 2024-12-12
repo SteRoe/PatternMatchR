@@ -121,8 +121,10 @@ PCPlot_SERVER <- function(id, session) {
         }
       },
       error = function(e) {
-        base::message("An error occurred in DMPNearRangeData:\n", e)
-        browser() #should not happen
+        if(attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in DMPNearRangeData:\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("An error occurred in DMPNearRangeData:\n", w)
@@ -170,8 +172,10 @@ PCPlot_SERVER <- function(id, session) {
         }
       },
       error = function(e) {
-        base::message("An error occurred in PCplot:\n", e)
-        browser() #should not happen
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in PCplot:\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("An error occurred in PCplot:\n", w)
@@ -191,8 +195,10 @@ PCPlot_SERVER <- function(id, session) {
         result <- DMPNearRangeData()
       },
       error = function(e) {
-        base::message("An error occurred in DFPCplot:\n", e)
-        browser() #should not happen
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in DFPCplot:\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("An error occurred in DFPCplot:\n", w)
@@ -256,8 +262,10 @@ PCPlot_SERVER <- function(id, session) {
         result <- input$selSelectedTrait
       },
       error = function(e) {
-        base::message("An error occurred in selectedTrait():\n", e)
-        browser() #should not happen
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in selectedTrait():\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("An error occurred in selectedTrait():\n", w)
@@ -274,8 +282,10 @@ PCPlot_SERVER <- function(id, session) {
         result <- input$selSelectedProbe
       },
       error = function(e) {
-        base::message("An error occurred in selectedProbe():\n", e)
-        browser() #should not happen
+        if(attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in selectedProbe():\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("An error occurred in selectedProbe():\n", w)

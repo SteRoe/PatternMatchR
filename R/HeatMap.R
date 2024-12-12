@@ -126,7 +126,7 @@ plotCombinedHM <- function(id, input, output, session) {
         selectedRowIndicesYellow <- session$userData$sessionVariables$selectedProbe()
       }
       # if (is.valid(input$txtSearchFullCpG)) {
-      #   selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpG, split = " ")) #is a list of cg-numbers from search field "txtSearchCpG"
+      #   selectedRowIndicesYellow <- unlist(strsplit(input$txtSearchFullCpGPVal, split = " ")) #is a list of cg-numbers from search field "txtSearchCpG"
       # }
       # if (is.valid(input$txtSearchFullTrait)) {
       #   selectedColIndices <- unlist(strsplit(input$txtSearchFullTrait, split = " "))
@@ -165,9 +165,11 @@ plotCombinedHM <- function(id, input, output, session) {
       )
     },
     error = function(e) {
-      base::message("An error occurred in plotCombinedHM():\n", e)
-      Cstack_info()
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in plotCombinedHM():\n", e)
+        Cstack_info()
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in plotCombinedHM():\n", w)
@@ -415,7 +417,9 @@ combinedDFInteractiveHeatMap <-
         )
       },
       error = function(e) {
-        base::message("An error occurred in combinedDFInteractiveHeatMapP_Val():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in combinedDFInteractiveHeatMapP_Val():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in combinedDFInteractiveHeatMapP_Val():\n", w)
@@ -451,7 +455,9 @@ combinedDFInteractiveHeatMap <-
         )
       },
       error = function(e) {
-        base::message("An error occurred in making htDistances():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in making htDistances():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in making htDistances():\n", w)
@@ -469,7 +475,9 @@ combinedDFInteractiveHeatMap <-
         grDevices::pdf(NULL)
       },
       error = function(e) {
-        base::message("An error occurred in clearing grDevices():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in clearing grDevices():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in clearing grDevices():\n", w)
@@ -485,8 +493,10 @@ combinedDFInteractiveHeatMap <-
         # Error in Cairo: Failed to create Cairo backend!
         ht <- ComplexHeatmap::draw(htDistances + ht, annotation_legend_list = lgd)
       },
-      error = function(err) {
-        base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", err$message))
+      error = function(e) {
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", e$message))
+        }
       },
       warning = function(w) {
         base::message(base::paste0(sysTimePID(), " unable to draw HM. ", w$message))
@@ -704,7 +714,9 @@ combinedDFInteractiveHeatMapLogFC <-
         )
       },
       error = function(e) {
-        base::message("An error occurred in combinedDFInteractiveHeatMapLogFC():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in combinedDFInteractiveHeatMapLogFC():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in combinedDFInteractiveHeatMapLogFC():\n", w)
@@ -740,7 +752,9 @@ combinedDFInteractiveHeatMapLogFC <-
         )
       },
       error = function(e) {
-        base::message("An error occurred in making htDistances():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in making htDistances():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in making htDistances():\n", w)
@@ -758,7 +772,9 @@ combinedDFInteractiveHeatMapLogFC <-
         grDevices::pdf(NULL)
       },
       error = function(e) {
-        base::message("An error occurred in clearing grDevices():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in clearing grDevices():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in clearing grDevices():\n", w)
@@ -776,8 +792,10 @@ combinedDFInteractiveHeatMapLogFC <-
         # ht <- ComplexHeatmap::draw(ht, annotation_legend_list = lgd)
         ht <- ComplexHeatmap::draw(htDistances + ht, annotation_legend_list = lgd)
       },
-      error = function(err) {
-        base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", err$message))
+      error = function(e) {
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", e$message))
+        }
       },
       warning = function(w) {
         base::message(base::paste0(sysTimePID(), " unable to draw HM. ", w$message))
@@ -822,7 +840,9 @@ HeatMapDistances <-
           )
       },
       error = function(e) {
-        base::message("An error occurred in HeatMapDistances():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in HeatMapDistances():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in HeatMapDistances():\n", w)
@@ -843,7 +863,9 @@ HeatMapDistances <-
         grDevices::pdf(NULL)
       },
       error = function(e) {
-        base::message("An error occurred in clearing grDevices():\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in clearing grDevices():\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in clearing grDevices():\n", w)
@@ -859,8 +881,10 @@ HeatMapDistances <-
         # Error in Cairo: Failed to create Cairo backend!
         ht <- ComplexHeatmap::draw(ht)
       },
-      error = function(err) {
-        base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", err$message))
+      error = function(e) {
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message(base::paste0(sysTimePID(), " Error: unable to draw HM. ", e$message))
+        }
       },
       warning = function(w) {
         base::message(base::paste0(sysTimePID(), " unable to draw HM. ", w$message))
@@ -888,7 +912,9 @@ getSearchResultCpGHMPositions <- function(txtSearchCpG, dataStructure) {
       positions <- base::which(CpG %in% unlist(base::strsplit(base::trimws(txtSearchCpG), " ")))
     },
     error = function(e) {
-      base::message("An error occurred in getSearchResultCpG():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getSearchResultCpG():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getSearchResultCpG():\n", w)
@@ -909,7 +935,9 @@ getSearchResultTraitHMPositions <- function(txtSearchTrait, dataStructure) {
       positions <- base::which(Trait %in% unlist(base::strsplit(base::trimws(txtSearchTrait), " ")))
     },
     error = function(e) {
-      base::message("An error occurred in getSearchResultTrait():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getSearchResultTrait():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getSearchResultTrait():\n", w)
@@ -969,7 +997,9 @@ click_action_fullHM <- function(df, input, output, session) {
       # })
     },
     error = function(e) {
-      base::message("An error occurred in click_action_fullHM():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in click_action_fullHM():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in click_action_fullHM():\n", w)
@@ -1008,7 +1038,9 @@ brush_action_fullHM <- function(df, input, output, session) {
       output$txtGlobalSelectOut <- shiny::renderText("last selection was from full heatmap brush event.")
     },
     error = function(e) {
-      base::message("An error occurred in brush_action_fullHM():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in brush_action_fullHM():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in brush_action_fullHM():\n", w)
@@ -1032,7 +1064,9 @@ hover_action_fullHM <- function(df, input, output, session) {
       base::print(base::paste0(sysTimePID(), " hover_action_fullHM.", as.character(head(df))))
     },
     error = function(e) {
-      base::message("An error occurred in hover_action_fullHM():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in hover_action_fullHM():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in hover_action_fullHM():\n", w)
@@ -1056,7 +1090,9 @@ click_action_fullHM_LogFC <- function(df, input, output, session) {
       base::print(base::paste0(sysTimePID(), " start click_action_fullHM_LogFC()."))
     },
     error = function(e) {
-      base::message("An error occurred in click_action_fullHM_LogFC():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in click_action_fullHM_LogFC():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in click_action_fullHM_LogFC():\n", w)
@@ -1092,7 +1128,9 @@ brush_action_fullHM_LogFC <- function(df, input, output, session) {
       output$txtGlobalSelectOut <- shiny::renderText("last selection was from full heatmap log(FC) brush event.")
     },
     error = function(e) {
-      base::message("An error occurred in brush_action_fullHM_LogFC():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in brush_action_fullHM_LogFC():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in brush_action_fullHM_LogFC():\n", w)
@@ -1116,7 +1154,9 @@ hover_action_fullHM_LogFC <- function(df, input, output, session) {
       base::print(base::paste0(sysTimePID(), " hover_action_fullHM_LogFC", as.character(head(df))))
     },
     error = function(e) {
-      base::message("An error occurred in hover_action_fullHM_LogFC():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in hover_action_fullHM_LogFC():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in hover_action_fullHM_LogFC():\n", w)
@@ -1134,7 +1174,9 @@ click_action_condHM_P_Val <- function(df, input, output, session) {
       # only placeholder at the moment
     },
     error = function(e) {
-      base::message("An error occurred in click_action_condHM_P_Val():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in click_action_condHM_P_Val():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in click_action_condHM_P_Val():\n", w)
@@ -1168,7 +1210,9 @@ brush_action_condHM_P_Val <- function(df, input, output, session) {
       output$txtGlobalSelectOut <- shiny::renderText("last selection was from condensed heatmap p-val brush event.")
     },
     error = function(e) {
-      base::message("An error occurred in brush_action_condHM_P_Val():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in brush_action_condHM_P_Val():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in brush_action_condHM_P_Val():\n", w)
@@ -1186,7 +1230,9 @@ hover_action_condHM_P_Val <- function(df, input, output, session) {
       # only placeholder at the moment
     },
     error = function(e) {
-      base::message("An error occurred in hover_action_condHM_P_Val():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in hover_action_condHM_P_Val():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in hover_action_condHM_P_Val():\n", w)
@@ -1204,7 +1250,9 @@ click_action_condHeatmap_LogFC <- function(df, input, output, session) {
       # only placeholder at the moment
     },
     error = function(e) {
-      base::message("An error occurred in click_action_condHeatmap_LogFC():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in click_action_condHeatmap_LogFC():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in click_action_condHeatmap_LogFC():\n", w)
@@ -1231,7 +1279,9 @@ brush_action_condHeatmap_LogFC <- function(df, input, output, session) {
       output$txtGlobalSelectOut <- shiny::renderText("last selection was from condensed heatmap logFC brush event.")
     },
     error = function(e) {
-      base::message("An error occurred in brush_action_condHeatmap_LogFC():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in brush_action_condHeatmap_LogFC():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in brush_action_condHeatmap_LogFC():\n", w)
@@ -1249,7 +1299,9 @@ hover_action_condHeatmap_LogFC <- function(df, input, output, session) {
       # only placeholder at the moment
     },
     error = function(e) {
-      base::message("An error occurred in hover_action_condHeatmap_LogFC():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in hover_action_condHeatmap_LogFC():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in hover_action_condHeatmap_LogFC():\n", w)

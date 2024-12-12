@@ -8,16 +8,23 @@ Search_Full_UI <- function(id) {
       shiny::tabsetPanel(
         shiny::tabPanel(
               "Search for CpG in Full Heatmap (p-val)",
-              shiny::textAreaInput(inputId = ns("txtSearchFullCpG"), label = "Search CpG", value = ""),
-              shiny::verbatimTextOutput(outputId = ns("txtSearchResultFullCpG")),
-              shiny::actionButton(ns("btnSearchFullCpGHM"), label = "Search CpG"),
-              "Search for Trait in Full Heatmap",
-              shiny::textAreaInput(inputId = ns("txtSearchFullTrait"), label = "Search Trait", value = ""),
-              shiny::verbatimTextOutput(outputId = ns("txtSearchResultFullTrait")),
-              shiny::actionButton(ns("btnSearchFullTraitHM"), label = "Search Trait")
+              shiny::textAreaInput(inputId = ns("txtSearchFullCpGPVal"), label = "Search CpG (p-val)", value = ""),
+              shiny::verbatimTextOutput(outputId = ns("txtSearchResultFullCpGPVal")),
+              shiny::actionButton(ns("btnSearchFullCpGHMPVal"), label = "Search CpG (p-val)"),
+              "Search for Trait in Full Heatmap (p-val)",
+              shiny::textAreaInput(inputId = ns("txtSearchFullTraitPVal"), label = "Search Trait (p-val)", value = ""),
+              shiny::verbatimTextOutput(outputId = ns("txtSearchResultFullTraitPVal")),
+              shiny::actionButton(ns("btnSearchFullTraitHMPVal"), label = "Search Trait")
         ),
         shiny::tabPanel(
-             "reserved"
+          "Search for CpG in Full Heatmap (log(FC))",
+          shiny::textAreaInput(inputId = ns("txtSearchFullCpGLogFC"), label = "Search CpG (log(FC))", value = ""),
+          shiny::verbatimTextOutput(outputId = ns("txtSearchResultFullCpGLogFC")),
+          shiny::actionButton(ns("btnSearchFullCpGHMLogFC"), label = "Search CpG (log(FC))"),
+          "Search for Trait in Full Heatmap (p-val)",
+          shiny::textAreaInput(inputId = ns("txtSearchFullTraitLogFC"), label = "Search Trait (log(FC))", value = ""),
+          shiny::verbatimTextOutput(outputId = ns("txtSearchResultFullTraitLogFC")),
+          shiny::actionButton(ns("btnSearchFullTraitHMLogFC"), label = "Search Trait (log(FC))")
         )
       )
     )
@@ -54,29 +61,31 @@ Search_Full_UI <- function(id) {
 Search_Full_SERVER <- function(id, session) {
   shiny::moduleServer(id, function(input, output, session) {
 
-    shiny::observeEvent(input$btnSearchFullCpGHM,
+    shiny::observeEvent(input$btnSearchFullCpGHMPVal,
                         ignoreInit = TRUE,
                         {
                           base::tryCatch(
                             {
                               base::print(base::paste0(sysTimePID(), " start searching CpG full."))
                               #find positions
-                              searchResult <- getSearchResultCpG(input$txtSearchFullCpG, session$userData$sessionVariables$traitReducedDataStructurePVal())
+                              searchResult <- getSearchResultCpG(input$txtSearchFullCpGPVal, session$userData$sessionVariables$traitReducedDataStructurePVal())
                               length <- length(session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes$labels)
-                              resultText <- paste0(base::trimws(input$txtSearchFullCpG), " found at position: ", searchResult, " from ", length, " CpG.")
+                              resultText <- paste0(base::trimws(input$txtSearchFullCpGPVal), " found at position: ", searchResult, " from ", length, " CpG.")
                               #write to GlobalSelection:
                               if (is.valid(searchResult)) {
                                 selectedProbe <- session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes$labels[searchResult]
                                 session$userData$sessionVariables$selectedProbe(selectedProbe)
                               }
                               #write to output
-                              output$txtSearchResultFullCpG <- shiny::renderText(resultText)
+                              output$txtSearchResultFullCpGPVal <- shiny::renderText(resultText)
                             },
                             error = function(e) {
-                              base::message("An error occurred in shiny::observeEvent(input$btnSearchFullCpGHM):\n", e)
+                              if (attributes(e)$class[1] != "shiny.silent.error") {
+                                base::message("An error occurred in shiny::observeEvent(input$btnSearchFullCpGHMPVal):\n", e)
+                              }
                             },
                             warning = function(w) {
-                              base::message("A warning occurred in shiny::observeEvent(input$btnSearchFullCpGHM):\n", w)
+                              base::message("A warning occurred in shiny::observeEvent(input$btnSearchFullCpGHMPVal):\n", w)
                             },
                             finally = {
                               base::print(base::paste0(sysTimePID(), " finished searching CpG full."))
@@ -87,16 +96,16 @@ Search_Full_SERVER <- function(id, session) {
                         ignoreNULL = FALSE
     )
 
-    shiny::observeEvent(input$btnSearchFullTraitHM,
+    shiny::observeEvent(input$btnSearchFullTraitHMPVal,
                         ignoreInit = TRUE,
                         {
                           base::tryCatch(
                             {
                               base::print(base::paste0(sysTimePID(), " start searching trait full."))
                               #find positions
-                              searchResult <- getSearchResultTrait(input$txtSearchFullTrait, session$userData$sessionVariables$traitReducedDataStructurePVal())
+                              searchResult <- getSearchResultTrait(input$txtSearchFullTraitPVal, session$userData$sessionVariables$traitReducedDataStructurePVal())
                               length <- length(session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResTraits$labels)
-                              resultText <- paste0(base::trimws(input$txtSearchFullTrait), " found at position: ", searchResult, " from ", length, " traits.")
+                              resultText <- paste0(base::trimws(input$txtSearchFullTraitPVal), " found at position: ", searchResult, " from ", length, " traits.")
                               #write to GlobalSelection:
                               if (is.valid(searchResult)) {
                                 originTrait <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$mergedOriginTrait[searchResult]
@@ -106,13 +115,15 @@ Search_Full_SERVER <- function(id, session) {
                                 session$userData$sessionVariables$selectedTrait(selectedTrait)
                               }
                               #write to output
-                              output$txtSearchResultFullTrait <- shiny::renderText(resultText)
+                              output$txtSearchResultFullTraitPVal <- shiny::renderText(resultText)
                             },
                             error = function(e) {
-                              base::warning("An error occurred in shiny::observeEvent(input$btnSearchFullTraitHM):\n", e)
+                              if (attributes(e)$class[1] != "shiny.silent.error") {
+                                base::warning("An error occurred in shiny::observeEvent(input$btnSearchFullTraitHMPVal):\n", e)
+                              }
                             },
                             warning = function(w) {
-                              base::message("A warning occurred in shiny::observeEvent(input$btnSearchFullTraitHM):\n", w)
+                              base::message("A warning occurred in shiny::observeEvent(input$btnSearchFullTraitHMPVal):\n", w)
                             },
                             finally = {
                               base::print(base::paste0(sysTimePID(), " end search trait heatmap full."))
@@ -137,7 +148,9 @@ Search_Full_SERVER <- function(id, session) {
                               output$txtSearchResultCondCpG <- shiny::renderText(resultText)
                             },
                             error = function(e) {
-                              base::message("An error occurred in shiny::observeEvent(input$btnSearchCondCpGHM):\n", e)
+                              if (attributes(e)$class[1] != "shiny.silent.error") {
+                                base::message("An error occurred in shiny::observeEvent(input$btnSearchCondCpGHM):\n", e)
+                              }
                             },
                             warning = function(w) {
                               base::message("A warning occurred in shiny::observeEvent(input$btnSearchCondCpGHM):\n", w)
@@ -165,7 +178,9 @@ Search_Full_SERVER <- function(id, session) {
                               output$txtSearchResultCondTrait <- shiny::renderText(resultText)
                             },
                             error = function(e) {
-                              base::warning("An error occurred in shiny::observeEvent(input$btnSearchCondTraitHM):\n", e)
+                              if (attributes(e)$class[1] != "shiny.silent.error") {
+                                base::warning("An error occurred in shiny::observeEvent(input$btnSearchCondTraitHM):\n", e)
+                              }
                             },
                             warning = function(w) {
                               base::message("A warning occurred in shiny::observeEvent(input$btnSearchCondTraitHM):\n", w)
@@ -189,7 +204,9 @@ Search_Full_SERVER <- function(id, session) {
           positions <- base::which(CpG %in% unlist(base::strsplit(base::trimws(txtSearchCpG), " ")))
         },
         error = function(e) {
-          base::message("An error occurred in getSearchResultCpG():\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in getSearchResultCpG():\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in getSearchResultCpG():\n", w)
@@ -210,7 +227,9 @@ Search_Full_SERVER <- function(id, session) {
           positions <- base::which(Trait %in% unlist(base::strsplit(base::trimws(txtSearchTrait), " ")))
         },
         error = function(e) {
-          base::message("An error occurred in getSearchResultTrait():\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in getSearchResultTrait():\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in getSearchResultTrait():\n", w)

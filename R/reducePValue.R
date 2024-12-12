@@ -122,7 +122,9 @@ ReduceData_SERVER <- function(id, session) {
               }
             },
             error = function(e) {
-              base::message("An error occurred in shiny::observeEvent(input$btnReduce):\n", e)
+              if (attributes(e)$class[1] != "shiny.silent.error") {
+                base::message("An error occurred in shiny::observeEvent(input$btnReduce):\n", e)
+              }
             },
             warning = function(w) {
               base::message("A warning occurred in shiny::observeEvent(input$btnReduce):\n", w)
@@ -143,8 +145,10 @@ ReduceData_SERVER <- function(id, session) {
 
     },
     error = function(e) {
-      base::message("An error occurred in moduleServer in ReduceData_SERVER:\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in moduleServer in ReduceData_SERVER:\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("An error occurred in moduleServer in ReduceData_SERVER:\n", w)
@@ -369,7 +373,9 @@ getPReducedTraitData <- function(session, combinedDFP_Val_Labels, minP_Val, maxP
       }
     },
     error = function(e) {
-      message("An error occurred in getPReducedTraitData():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        message("An error occurred in getPReducedTraitData():\n", e)
+      }
     },
     warning = function(w) {
       message("A warning occurred in getPReducedTraitData():\n", w)
@@ -404,7 +410,9 @@ updateTxtpReduceOut <- function(pReducedcombinedDFP_Val_Labels) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in updateTxtpReduceOut():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in updateTxtpReduceOut():\n", e)
+      }
     },
 
     warning = function(w) {

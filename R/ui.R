@@ -167,7 +167,7 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "HeatMap P_Val",
                         shinyjs::disabled(
-                          shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 5a: Plot Heatmap P_Val")
+                          shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 6a: Plot Heatmap P_Val")
                         ),
                         shinyjs::disabled(
                           shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE)
@@ -193,7 +193,7 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "HeatMap log(FC)",
                         shinyjs::disabled(
-                          shiny::actionButton("btnPlotCombinedHM_LogFC", label = "Step 5b: Plot Heatmap log(FC)")
+                          shiny::actionButton("btnPlotCombinedHM_LogFC", label = "Step 6b: Plot Heatmap log(FC)")
                         ),
                         shinyjs::disabled(
                           shiny::verbatimTextOutput("txtHMDescription_LogFC", placeholder = TRUE)

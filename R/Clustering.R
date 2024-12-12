@@ -367,8 +367,10 @@ Clustering_SERVER <- function(id, session) {
       session$userData$sessionVariables$numClustersTraits <- shiny::reactive({input$sldNumClustersTraits})
     },
     error = function(e) {
-      base::message("An error occurred in moduleServer in ClusteringTraits_SERVER:\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in moduleServer in ClusteringTraits_SERVER:\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("An error occurred in moduleServer in ClusteringTraits_SERVER:\n", w)
@@ -434,7 +436,9 @@ ClusteringTraits_SERVER <- function(id, pReducedDataStructure, traitReducedDataS
               }
             },
             error = function(e) {
-              base::message("An error occurred in shiny::observeEvent(input$btnOmitTraits):\n", e)
+              if (attributes(e)$class[1] != "shiny.silent.error") {
+                base::message("An error occurred in shiny::observeEvent(input$btnOmitTraits):\n", e)
+              }
             },
             warning = function(w) {
               base::message("A warning occurred in shiny::observeEvent(input$btnOmitTraits):\n", w)
@@ -466,7 +470,9 @@ ClusteringTraits_SERVER <- function(id, pReducedDataStructure, traitReducedDataS
             }
           },
           error = function(e) {
-            base::message("An error occurred in shiny::reactive(output$txtOmitTraitsOut):\n", e)
+            if (attributes(e)$class[1] != "shiny.silent.error") {
+              base::message("An error occurred in shiny::reactive(output$txtOmitTraitsOut):\n", e)
+            }
           },
           warning = function(w) {
             base::message("A warning occurred in shiny::reactive(output$txtOmitTraitsOut):\n", w)
@@ -498,8 +504,10 @@ ClusteringTraits_SERVER <- function(id, pReducedDataStructure, traitReducedDataS
       })
     },
     error = function(e) {
-      base::message("An error occurred in moduleServer in ClusteringTraits_SERVER:\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in moduleServer in ClusteringTraits_SERVER:\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("An error occurred in moduleServer in ClusteringTraits_SERVER:\n", w)
@@ -537,8 +545,10 @@ ClusteringProbesGeneral_SERVER <- function(id, session) {
       session$userData$sessionVariables$numNeighbours <- shiny::reactive({input$sldNumNeighbours})
     },
     error = function(e) {
-      base::message("An error occurred in moduleServer in ClusteringProbesGeneral_SERVER:\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in moduleServer in ClusteringProbesGeneral_SERVER:\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("An error occurred in moduleServer in ClusteringProbesGeneral_SERVER:\n", w)
@@ -594,7 +604,9 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
               }
             },
             error = function(e) {
-              base::message("An error occurred in shiny::observeEvent(input$btnOmitProbes):\n", e)
+              if (attributes(e)$class[1] != "shiny.silent.error") {
+                base::message("An error occurred in shiny::observeEvent(input$btnOmitProbes):\n", e)
+              }
             },
             warning = function(w) {
               base::message("A warning occurred in shiny::observeEvent(input$btnOmitProbes):\n", w)
@@ -626,7 +638,9 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
             }
           },
           error = function(e) {
-            base::message("An error occurred in shiny::reactive(output$txtOmitProbesOut):\n", e)
+            if (attributes(e)$class[1] != "shiny.silent.error") {
+              base::message("An error occurred in shiny::reactive(output$txtOmitProbesOut):\n", e)
+            }
           },
           warning = function(w) {
             base::message("A warning occurred in shiny::reactive(output$txtOmitProbesOut):\n", w)
@@ -720,8 +734,10 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
 
     },
     error = function(e) {
-      base::message("An error occurred in moduleServer in ClusteringProbes_SERVER:\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in moduleServer in ClusteringProbes_SERVER:\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("An error occurred in moduleServer in ClusteringProbes_SERVER:\n", w)
@@ -898,8 +914,10 @@ getTraitReducedDataStructure <- function(id, input, output, session) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in getTraitReducedDataStructure():\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getTraitReducedDataStructure():\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getTraitReducedDataStructure():\n", w)
@@ -1212,8 +1230,10 @@ getProbeReducedDataStructure <- function(id, input, output, session) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in getProbeReducedDataStructure():\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getProbeReducedDataStructure():\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getProbeReducedDataStructure():\n", w)
@@ -1409,8 +1429,10 @@ calculateDistanceNeigboursProbes <- function(wd, clustResProbes, annotation, dis
       }
     },
     error = function(e) {
-      base::message("An error occurred in calculateDistanceNeigboursProbes():\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in calculateDistanceNeigboursProbes():\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in calculateDistanceNeigboursProbes():\n", w)
@@ -1446,8 +1468,10 @@ getClustergramLong <- function(mat, clustRes, nClusters) {
                                           ggtheme = ggplot2::theme_classic())
           },
           error = function(e) {
-            base::message("An error occurred in p <- factoextra::fviz_cluster():\n", e)
-            browser() #should not happen
+            if (attributes(e)$class[1] != "shiny.silent.error") {
+              base::message("An error occurred in p <- factoextra::fviz_cluster():\n", e)
+              browser() #should not happen
+            }
             return(NULL)
           },
           warning = function(w) {
@@ -1465,7 +1489,9 @@ getClustergramLong <- function(mat, clustRes, nClusters) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in getClustergramLong():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getClustergramLong():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getClustergramLong():\n", w)
@@ -1524,7 +1550,9 @@ getClusterMedoids <- function(distMat, clustRes, numClusters) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in getClusterMedoids():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getClusterMedoids():\n", e)
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getClusterMedoids():\n", w)
@@ -1567,8 +1595,10 @@ getAnnotatedProbeTable <- function(id, listProbeMedoids, session) {
     }
   },
   error = function(e) {
-    base::message("An error occurred in getAnnotatedProbeTable():\n", e)
-    browser() #should not happen
+    if (attributes(e)$class[1] != "shiny.silent.error") {
+      base::message("An error occurred in getAnnotatedProbeTable():\n", e)
+      browser() #should not happen
+    }
   },
   warning = function(w) {
     base::message("A warning occurred in getAnnotatedProbeTable():\n", w)
@@ -1602,8 +1632,10 @@ getClustersTable <- function(id, listClusters, listMedoids) {
     }
   },
   error = function(e) {
-    base::message("An error occurred in getClustersTable():\n", e)
-    browser() #should not happen
+    if (attributes(e)$class[1] != "shiny.silent.error") {
+      base::message("An error occurred in getClustersTable():\n", e)
+      browser() #should not happen
+    }
   },
   warning = function(w) {
     base::message("A warning occurred in getClustersTable():\n", w)
@@ -1632,8 +1664,10 @@ getMedoidsTable <- function(id, listMedoids) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in getMedoidsTable():\n", e)
-      browser() #should not happen
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in getMedoidsTable():\n", e)
+        browser() #should not happen
+      }
     },
     warning = function(w) {
       base::message("A warning occurred in getMedoidsTable():\n", w)
@@ -1681,8 +1715,10 @@ getDend <- function(clustRes, nClusters) {
     }
   },
   error = function(e) {
-    base::message("An error occurred in getDend():\n", e)
-    browser() #should not happen
+    if (attributes(e)$class[1] != "shiny.silent.error") {
+      base::message("An error occurred in getDend():\n", e)
+      browser() #should not happen
+    }
   },
   warning = function(w) {
     base::message("A warning occurred in getDend():\n", w)
@@ -1735,9 +1771,10 @@ updateTxtOmitTraitsOut <- function(id, traitReducedDataStructure) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in updateTxtOmitTraitsOut():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in updateTxtOmitTraitsOut():\n", e)
+      }
     },
-
     warning = function(w) {
       base::message("A warning occurred in updateTxtOmitTraitsOut():\n", w)
     },
@@ -1759,9 +1796,10 @@ updateTxtOmitProbesOut <- function(id, probeReducedDataStructure) {
       }
     },
     error = function(e) {
-      base::message("An error occurred in updateTxtOmitProbesOut():\n", e)
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in updateTxtOmitProbesOut():\n", e)
+      }
     },
-
     warning = function(w) {
       base::message("A warning occurred in updateTxtOmitProbesOut():\n", w)
     },

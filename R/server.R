@@ -30,12 +30,12 @@ server <- function(input, output, session) {
   if (is.valid(session$userData$config$knownCpGs)) {
     #load CpG from txt file to search input
     knownCpG <- paste(unlist(data.table::fread(file = session$userData$config$knownCpGs, header = FALSE)), collapse = " ")
-    shiny::updateTextInput(session, inputId = "txtSearchFullCpG", value = knownCpG)
+    shiny::updateTextInput(session, inputId = "txtSearchFullCpGPVal", value = knownCpG)
   }
   if (is.valid(session$userData$config$knownTraits)) {
     #load Traits from txt file to search input
     knownTrait <- paste(unlist(data.table::fread(file = session$userData$config$knownTraits, header = FALSE)), collapse = " ")
-    shiny::updateTextInput(session, inputId = "txtSearchFullTrait", value = knownTrait)
+    shiny::updateTextInput(session, inputId = "txtSearchFullTraitPVal", value = knownTrait)
   }
 
   if (session$userData$config$debugMode == TRUE) {
@@ -180,55 +180,6 @@ server <- function(input, output, session) {
     }
   })
 
-  # shiny::observe({
-  #   if (!is.valid(session$userData$sessionVariables$distanceMultipliedTraitReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
-  #     #shinyjs::disable("Full Distance Weighted Data")
-  #     shinyjs::disable("btnPlotCombinedDWHM_P_Val")
-  #     shinyjs::disable("numDWHMHSize")
-  #     shinyjs::disable("numDWHMVSize")
-  #   }
-  #   else {
-  #     #shinyjs::enable("Full Distance Weighted Data")
-  #     shinyjs::enable("btnPlotCombinedDWHM_P_Val")
-  #     shinyjs::enable("numDWHMHSize")
-  #     shinyjs::enable("numDWHMVSize")
-  #   }
-  # })
-  #
-  # shiny::observe({
-  #   if (!is.valid(session$userData$sessionVariables$distanceMultipliedProbeReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
-  #     #shinyjs::disable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
-  #     shinyjs::disable("btnPlotCombinedCondDWHM_P_Val")
-  #     shinyjs::disable("numCondDWHMHSize")
-  #     shinyjs::disable("numCondDWHMVSize")
-  #   }
-  #   else {
-  #     #shinyjs::enable("Condensed Distance Weighted Data (contains only CpG with nearby neighbours)")
-  #     shinyjs::enable("btnPlotCombinedCondDWHM_P_Val")
-  #     shinyjs::enable("numCondDWHMHSize")
-  #     shinyjs::enable("numCondDWHMVSize")
-  #   }
-  # })
-
-  # session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactive({
-  #   #calculate distance from each probe to its neigbours to build a right column in heatmap to estimate relevance of heatmap findings
-  #   base::tryCatch(
-  #     {
-  #       result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10, numCores = session$userData$numCores)
-  #     },
-  #     error = function(e) {
-  #       base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10):\n", e)
-  #     },
-  #     warning = function(w) {
-  #       base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10):\n", w)
-  #     },
-  #     finally = {
-  #       base::print(base::paste0(sysTimePID(), " finished generating session$userData$sessionVariables$distNeigboursProbes10. (last step in session$userData$sessionVariables$distNeigboursProbes10 <- shiny::reactive())"))
-  #       return(result)
-  #     }
-  #   )
-  # })
-
   session$userData$sessionVariables$distNeigboursProbes100 <- shiny::reactive({
     #calculate distance from each probe to its neigbours to build a right column in heatmap to estimate relevance of heatmap findings
     base::tryCatch(
@@ -236,7 +187,9 @@ server <- function(input, output, session) {
         result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 100, numCores = session$userData$numCores)
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes100):\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes100):\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes100):\n", w)
@@ -255,7 +208,9 @@ server <- function(input, output, session) {
         result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 1000, numCores = session$userData$numCores)
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes1000):\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes1000):\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes1000):\n", w)
@@ -274,7 +229,9 @@ server <- function(input, output, session) {
         result <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResProbes, annotation = session$userData$annotation, distanceToLook = 10000, numCores = session$userData$numCores)
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10000):\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10000):\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distNeigboursProbes10000):\n", w)
@@ -305,7 +262,9 @@ server <- function(input, output, session) {
         }
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distancesBelowThreshold):\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$distancesBelowThreshold):\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$distancesBelowThreshold):\n", w)
@@ -326,7 +285,9 @@ server <- function(input, output, session) {
                                 session$userData$sessionVariables$resultDFListTrait3()))
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(output$txtLoadOut):\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(output$txtLoadOut):\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(output$txtLoadOut):\n", w)
@@ -350,7 +311,9 @@ server <- function(input, output, session) {
        }
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(output$txtMergeOut):\n", e)
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(output$txtMergeOut):\n", e)
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(output$txtMergeOut):\n", w)
@@ -361,30 +324,6 @@ server <- function(input, output, session) {
       }
     )
   })
-
-  # output$txtPReduceOut <- shiny::reactive({
-  #   base::tryCatch(
-  #     {
-  #       base::print(base::paste0(sysTimePID(), " start generating output$txtPReduceOut."))
-  #       if (is.valid(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels$dfP_Val)) {
-  #         result <- updateTxtpReduceOut(session$userData$sessionVariables$pReducedDataStructure()$combinedDFP_Val_Labels)
-  #       }
-  #       else {
-  #         result <- NULL
-  #       }
-  #     },
-  #     error = function(e) {
-  #       base::message("An error occurred in shiny::reactive(output$txtPReduceOut):\n", e)
-  #     },
-  #     warning = function(w) {
-  #       base::message("A warning occurred in shiny::reactive(output$txtPReduceOut):\n", w)
-  #     },
-  #     finally = {
-  #       base::print(base::paste0(sysTimePID(), " finished generating output$txtPReduceOut."))
-  #       return(result)
-  #     }
-  #   )
-  # })
 
   shiny::observeEvent(input$save,
     ignoreInit = TRUE,
@@ -429,7 +368,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnLoadDir1):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnLoadDir1):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnLoadDir1):\n", w)
@@ -459,7 +400,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnLoadDir2):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnLoadDir2):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnLoadDir2):\n", w)
@@ -488,7 +431,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnLoadDir3):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnLoadDir3):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnLoadDir3):\n", w)
@@ -540,7 +485,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnLoadDirAll):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnLoadDirAll):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnLoadDirAll):\n", w)
@@ -563,7 +510,9 @@ server <- function(input, output, session) {
           #   shiny::renderPlot(session$userData$sessionVariables$clustResTraits())
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnDebug):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnDebug):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred shiny::observeEvent(input$btnDebug):\n", w)
@@ -605,7 +554,9 @@ server <- function(input, output, session) {
           session$userData$sessionVariables$combinedData(result)
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnMerge):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnMerge):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnMerge):\n", w)
@@ -641,7 +592,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnCountProbesP_ValParallel):\n", w)
@@ -675,7 +628,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnCountProbesDeltaMethParallel):\n", w)
@@ -709,7 +664,9 @@ server <- function(input, output, session) {
           }
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnCountProbesNParallel):\n", w)
@@ -736,7 +693,9 @@ server <- function(input, output, session) {
           base::print(base::paste0(sysTimePID(), " end exporting session data to ", fileName, "."))
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnExportCombinedData):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnExportCombinedData):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnExportCombinedData):\n", w)
@@ -768,7 +727,9 @@ server <- function(input, output, session) {
           base::print(base::paste0(sysTimePID(), " end importing session data from ", fileName, "."))
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnImportCombinedData):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnImportCombinedData):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnImportCombinedData):\n", w)
@@ -846,8 +807,10 @@ server <- function(input, output, session) {
          )
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$combinedDataStructure):\n", e)
-        browser() #should not happen
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$combinedDataStructure):\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$combinedDataStructure):\n", w)
@@ -886,8 +849,10 @@ server <- function(input, output, session) {
         }
       },
       error = function(e) {
-        base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$pReducedDataStructure):\n", e)
-        browser() #should not happen
+        if (attributes(e)$class[1] != "shiny.silent.error") {
+          base::message("An error occurred in shiny::reactive(session$userData$sessionVariables$pReducedDataStructure):\n", e)
+          browser() #should not happen
+        }
       },
       warning = function(w) {
         base::message("A warning occurred in shiny::reactive(session$userData$sessionVariables$pReducedDataStructure):\n", w)
@@ -924,162 +889,6 @@ server <- function(input, output, session) {
     return(session$userData$sessionVariables$probeReducedDataLogFC())
   })
 
-  # condDTProbes <- shiny::reactive({
-  #   base::tryCatch(
-  #     {
-  #       base::print(base::paste0(sysTimePID(), " start generating condDTProbes"))
-  #       base::print(base::paste0(sysTimePID(), " before making probe table."))
-  #       if (!is.null(session$userData$sessionVariables$probeReducedDataStructure()$clustResProbes)) {
-  #         dendProbes <- session$userData$sessionVariables$probeReducedDataStructure()$probeDendrogram
-  #         listProbes <- (base::labels(dendProbes)) # base::as.numeric
-  #         DTProbes <-
-  #           base::data.frame(row.names = seq_along(listProbes))
-  #         DTProbes$probeID <- listProbes
-  #         DTProbes$order <- base::seq_len(base::nrow(DTProbes))
-  #         rownames(DTProbes) <- DTProbes$probeID
-  #         # add annotation
-  #         DTProbes <-
-  #           base::merge(
-  #             x = DTProbes,
-  #             y = session$userData$annotation, #y = globalVariables$annotation,
-  #             by.x = "probeID",
-  #             by.y = "name",
-  #             all.x = TRUE,
-  #             all.y = FALSE
-  #           )
-  #         # sort
-  #         DTProbes <- DTProbes[base::order(DTProbes$order), ]
-  #         rownames(DTProbes) <- DTProbes$probeID
-  #         DTProbes$probeID <- NULL
-  #         result <- DTProbes
-  #         base::print(base::paste0(sysTimePID(), " after making probe table."))
-  #       }
-  #       else {
-  #         result <- NULL
-  #       }
-  #     },
-  #     error = function(e) {
-  #       base::message("An error occurred in shiny::reactive(condDTProbes):\n", e)
-  #     },
-  #     warning = function(w) {
-  #       base::message("A warning occurred in shiny::reactive(condDTProbes):\n", w)
-  #     },
-  #     finally = {
-  #       base::print(base::paste0(sysTimePID(), " finished generating condDTProbes"))
-  #       return(result)
-  #     }
-  #   )
-  # })
-
-  # DTTraitsPval <- shiny::reactive({
-  #   id <- shiny::showNotification("Creating data table traits (p-val)...", duration = NULL, closeButton = FALSE)
-  #   on.exit(shiny::removeNotification(id), add = TRUE)
-  #   base::tryCatch(
-  #     {
-  #       base::print(base::paste0(sysTimePID(), " start generating DTTraitsPval"))
-  #       base::print(base::paste0(sysTimePID(), " before making traits table."))
-  #       if (!is.null(session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResTraits)) {
-  #         listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResTraits, type = "rectangle")$labels$label
-  #
-  #         base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
-  #         DTTraits <-
-  #           base::data.frame(row.names = seq_along(listTraits))
-  #         DTTraits$Name <- listTraits
-  #         DTTraits$order <- base::seq_len(base::nrow(DTTraits))
-  #         rownames(DTTraits) <- DTTraits$Name
-  #         DTTraits <- DTTraits[order(DTTraits$order), ]
-  #         base::print(base::paste0(sysTimePID(), " after making traits table."))
-  #         result <- DTTraits
-  #       }
-  #       else {
-  #         result <- NULL
-  #       }
-  #     },
-  #     error = function(e) {
-  #       base::message("An error occurred in shiny::reactive(DTTraitsPval):\n", e)
-  #     },
-  #     warning = function(w) {
-  #       base::message("A warning occurred in shiny::reactive(DTTraitsPval):\n", w)
-  #     },
-  #     finally = {
-  #       base::print(base::paste0(sysTimePID(), " finished generating DTTraitsPval"))
-  #       return(result)
-  #     }
-  #   )
-  # })
-  #
-  # DTTraitsLogFC  <- shiny::reactive({
-  #   id <- shiny::showNotification("Creating data table traits (log(FC))...", duration = NULL, closeButton = FALSE)
-  #   on.exit(shiny::removeNotification(id), add = TRUE)
-  #   base::tryCatch(
-  #     {
-  #       base::print(base::paste0(sysTimePID(), " start generating DTTraitsLogFC"))
-  #       base::print(base::paste0(sysTimePID(), " before making traits table."))
-  #       if (!is.null(session$userData$sessionVariables$traitReducedDataStructureLogFC()$clustResTraits)) {
-  #         listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$traitReducedDataStructureLogFC()$clustResTraits, type = "rectangle")$labels$label
-  #
-  #         base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
-  #         DTTraits <-
-  #           base::data.frame(row.names = seq_along(listTraits))
-  #         DTTraits$Name <- listTraits
-  #         DTTraits$order <- base::seq_len(base::nrow(DTTraits))
-  #         rownames(DTTraits) <- DTTraits$Name
-  #         DTTraits <- DTTraits[order(DTTraits$order), ]
-  #         base::print(base::paste0(sysTimePID(), " after making traits table."))
-  #         result <- DTTraits
-  #       }
-  #       else {
-  #         result <- NULL
-  #       }
-  #     },
-  #     error = function(e) {
-  #       base::message("An error occurred in shiny::reactive(DTTraitsLogFC):\n", e)
-  #     },
-  #     warning = function(w) {
-  #       base::message("A warning occurred in shiny::reactive(DTTraitsLogFC):\n", w)
-  #     },
-  #     finally = {
-  #       base::print(base::paste0(sysTimePID(), " finished generating DTTraitsLogFC"))
-  #       return(result)
-  #     }
-  #   )
-  # })
-
-  # condDTTraits <- shiny::reactive({
-  #   base::tryCatch(
-  #     {
-  #       base::print(base::paste0(sysTimePID(), " start generating condDTTraits"))
-  #       base::print(base::paste0(sysTimePID(), " before making traits table."))
-  #       if (!is.null(session$userData$sessionVariables$probeReducedDataStructure()$clustResTraits)) {
-  #         listTraits <- ggdendro::dendro_data(session$userData$sessionVariables$probeReducedDataStructure()$clustResTraits, type = "rectangle")$labels$label
-  #
-  #         base::print(base::paste0(sysTimePID(), " before rendering dendrogram tables traits"))
-  #         DTTraits <-
-  #           base::data.frame(row.names = seq_along(listTraits))
-  #         DTTraits$Name <- listTraits
-  #         DTTraits$order <- base::seq_len(base::nrow(DTTraits))
-  #         rownames(DTTraits) <- DTTraits$Name
-  #         DTTraits <- DTTraits[order(DTTraits$order), ]
-  #         base::print(base::paste0(sysTimePID(), " after making traits table."))
-  #         result <- DTTraits
-  #       }
-  #       else {
-  #         result <- NULL
-  #       }
-  #     },
-  #     error = function(e) {
-  #       base::message("An error occurred in shiny::reactive(condDTTraits):\n", e)
-  #     },
-  #     warning = function(w) {
-  #       base::message("A warning occurred in shiny::reactive(condDTTraits):\n", w)
-  #     },
-  #     finally = {
-  #       base::print(base::paste0(sysTimePID(), " finished generating condDTTraits"))
-  #       return(result)
-  #     }
-  #   )
-  # })
-
   observeEvent(input$keypressed,
    {
      #catch ESC key to prevent unwanted stopping from ESC key press
@@ -1100,7 +909,9 @@ server <- function(input, output, session) {
           session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$plotCombinedHM_P_Val):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$plotCombinedHM_P_Val):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$plotCombinedHM_P_Val):\n", w)
@@ -1123,7 +934,9 @@ server <- function(input, output, session) {
           session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedHM_LogFC):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedHM_LogFC):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedHM_LogFC):\n", w)
@@ -1135,95 +948,6 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
-
-  # shiny::observeEvent(input$btnPlotCombinedCondHM_DM,
-  #   ignoreInit = TRUE,
-  #   {
-  #     base::tryCatch(
-  #       {
-  #         base::print(base::paste0(sysTimePID(), " Step 6b: start plotting heatmap for Delta Methylation (logFC). (first step in shiny::observeEvent(input$btnPlotCombinedCondHM_DM))"))
-  #         plotCombinedHM_DMLogFC(input = input, output = output, session = session)
-  #       },
-  #       error = function(e) {
-  #         base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_DM):\n", e)
-  #       },
-  #       warning = function(w) {
-  #         base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_DM):\n", w)
-  #       },
-  #       finally = {
-  #         base::print(base::paste0(sysTimePID(), " finished plotting heatmap for Delta Methylation (log(FC)). (last step in shiny::observeEvent(input$btnPlotCombinedCondHM_DM))"))
-  #       }
-  #     )
-  #   },
-  #   ignoreNULL = FALSE
-  # )
-  #
-  # shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val,
-  #   ignoreInit = TRUE,
-  #   {
-  #     base::tryCatch(
-  #       {
-  #         base::print(base::paste0(sysTimePID(), " Step 6: start plotting heatmap for distance weighted DM. (first step in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val))"))
-  #         plotCombinedDWHM_P_Val(input = input, output = output, session = session)
-  #         #session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
-  #       },
-  #       error = function(e) {
-  #         base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val):\n", e)
-  #       },
-  #       warning = function(w) {
-  #         base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val):\n", w)
-  #       },
-  #       finally = {
-  #         base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedDWHM_P_Val))"))
-  #       }
-  #     )
-  #   },
-  #   ignoreNULL = FALSE
-  # )
-  #
-  # shiny::observeEvent(input$btnPlotCombinedCondHM_P_Val,
-  #                     ignoreInit = TRUE,
-  #                     {
-  #                       base::tryCatch(
-  #                         {
-  #                           base::print(base::paste0(sysTimePID(), " Step 6: start plotting condensed heatmap for distance weighted DM. (first step in shiny::observeEvent(input$btnPlotCombinedCondHM_P_Val))"))
-  #                           plotCombinedCondHM_P_Val(input = input, output = output, session = session)
-  #                         },
-  #                         error = function(e) {
-  #                           base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_P_Val):\n", e)
-  #                         },
-  #                         warning = function(w) {
-  #                           base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedCondHM_P_Val):\n", w)
-  #                         },
-  #                         finally = {
-  #                           base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedCondHM_P_Val))"))
-  #                         }
-  #                       )
-  #                     },
-  #                     ignoreNULL = FALSE
-  # )
-  #
-  # shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val,
-  #                     ignoreInit = TRUE,
-  #                     {
-  #                       base::tryCatch(
-  #                         {
-  #                           base::print(base::paste0(sysTimePID(), " Step 6: start plotting condensed heatmap for distance weighted DM. (first step in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val))"))
-  #                           plotCombinedCondDWHM_P_Val(input = input, output = output, session = session)
-  #                         },
-  #                         error = function(e) {
-  #                           base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val):\n", e)
-  #                         },
-  #                         warning = function(w) {
-  #                           base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val):\n", w)
-  #                         },
-  #                         finally = {
-  #                           base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedCondDWHM_P_Val))"))
-  #                         }
-  #                       )
-  #                     },
-  #                     ignoreNULL = FALSE
-  # )
 
   shiny::observeEvent(input$chkDebug,
     ignoreInit = TRUE, #FALSE,
@@ -1244,7 +968,9 @@ server <- function(input, output, session) {
           dfdD3 <- result$dfdD3
         },
         error = function(e) {
-          base::message("An error occurred in shiny::observeEvent(input$chkDebug):\n", e)
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$chkDebug):\n", e)
+          }
         },
         warning = function(w) {
           base::message("A warning occurred in shiny::observeEvent(input$chkDebug):\n", w)
