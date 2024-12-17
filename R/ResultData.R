@@ -250,7 +250,6 @@ loadtraitDFs <- function(traitDFs) {
   base::on.exit(shiny::removeNotification(shinyId), add = TRUE)
   base::tryCatch(
     {
-      #browser() #everything seems fine until here (all DFs become loaded)
       listPHENOdata <- base::list(seq_along(traitDFs))
       i <- NULL
       foreach::foreach(i = seq_along(traitDFs)) %do% {

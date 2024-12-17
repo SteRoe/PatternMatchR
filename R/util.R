@@ -440,3 +440,22 @@ sysTimePID <- function() {
   return(result)
 }
 
+#' empty_plot
+#' @param title title for empty plot
+#' @return plot empty plot
+#' @keywords internal
+#' @noRd
+empty_plot <- function(title = NULL){
+  plot <- plotly::plotly_empty(type = "scatter", mode = "markers") %>%
+    plotly::config(
+      displayModeBar = FALSE
+    ) %>%
+    plotly::layout(
+      title = list(
+        text = title,
+        yref = "paper",
+        y = 0.5
+      )
+    )
+  return(plot)
+}

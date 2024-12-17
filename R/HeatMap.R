@@ -4,43 +4,67 @@ HeatMap_UI <- function(id) {
     shiny::tabsetPanel(id = ns("tabsetHeatMap"),
       shiny::tabPanel(
        "Table P_VAL",
-       if (id == "HeatMap_Full_DetailsPVal") {
+       if (id == "PVal") {
          "Table of p-value; clustering order comes from clustering of p-values."
        }
-       else if (id == "HeatMap_Full_DetailsLogFC") {
+       else if (id == "LogFC") {
+         "Table of p-value; clustering order comes from clustering of log(FC)."
+       }
+       else if (id == "PValWOGap") {
+         "Table of p-value; clustering order comes from clustering of p-values."
+       }
+       else if (id == "LogFCWOGap") {
          "Table of p-value; clustering order comes from clustering of log(FC)."
        },
        DT::dataTableOutput(ns("DTP_VAL"))
       ),
       shiny::tabPanel(
        "Table Delta Methylation",
-       if (id == "HeatMap_Full_DetailsPVal") {
+       if (id == "PVal") {
         "Table of delta methylation; clustering order comes from clustering of p-values."
        }
-       else if (id == "HeatMap_Full_DetailsLogFC") {
+       else if (id == "LogFC") {
+         "Table of delta methylation; clustering order comes from clustering of log(FC)."
+       }
+       else if (id == "PValWOGap") {
+         "Table of delta methylation; clustering order comes from clustering of p-values."
+       }
+       else if (id == "LogFCWOGap") {
          "Table of delta methylation; clustering order comes from clustering of log(FC)."
        },
        DT::dataTableOutput(ns("DTDM"))
       ),
       shiny::tabPanel(
        "Table N",
-       if (id == "HeatMap_Full_DetailsPVal") {
+       if (id == "PVal") {
         "Table of n; clustering order comes from clustering of p-values."
        }
-       else if (id == "HeatMap_Full_DetailsLogFC") {
+       else if (id == "LogFC") {
+         "Table of n; clustering order comes from clustering of log(FC)."
+       }
+       else if (id == "PValWOGap") {
+         "Table of n; clustering order comes from clustering of p-values."
+        }
+       else if (id == "LogFCWOGap") {
          "Table of n; clustering order comes from clustering of log(FC)."
        },
        DT::dataTableOutput(ns("DTN"))
       ),
       shiny::tabPanel(
-       "Table Delta Methylation log(FC)",
-       if (id == "HeatMap_Full_DetailsPVal") {
-        "Table of log fold change(delta methylation); clustering order comes from clustering of p-values."
-       }
-       else if (id == "HeatMap_Full_DetailsLogFC") {
-         "Table of log fold change(delta methylation); clustering order comes from clustering of log(FC)."
-       },
-       DT::dataTableOutput(ns("DTLogFC"))
+        "Table Delta Methylation log(FC)",
+        if (id == "PVal") {
+          "Table of log fold change(delta methylation); clustering order comes from clustering of p-values."
+        }
+        else if (id == "LogFC") {
+          "Table of log fold change(delta methylation); clustering order comes from clustering of log(FC)."
+        }
+        else if (id == "PValWOGap") {
+          "Table of log fold change(delta methylation); clustering order comes from clustering of p-values."
+        }
+        else if (id == "LogFCWOGap") {
+          "Table of log fold change(delta methylation); clustering order comes from clustering of log(FC)."
+        },
+        DT::dataTableOutput(ns("DTLogFC"))
       )
     )
   )
@@ -48,21 +72,43 @@ HeatMap_UI <- function(id) {
 
 HeatMap_SERVER <- function(id, session) {
   shiny::moduleServer(id, function(input, output, session) {
-    if (id == "HeatMap_Full_DetailsPVal") {
-      output$DTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val_w_number))
-      output$DTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels$dfDM_w_number))
-      output$DTLogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels$dfLogFC_w_number))
-      output$DTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels$dfN_w_number))
-    }
-    else if (id == "HeatMap_Full_DetailsLogFC") {
-      output$DTP_VAL <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfP_Val_w_number))
-      output$DTDM <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfDM_w_number))
-      output$DTLogFC <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfLogFC_w_number))
-      output$DTN <- DT::renderDataTable(as.data.frame(session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfN_w_number))
-    }
-    else{
+    base::tryCatch({
+      shiny::observe({
+        if (id == "PVal") {
+          probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructurePVal()
+        }
+        else if (id == "LogFC") {
+          probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructureLogFC()
+        }
+        else if (id == "PValWOGap") {
+          probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructureWOGapPVal()
+        }
+        else if (id == "LogFCWOGap") {
+          probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC()
+        }
+        else{
+          browser() #should not happen
+        }
+        output$DTP_VAL <- DT::renderDataTable(as.data.frame(probeReducedDataStructure$combinedDFP_Val_Labels$dfP_Val_w_number))
+        output$DTDM <- DT::renderDataTable(as.data.frame(probeReducedDataStructure$combinedDFP_Val_Labels$dfDM_w_number))
+        output$DTLogFC <- DT::renderDataTable(as.data.frame(probeReducedDataStructure$combinedDFP_Val_Labels$dfLogFC_w_number))
+        output$DTN <- DT::renderDataTable(as.data.frame(probeReducedDataStructure$combinedDFP_Val_Labels$dfN_w_number))
+      })
+    },
+    error = function(e) {
+      if (attributes(e)$class[1] != "shiny.silent.error") {
+        base::message("An error occurred in moduleServer in HeatMap_SERVER:\n", e)
+        browser() #should not happen
+      }
+    },
+    warning = function(w) {
+      base::message("An error occurred in moduleServer in HeatMap_SERVER:\n", w)
       browser() #should not happen
-    }
+    },
+    finally = {
+      base::print(base::paste0(sysTimePID(), " finished moduleServer in HeatMap_SERVER."))
+
+    })
   }) #end shiny::moduleServer
 }
 
@@ -75,50 +121,49 @@ plotCombinedHM <- function(id, input, output, session) {
   while (!is.null(grDevices::dev.list())) {
     grDevices::dev.off()
   }
-  #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels
-  # dfP_Val <- combinedDFP_Val_Labels$dfP_Val
   if (id == "PVal") {
-    combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels
+    #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels
+    probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructurePVal()
+    traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructurePVal()
 #    dfOriginal <- combinedDFP_Val_Labels$dfP_Val_Original #we need the unordered original matrix here, because ComplexHeatmap orders the data by itself according to the order from the dendrogram. That is important!!!!
 #  browser() #if step 3 was omitted, we see an error here...
 #    dfOriginal[dfOriginal > 0.05] <- NA # 1
   }
   else if (id == "LogFC") {
-    combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels
+    #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels
+    probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructureLogFC()
+    traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructureLogFC()
 #    dfOriginal <- combinedDFP_Val_Labels$dfLogFC_Original #we need the unordered original matrix here, because ComplexHeatmap orders the data by itself according to the order from the dendrogram. That is important!!!!
+  }
+  else if (id == "PValWOGap") {
+    probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructureWOGapPVal()
+    traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructurePVal()
+    #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructureWOGapPVal()$combinedDFP_Val_Labels
+  }
+  else if (id == "LogFCWOGap") {
+    probeReducedDataStructure <- session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC()
+    traitReducedDataStructure <- session$userData$sessionVariables$traitReducedDataStructureLogFC()
+    #combinedDFP_Val_Labels <- session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC()$combinedDFP_Val_Labels
   }
   else {
     browser # should not happen
   }
   base::print(base::paste0(sysTimePID(), " calculating combined heatmap."))
-#browser()
   if (TRUE) { # if (nrow(dfOriginal) > 5) {
     startTime <- Sys.time()
     base::tryCatch({
       base::print(base::paste0(sysTimePID(), " gc()"))
       gc()
       base::options(expressions = 500000)
-      if (id == "PVal") {
-        dendProbes <- session$userData$sessionVariables$probeReducedDataStructurePVal()$probeDendrogram
-      }
-
-      else if (id == "LogFC") {
-        dendProbes <- session$userData$sessionVariables$probeReducedDataStructureLogFC()$probeDendrogram
-      }
+      combinedDFP_Val_Labels <- probeReducedDataStructure$combinedDFP_Val_Labels
+      dendProbes <- probeReducedDataStructure$probeDendrogram
       # check clustResProbes > 8
       maxClassesProbes <- 7
       if (maxClassesProbes <= 7) {
         dendProbes <- dendextend::color_branches(dendProbes, maxClassesProbes)
       }
-      # session$userData$sessionVariables$traitReducedDataStructurePVal()$clustResTraits
-      if (id == "PVal") {
-        dendTraits <- session$userData$sessionVariables$traitReducedDataStructurePVal()$traitDendrogram
-        Distances <- session$userData$sessionVariables$probeReducedDataStructurePVal()$DNAdistances
-      }
-      else if (id == "LogFC") {
-        dendTraits <- session$userData$sessionVariables$traitReducedDataStructureLogFC()$traitDendrogram
-        Distances <- session$userData$sessionVariables$probeReducedDataStructureLogFC()$DNAdistances
-      }
+      dendTraits <- traitReducedDataStructure$traitDendrogram
+      Distances <- probeReducedDataStructure$DNAdistances
       base::print(base::paste0(sysTimePID(), " before calculating heatmap"))
 
       selectedRowIndicesYellow <- NULL
@@ -133,9 +178,21 @@ plotCombinedHM <- function(id, input, output, session) {
       # }
       #selectedRowIndicesOrange <- session$userData$sessionVariables$distancesBelowThreshold()
       selectedRowIndicesOrange <- NULL
+      if (id == "PVal") {
+        id2 <- "PVal"
+      }
+      else if (id == "LogFC") {
+        id2 <- "LogFC"
+      }
+      else if (id == "PValWOGap") {
+        id2 <- "PVal"
+      }
+      else if (id == "LogFCWOGap") {
+        id2 <- "LogFC"
+      }
       base::print(base::paste0(sysTimePID(), " before l <- combinedDFInteractiveHeatMapP_Val(combinedDFP_Val_Labels, dendProbes, dendTraits, selectedRowIndices, selectedColIndices)"))
       l <-
-        combinedDFInteractiveHeatMap(id, combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
+        combinedDFInteractiveHeatMap(id2, combinedDFP_Val_Labels, dendProbes, dendTraits, Distances, selectedRowIndicesYellow, selectedColIndices, selectedRowIndicesOrange, session)
       base::print(base::paste0(sysTimePID(), " before combinedHM <- l$combinedHM"))
       combinedHM <- l$combinedHM
       endTime <- Sys.time()
@@ -150,6 +207,12 @@ plotCombinedHM <- function(id, input, output, session) {
       }
       else if (id == "LogFC") {
         hm_id <- "Heatmap_LogFC"
+      }
+      else if (id == "PValWOGap") {
+        hm_id <- "Heatmap_P_ValWOGap"
+      }
+      else if (id == "LogFCWOGap") {
+        hm_id <- "Heatmap_LogFCWOGap"
       }
       startTime <- Sys.time()
       InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(
@@ -186,6 +249,12 @@ plotCombinedHM <- function(id, input, output, session) {
       }
       else if (id == "LogFC") {
         output$txtHMDescription_LogFC <- HMDescription
+      }
+      else if (id == "PValWOGap") {
+        output$txtHMDescription_P_ValWOGap <- HMDescription
+      }
+      else if (id == "LogFCWOGap") {
+        output$txtHMDescription_LogFCWOGap <- HMDescription
       }
     })
   }
@@ -377,14 +446,6 @@ combinedDFInteractiveHeatMap <-
               use_raster = TRUE,
               raster_by_magick = TRUE
             )
-# browser()
-#           ht <-
-#             ComplexHeatmap::Heatmap(
-#               matHM,
-#               cluster_rows = dendProbes,
-#               cluster_columns = dendTraits,
-#               top_annotation = ha
-#             )
         } else {
           base::print(base::paste0(sysTimePID(), " at least one distance matrix is not of class \"dendrogram\""))
         }
@@ -488,7 +549,7 @@ combinedDFInteractiveHeatMap <-
     )
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw()"))
+        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw())"))
         # with huge heatmaps, the following error occurs:
         # Error in Cairo: Failed to create Cairo backend!
         ht <- ComplexHeatmap::draw(htDistances + ht, annotation_legend_list = lgd)
@@ -785,7 +846,7 @@ combinedDFInteractiveHeatMapLogFC <-
     )
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw()"))
+        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw())"))
         # with huge heatmaps, the following error occurs:
         # Error in Cairo: Failed to create Cairo backend!
         # ht <- ComplexHeatmap::draw(ht + ht2 + ht3, annotation_legend_list = lgd)
@@ -876,7 +937,7 @@ HeatMapDistances <-
     )
     base::tryCatch(
       {
-        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw()"))
+        base::print(base::paste0(sysTimePID(), " start drawing heatmap (takes some time). (step before ComplexHeatmap::draw())"))
         # with huge heatmaps, the following error occurs:
         # Error in Cairo: Failed to create Cairo backend!
         ht <- ComplexHeatmap::draw(ht)

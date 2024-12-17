@@ -167,7 +167,7 @@ generate_ui <- function() {
                       shiny::tabPanel(
                         "HeatMap P_Val",
                         shinyjs::disabled(
-                          shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 6a: Plot Heatmap P_Val")
+                          shiny::actionButton("btnPlotCombinedHM_P_Val", label = "Step 6a: Plot Heatmap (p-val)")
                         ),
                         shinyjs::disabled(
                           shiny::verbatimTextOutput("txtHMDescription_P_Val", placeholder = TRUE)
@@ -180,20 +180,46 @@ generate_ui <- function() {
                           width2 = 950,
                           inline = FALSE
                         )
-                      ),
+                      ), #end tabPanel
                       shiny::tabPanel(
                         "HeatMap P_Val Details",
-                        HeatMap_UI("HeatMap_Full_DetailsPVal")
+                        HeatMap_UI("PVal")
                       ) #end tabPanel
                     ) #end tabSetPanel
                   ), #end tabPanel ##full non-modified data p-val end
+                  shiny::tabPanel(
+                    "Data (p-val) w/o Gaps",
+                    shiny::tabsetPanel(
+                      shiny::tabPanel(
+                        "HeatMap p-val",
+                        shinyjs::disabled(
+                          shiny::actionButton("btnPlotCombinedHM_P_ValWOGap", label = "Step 6b: Plot Heatmap (p-val) w/o Gaps")
+                        ),
+                        shinyjs::disabled(
+                          shiny::verbatimTextOutput("txtHMDescription_P_ValWOGap", placeholder = TRUE)
+                        ),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "Heatmap_P_ValWOGap",
+                          height1 = '95vh', #1200,
+                          width1 = 950,
+                          height2 = '95vh', #1200,
+                          width2 = 950,
+                          inline = FALSE
+                        )
+                      ), #end tabPanel
+                      shiny::tabPanel(
+                        "HeatMap P_Val Details",
+                        HeatMap_UI("PValWOGap")
+                      ) #end tabPanel
+                    ) #end tabSetPanel
+                  ), #end tabPanel
                   shiny::tabPanel( ##full non-modified data log(FC) start
                     "Non-modified Data (log(FC))",
                     shiny::tabsetPanel(
                       shiny::tabPanel(
                         "HeatMap log(FC)",
                         shinyjs::disabled(
-                          shiny::actionButton("btnPlotCombinedHM_LogFC", label = "Step 6b: Plot Heatmap log(FC)")
+                          shiny::actionButton("btnPlotCombinedHM_LogFC", label = "Step 6c: Plot Heatmap log(FC)")
                         ),
                         shinyjs::disabled(
                           shiny::verbatimTextOutput("txtHMDescription_LogFC", placeholder = TRUE)
@@ -209,10 +235,36 @@ generate_ui <- function() {
                       ),
                       shiny::tabPanel(
                         "HeatMap log(FC) Details",
-                        HeatMap_UI("HeatMap_Full_DetailsLogFC")
+                        HeatMap_UI("LogFC")
                       ) #end tabPanel
                     ) #end tabSetPanel
                   ), ## full non-modified data log(FC) end
+                  shiny::tabPanel( ##full non-modified data log(FC) start
+                    "Data (log(FC)) w/o Gaps",
+                    shiny::tabsetPanel(
+                      shiny::tabPanel(
+                        "HeatMap log(FC)",
+                        shinyjs::disabled(
+                          shiny::actionButton("btnPlotCombinedHM_LogFCWOGap", label = "Step 6d: Plot Heatmap log(FC) w/o Gaps")
+                        ),
+                        shinyjs::disabled(
+                          shiny::verbatimTextOutput("txtHMDescription_LogFCWOGap", placeholder = TRUE)
+                        ),
+                        InteractiveComplexHeatmap::InteractiveComplexHeatmapOutput(
+                          "Heatmap_LogFCWOGap",
+                          height1 = '95vh', #1200,
+                          width1 = 950,
+                          height2 = '95vh', #1200,
+                          width2 = 950,
+                          inline = FALSE
+                        )
+                      ),
+                      shiny::tabPanel(
+                        "HeatMap log(FC) Details",
+                        HeatMap_UI("LogFCWOGap")
+                      ) #end tabPanel
+                    ) #end tabSetPanel
+                  )
                   # shiny::tabPanel(
                   #   ##full DW data start
                   #   "Distance weighted Data (negative p-values due to distance weighting) - experimental",
@@ -300,7 +352,7 @@ generate_ui <- function() {
               "Selection Visualization",
               shiny::tabsetPanel(
                 shiny::tabPanel(
-                  "VolcanoPlot Delta Methylation log(FC)",
+                  "VolcanoPlot Delta Methylation ~ log(FC)",
                   "P-values and log fold change (delta methylation)",
                   VolcanoPlot_UI("VolcanoPlot")
                 ),

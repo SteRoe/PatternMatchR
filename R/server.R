@@ -82,6 +82,10 @@ server <- function(input, output, session) {
   session$userData$sessionVariables$probeReducedDataStructureLogFC <- shiny::reactiveVal(value = NULL, label = "probeReducedDataStructureLogFC")
   session$userData$sessionVariables$probeReducedDataPVal <- shiny::reactiveVal(value = NULL, label = "probeReducedDataPVal")
   session$userData$sessionVariables$probeReducedDataLogFC <- shiny::reactiveVal(value = NULL, label = "probeReducedDataLogFC")
+  session$userData$sessionVariables$probeReducedDataWOGapPVal <- shiny::reactiveVal(value = NULL, label = "probeReducedDataWOGapPVal")
+  session$userData$sessionVariables$probeReducedDataWOGapLogFC <- shiny::reactiveVal(value = NULL, label = "probeReducedDataWOGapLogFC")
+  session$userData$sessionVariables$probeReducedDataStructureWOGapPVal <- shiny::reactiveVal(value = NULL, label = "probeReducedDataStructurePVal")
+  session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC <- shiny::reactiveVal(value = NULL, label = "probeReducedDataStructureLogFC")
 
   session$userData$sessionVariables$generalDataStructure <- shiny::reactiveVal(value = NULL, label = "generalDataStructure")
 
@@ -121,11 +125,13 @@ server <- function(input, output, session) {
   ClusteringTraits_SERVER("LogFC", session$userData$sessionVariables$pReducedDataStructure, session$userData$sessionVariables$traitReducedDataStructureLogFC, session)
 
   ClusteringProbesGeneral_SERVER("Probes", session)
-  ClusteringProbes_SERVER("PVal", session$userData$sessionVariables$traitReducedDataStructurePVal, session$userData$sessionVariables$probeReducedDataStructurePVal, session)
-  ClusteringProbes_SERVER("LogFC", session$userData$sessionVariables$traitReducedDataStructureLogFC, session$userData$sessionVariables$probeReducedDataStructureLogFC, session)
+  ClusteringProbes_SERVER("PVal", session$userData$sessionVariables$traitReducedDataStructurePVal, session$userData$sessionVariables$probeReducedDataStructurePVal, session$userData$sessionVariables$probeReducedDataStructureWOGapPVal, session)
+  ClusteringProbes_SERVER("LogFC", session$userData$sessionVariables$traitReducedDataStructureLogFC, session$userData$sessionVariables$probeReducedDataStructureLogFC, session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC, session)
 
-  HeatMap_SERVER("HeatMap_Full_DetailsPVal", session)
-  HeatMap_SERVER("HeatMap_Full_DetailsLogFC", session)
+  HeatMap_SERVER("PVal", session)
+  HeatMap_SERVER("PValWOGap", session)
+  HeatMap_SERVER("LogFC", session)
+  HeatMap_SERVER("LogFCWOGap", session)
 
   Search_Full_SERVER("Search", session)
   GlobalSelection_SERVER("GlobalSelection", session)
@@ -163,7 +169,7 @@ server <- function(input, output, session) {
   })
 
   shiny::observe({
-    if (!is.valid(session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val)) {
+    if (!is.valid(session$userData$sessionVariables$probeReducedDataStructurePVal()$combinedDFP_Val_Labels$dfP_Val)) {
       shinyjs::disable("btnPlotCombinedHM_P_Val")
     }
     else {
@@ -172,11 +178,29 @@ server <- function(input, output, session) {
   })
 
   shiny::observe({
-    if (!is.valid(session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfLogFC)) {
+    if (!is.valid(session$userData$sessionVariables$probeReducedDataStructureWOGapPVal()$combinedDFP_Val_Labels$dfP_Val)) {
+      shinyjs::disable("btnPlotCombinedHM_P_ValWOGap")
+    }
+    else {
+      shinyjs::enable("btnPlotCombinedHM_P_ValWOGap")
+    }
+  })
+
+  shiny::observe({
+    if (!is.valid(session$userData$sessionVariables$probeReducedDataStructureLogFC()$combinedDFP_Val_Labels$dfLogFC)) {
       shinyjs::disable("btnPlotCombinedHM_LogFC")
     }
     else{
       shinyjs::enable("btnPlotCombinedHM_LogFC")
+    }
+  })
+
+  shiny::observe({
+    if (!is.valid(session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC()$combinedDFP_Val_Labels$dfLogFC)) {
+      shinyjs::disable("btnPlotCombinedHM_LogFCWOGap")
+    }
+    else{
+      shinyjs::enable("btnPlotCombinedHM_LogFCWOGap")
     }
   })
 
@@ -878,15 +902,27 @@ server <- function(input, output, session) {
   })
 
   session$userData$sessionVariables$probeReducedDataStructurePVal <- shiny::reactive({
-    shinyId <- shiny::showNotification("Creating probe reduced data structure...", duration = NULL, closeButton = FALSE)
+    shinyId <- shiny::showNotification("Creating probe reduced data structure (p-val)...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(shinyId), add = TRUE)
     return(session$userData$sessionVariables$probeReducedDataPVal())
   })
 
+  session$userData$sessionVariables$probeReducedDataStructureWOGapPVal <- shiny::reactive({
+    shinyId <- shiny::showNotification("Creating probe reduced data structure (p-val) w/o gap...", duration = NULL, closeButton = FALSE)
+    on.exit(shiny::removeNotification(shinyId), add = TRUE)
+    return(session$userData$sessionVariables$probeReducedDataWOGapPVal())
+  })
+
   session$userData$sessionVariables$probeReducedDataStructureLogFC <- shiny::reactive({
-    shinyId <- shiny::showNotification("Creating probe reduced data structure...", duration = NULL, closeButton = FALSE)
+    shinyId <- shiny::showNotification("Creating probe reduced data structure (log(FC))...", duration = NULL, closeButton = FALSE)
     on.exit(shiny::removeNotification(shinyId), add = TRUE)
     return(session$userData$sessionVariables$probeReducedDataLogFC())
+  })
+
+  session$userData$sessionVariables$probeReducedDataStructureWOGapLogFC <- shiny::reactive({
+    shinyId <- shiny::showNotification("Creating probe reduced data structure (log(FC)) w/o gap...", duration = NULL, closeButton = FALSE)
+    on.exit(shiny::removeNotification(shinyId), add = TRUE)
+    return(session$userData$sessionVariables$probeReducedDataWOGapLogFC())
   })
 
   observeEvent(input$keypressed,
@@ -903,7 +939,7 @@ server <- function(input, output, session) {
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " Step 5a: start plotting heatmap for P_Val. (first step in shiny::observeEvent(input$btnPlotCombinedHM_P_Val))"))
+          base::print(base::paste0(sysTimePID(), " Step 6a: start plotting heatmap for P_Val. (first step in shiny::observeEvent(input$btnPlotCombinedHM_P_Val))"))
           plotCombinedHM(id = "PVal", input = input, output = output, session = session)
           #          plotHMDNADistances(input = input, output = output, session = session)
           session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
@@ -924,12 +960,37 @@ server <- function(input, output, session) {
     ignoreNULL = FALSE
   )
 
+  shiny::observeEvent(input$btnPlotCombinedHM_P_ValWOGap,
+    ignoreInit = TRUE,
+    {
+      base::tryCatch(
+        {
+          base::print(base::paste0(sysTimePID(), " Step 6b: start plotting heatmap for P_Val w/o gaps. (first step in shiny::observeEvent(input$btnPlotCombinedHM_P_ValWOGap))"))
+          plotCombinedHM(id = "PValWOGap", input = input, output = output, session = session)
+          session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
+        },
+        error = function(e) {
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedHM_P_ValWOGap):\n", e)
+          }
+        },
+        warning = function(w) {
+          base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedHM_P_ValWOGap):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(sysTimePID(), " finished plotting heatmap for P_Val. (last step in shiny::observeEvent(input$btnPlotCombinedHM_P_ValWOGap))"))
+        }
+      )
+    },
+    ignoreNULL = FALSE
+  )
+
   shiny::observeEvent(input$btnPlotCombinedHM_LogFC,
     ignoreInit = TRUE,
     {
       base::tryCatch(
         {
-          base::print(base::paste0(sysTimePID(), " Step 5b: start plotting heatmap for log(FC). (first step in shiny::observeEvent(input$btnPlotCombinedHM_LogFC))"))
+          base::print(base::paste0(sysTimePID(), " Step 6c: start plotting heatmap for log(FC). (first step in shiny::observeEvent(input$btnPlotCombinedHM_LogFC))"))
           plotCombinedHM(id = "LogFC", input = input, output = output, session = session)
           session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
         },
@@ -943,6 +1004,31 @@ server <- function(input, output, session) {
         },
         finally = {
           base::print(base::paste0(sysTimePID(), " finished plotting heatmap for log(FC). (last step in shiny::observeEvent(input$btnPlotCombinedHM_LogFC))"))
+        }
+      )
+    },
+    ignoreNULL = FALSE
+  )
+
+  shiny::observeEvent(input$btnPlotCombinedHM_LogFCWOGap,
+    ignoreInit = TRUE,
+    {
+      base::tryCatch(
+        {
+          base::print(base::paste0(sysTimePID(), " Step 6d: start plotting heatmap for log(FC) w/o gaps. (first step in shiny::observeEvent(input$btnPlotCombinedHM_LogFCWOGap))"))
+          plotCombinedHM(id = "LogFCWOGap", input = input, output = output, session = session)
+          session$userData$sessionVariables$callCounter <- session$userData$sessionVariables$callCounter + 1
+        },
+        error = function(e) {
+          if (attributes(e)$class[1] != "shiny.silent.error") {
+            base::message("An error occurred in shiny::observeEvent(input$btnPlotCombinedHM_LogFCWOGap):\n", e)
+          }
+        },
+        warning = function(w) {
+          base::message("A warning occurred in shiny::observeEvent(input$btnPlotCombinedHM_LogFCWOGap):\n", w)
+        },
+        finally = {
+          base::print(base::paste0(sysTimePID(), " finished plotting heatmap for log(FC). (last step in shiny::observeEvent(input$btnPlotCombinedHM_LogFCWOGap))"))
         }
       )
     },

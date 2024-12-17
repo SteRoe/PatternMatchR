@@ -139,8 +139,8 @@ ClusteringProbes_UI <- function(id) {
     shiny::verbatimTextOutput(ns("txtOmitProbesOut"), placeholder = TRUE),
     shiny::fluidRow(
       shiny::tabsetPanel(#tabset
-        shiny::tabPanel( #tab non-distance weighted data
-          "Non-Distance Weighted Probes Clustering Results",
+        shiny::tabPanel( #tab probes clustering results
+          "Probes Clustering Results",
           shiny::tabsetPanel(
             shiny::tabPanel(
               "Dendrogram Probes",
@@ -315,7 +315,33 @@ ClusteringProbes_UI <- function(id) {
               ) #end tabsetPanel
             ) #end tabPanel
           ) #end tabsetPanel
-        ), #end tab non-distance weighted data
+        ), #end tab probes clustering results
+        shiny::tabPanel( #tab non-distance weighted data
+          "Probes Clustering Results w/o Gaps",
+          shiny::tabsetPanel(
+            shiny::tabPanel(
+              "Dendrogram Probes",
+              shiny::plotOutput(outputId = ns("plotDendrogramProbesLongWOGaps"))
+            ), #end tabPanel"Dendrogram Probes"
+            shiny::tabPanel(
+              "Clustergram Probes",
+              shiny::plotOutput(outputId = ns("plotClustergramProbesLongWOGaps"))
+              #  plotly::plotlyOutput(outputId = ns("plotClustergramTraitsLong"), width = "100%")
+            ),
+            shiny::tabPanel(
+              "DT Cluster Medoids Probes",
+              DT::DTOutput(outputId = ns("DTProbesMedoidsWOGaps"))
+            ),
+            shiny::tabPanel(
+              "DT Cluster Assignment Probes",
+              DT::DTOutput(outputId = ns("DTProbesClustersWOGaps"))
+            ),
+            shiny::tabPanel(
+              "DT Annotated Probes",
+              DT::DTOutput(outputId = ns("DTAnnotatedProbesWOGaps"))
+            )
+          ) #end tabsetPanel
+        ), #end tabPanel "Probes Clustering Results w/o Gaps"
         # shiny::tabPanel( #tab distance weighted data
         #   "Distance Weighted Clustering Results - experimental",
         #   shiny::tabsetPanel(
@@ -485,17 +511,17 @@ ClusteringTraits_SERVER <- function(id, pReducedDataStructure, traitReducedDataS
       }) #end output$txtOmitTraitsOut
 
       shiny::observe({
-          output$plotDendrogramTraitsLong <- shiny::renderPlot(getPlot(traitReducedDataStructure()$traitDendrogram))
+        output$plotDendrogramTraitsLong <- shiny::renderPlot(getPlot(traitReducedDataStructure()$traitDendrogram))
           #output$plotDendrogramTraitsLong <- plotly::renderPlotly(getPlot(traitReducedDataStructure()$traitDendrogram))
       })
 
       shiny::observe({
-          output$plotClustergramTraitsLong <- shiny::renderPlot(getPlot(traitReducedDataStructure()$traitClustergram))
+        output$plotClustergramTraitsLong <- shiny::renderPlot(getPlot(traitReducedDataStructure()$traitClustergram))
           #output$plotClustergramTraitsLong <- plotly::renderPlotly(getPlot(traitReducedDataStructure()$traitClustergram))
       })
 
       shiny::observe({
-          output$DTTraitsMedoids <- DT::renderDataTable(as.data.frame(getMedoidsTable(id, traitReducedDataStructure()$traitClusterMedoids)))
+        output$DTTraitsMedoids <- DT::renderDataTable(as.data.frame(getMedoidsTable(id, traitReducedDataStructure()$traitClusterMedoids)))
       })
 
       shiny::observe({
@@ -531,7 +557,6 @@ ClusteringProbesGeneral_SERVER <- function(id, session) {
         else {
           resultPVal <- session$userData$sessionVariables$traitReducedDataStructurePVal()$combinedDFP_Val_Labels
           resultLogFC <- session$userData$sessionVariables$traitReducedDataStructureLogFC()$combinedDFP_Val_Labels
-#browser()
           maxProbesPVal <- nrow(resultPVal$dfP_Val)
           maxProbesLogFC <- nrow(resultLogFC$dfLogFC)
           maxProbes <- base::max(maxProbesPVal, maxProbesLogFC)
@@ -560,7 +585,7 @@ ClusteringProbesGeneral_SERVER <- function(id, session) {
   }) #end moduleServer
 } # end ClusteringProbesGeneral_SERVER
 
-ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedDataStructure, session) {
+ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedDataStructure, probeReducedDataStructureWOGaps, session) {
   shiny::moduleServer(id, function(input, output, session) {
     base::tryCatch({
       shiny::observe({
@@ -594,10 +619,14 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
               if (id == "PVal") {
                 result <- getProbeReducedDataStructure(id, input, output, session)
                 session$userData$sessionVariables$probeReducedDataPVal(result)
+                result <- getProbeReducedDataStructureWOGap(id, input, output, session)
+                session$userData$sessionVariables$probeReducedDataWOGapPVal(result)
               }
               else if (id == "LogFC") {
                 result <- getProbeReducedDataStructure(id, input, output, session)
                 session$userData$sessionVariables$probeReducedDataLogFC(result)
+                result <- getProbeReducedDataStructureWOGap(id, input, output, session)
+                session$userData$sessionVariables$probeReducedDataWOGapLogFC(result)
               }
               else {
                 browser() #should not happen
@@ -709,19 +738,29 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
       output$histMaxDistance10000 <- plotly::renderPlotly(histMaxDistance10000())
 
       shiny::observe({
-          output$plotDendrogramProbesLong <- shiny::renderPlot(getPlot(probeReducedDataStructure()$probeDendrogram))
+        output$plotDendrogramProbesLong <- shiny::renderPlot(getPlot(probeReducedDataStructure()$probeDendrogram))
       })
-#      #works not:
+
+      shiny::observe({
+        output$plotDendrogramProbesLongWOGaps <- shiny::renderPlot(getPlot(probeReducedDataStructureWOGaps()$probeDendrogram))
+      })
+
+#      #dows not work:
 #      output$plotDendrogramProbesLong <- shiny::reactive(shiny::renderPlot(getPlot(traitReducedDataStructure()$traitDendrogram)))
 
       shiny::observe({
           output$plotClustergramProbesLong <- shiny::renderPlot(getPlot(probeReducedDataStructure()$probeClustergram))
           #output$plotClustergramTraitsLong <- plotly::renderPlotly(getPlot(probeReducedDataStructure()$probeClustergram))
       })
+      shiny::observe({
+        output$plotClustergramProbesLongWOGaps <- shiny::renderPlot(getPlot(probeReducedDataStructureWOGaps()$probeClustergram))
+      })
 
       shiny::observe({
           output$DTProbesMedoids <- DT::renderDataTable(as.data.frame(getMedoidsTable(id, probeReducedDataStructure()$probeClusterMedoids)))
-          #output$DTTraitsMedoids <- DT::renderDataTable(as.data.frame(mtcars))
+      })
+      shiny::observe({
+        output$DTProbesMedoidsWOGaps <- DT::renderDataTable(as.data.frame(getMedoidsTable(id, probeReducedDataStructureWOGaps()$probeClusterMedoids)))
       })
 
       shiny::observe({
@@ -729,9 +768,16 @@ ClusteringProbes_SERVER <- function(id, traitReducedDataStructure, probeReducedD
                                                                                       probeReducedDataStructure()$probeClusterMedoids)))
       })
       shiny::observe({
-        output$DTAnnotatedProbes <- DT::renderDataTable(as.data.frame(getAnnotatedProbeTable(id, probeReducedDataStructure()$probeClusterMedoids, session)))
+        output$DTProbesClustersWOGaps <- DT::renderDataTable(as.data.frame(getClustersTable(id, probeReducedDataStructureWOGaps()$probeClusters,
+                                                                                      probeReducedDataStructureWOGaps()$probeClusterMedoids)))
       })
 
+      shiny::observe({
+        output$DTAnnotatedProbes <- DT::renderDataTable(as.data.frame(getAnnotatedProbeTable(id, probeReducedDataStructure()$probeClusterMedoids, session)))
+      })
+      shiny::observe({
+        output$DTAnnotatedProbesWOGaps <- DT::renderDataTable(as.data.frame(getAnnotatedProbeTable(id, probeReducedDataStructureWOGaps()$probeClusterMedoids, session)))
+      })
     },
     error = function(e) {
       if (attributes(e)$class[1] != "shiny.silent.error") {
@@ -797,8 +843,8 @@ getTraitReducedDataStructure <- function(id, input, output, session) {
         base::print(paste0(sysTimePID(), " (traitReducedDataStructure) after distance matrix for reduced traits."))
         #for unknown reason getClustResFast() crashes, if executed without Sys.sleep in advance...
         Sys.sleep(1)
-        base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before clustering for traits.", base::nrow(result$matP_Val.t)))
         if (is.valid(result$distMatTraits)) {
+          base::print(paste0(sysTimePID(), " (traitReducedDataStructure) before clustering for traits.", base::nrow(result$matP_Val.t)))
           result$clustResTraits <- getClustResFast(result$distMatTraits)
         }
         else {
@@ -995,9 +1041,9 @@ getProbeReducedDataStructure <- function(id, input, output, session) {
         gc()
         result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = mat)
         base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) after distance matrix for probes.", base::nrow(mat)))
-        base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start clustResProbes."))
         distMat <- result$distMatProbes
         if (is.valid(distMat)) {
+          base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start clustResProbes."))
           result$clustResProbes <- getClustResFast(distMat)
         }
         else {
@@ -1203,24 +1249,6 @@ getProbeReducedDataStructure <- function(id, input, output, session) {
           result$dfVolcano <- NULL
           browser() # should not happen
         }
-# browser() #limit results to those whith distances within
-#         dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
-#         dfP_Val <- dfP_Val[which(rownames(dfP_Val) %in% DNAdistances$ID), ]
-#         result$combinedDFP_Val_Labels$dfP_Val <- dfP_Val
-#         rm(dfP_Val)
-#         dfDM <- result$combinedDFP_Val_Labels$dfDM
-#         dfDM <- dfDM[which(rownames(dfDM) %in% DNAdistances$ID), ]
-#         result$combinedDFP_Val_Labels$dfDM <- dfDM
-#         rm(dfDM)
-#         dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC
-#         #check for missings (should be there) and negative values (too), yes we have negatives and missings here
-#         dfLogFC <- dfLogFC[which(rownames(dfLogFC) %in% DNAdistances$ID), ]
-#         result$combinedDFP_Val_Labels$dfLogFC <- dfLogFC
-#         rm(dfLogFC)
-#         dfN <- result$combinedDFP_Val_Labels$dfN
-#         dfN <- dfN[which(rownames(dfN) %in% DNAdistances$ID), ]
-#         result$combinedDFP_Val_Labels$dfN <- dfN
-#         rm(dfN)
       }
       else {
         result <- NULL
@@ -1242,6 +1270,298 @@ getProbeReducedDataStructure <- function(id, input, output, session) {
     finally = {
       base::print(base::paste0(sysTimePID(), " finished getProbeReducedDataStructure()."))
       return(result)
+  })
+}
+
+#' getProbeReducedDataStructureWOGap
+#' delivers clustering results for probes as well as probes that are within a defined range (DNAdistances) around each selected probe
+#' @param id either "PVal" or "LogFC"
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#' @return nested list with results of probe clustering
+#' examples getProbeReducedDataStructureWOGap(id, input, output, session)
+getProbeReducedDataStructureWOGap <- function(id, input, output, session) {
+  shinyId <- shiny::showNotification("Creating probe reduced data structure w/o gaps...", duration = NULL, closeButton = FALSE)
+  on.exit(shiny::removeNotification(shinyId), add = TRUE)
+  base::tryCatch({
+    if (id == "PVal") {
+      p <- session$userData$sessionVariables$probeReducedDataStructurePVal()
+    }
+    else if (id == "LogFC") {
+      p <- session$userData$sessionVariables$probeReducedDataStructureLogFC()
+    }
+    #nearby probes are in p$DNAdistances
+    DNAdistances <- na.omit(p$DNAdistances)
+    DNAdistances <- as.list(DNAdistances$ID)
+    #reduce all probe related data structures:
+    result <- base::list(combinedDFP_Val_Labels = p$combinedDFP_Val_Labels,
+                         matP_Val.t = p$matP_Val.t,
+                         distMatTraits = p$distMatTraits,
+                         clustResTraits = p$clustResTraits,
+                         traitClusters = p$traitClusters,
+                         traitClusterMedoids = p$traitClusterMedoids,
+                         traitDendrogram = p$traitDendrogram,
+                         traitClustergram = p$traitClustergram,
+                         distMatProbes = p$distMatProbes,
+                         clustResProbes = p$clustResProbes,
+                         probeClusters = p$probeClusters,
+                         probeClusterMedoids = p$probeClusterMedoids,
+                         probeDendrogram = p$probeDendrogram,
+                         probeClustergram = p$probeClustergram,
+                         DNAdistances = NULL,
+                         dfVolcano = NULL,
+                         dfKeyShadow = NULL
+    )
+    #View(p$distMatProbes)
+    #attributes(p$distMatProbes)
+    #result$distMatProbes <- p$distMatProbes[which(labels(p$distMatProbes) %in% DNAdistances)]
+    if (id == "PVal") {
+      mat <- as.matrix(p$combinedDFP_Val_Labels$dfP_Val)
+    }
+    else if (id == "LogFC") {
+      mat <- as.matrix(p$combinedDFP_Val_Labels$dfLogFC)
+    }
+    mat <- mat[which(rownames(mat) %in% DNAdistances),]
+    mat <- na.omit(mat)
+    # read slider for number probes
+    #nProbes <- session$userData$sessionVariables$numClustersProbes()
+    if (is.valid(mat) && base::nrow(mat) >= 5) {
+      base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) calculating distance matrix w/o gaps with rows= ", nrow(mat), " cols= ", ncol(mat)))
+      base::print(base::class(mat))
+      # base::print(base::paste0(sysTimePID(), " set missing p-values to 1."))
+      # dflogFC[base::is.na(dflogFC)] <- 1 # set missing P_VAL to 1
+      base::print(Cstack_info())
+      numberCores <- session$userData$numCores
+      # clustering for probes
+      base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) before distance matrix w/o gaps for n(probes) = ", base::nrow(mat), " (takes some time). Using n(cores) = ", numberCores, "."))
+      gc()
+      result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = mat)
+      base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) after distance matrix w/o gaps for probes.", base::nrow(mat)))
+    }
+    distMat <- result$distMatProbes
+    if (is.valid(distMat)) {
+      base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start clustResProbes w/o gaps."))
+      result$clustResProbes <- getClustResFast(distMat)
+    }
+    else {
+      result$clustResProbes <- NULL
+      browser() # should not happen
+    }
+    maxProbes <- dendextend::nleaves(result$clustResProbes)
+    numClusters <- session$userData$sessionVariables$numClustersProbes() #tbc() maybe, select another number of clusters than in the full clustering (with gaps)
+    numClusters <- min(numClusters, maxProbes)
+
+    if (is.valid(result$clustResProbes) && numClusters > 1) {
+      result$probeClusters <- dendextend::cutree(result$clustResProbes,
+                                                 k = numClusters)
+    }
+    else {
+      result$probeClusters <- NULL
+    }
+    base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start generating probeClusterMedoids w/o gaps."))
+    if (is.valid(result$clustResProbes) && is.valid(result$distMatProbes)) {
+      result$probeClusterMedoids <- getClusterMedoids(distMat = result$distMatProbes,
+                                                      clustRes = result$clustResProbes,
+                                                      numClusters = numClusters)
+    }
+    else {
+      result$probeClusterMedoids <- NULL
+    }
+
+    base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start generating probeClustergram w/o gaps."))
+    #if (is.valid(result$matP_Val.t) && is.valid(result$clustResProbes)) {
+    if (is.valid(result$clustResProbes)) {
+      result$probeClustergram <- getClustergramLong(mat = mat,
+                                                    clustRes = result$clustResProbes,
+                                                    nClusters = numClusters)
+    }
+    else {
+      result$probeClustergram <- NULL
+    }
+
+    if (is.valid(result$probeClusterMedoids)) {
+      #select only medoid CpG for further analyses...
+      medoids <- which(rownames(result$combinedDFP_Val_Labels$dfP_Val) %in% unlist(result$probeClusterMedoids))
+      result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[medoids, ]
+      result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfDM[medoids, ]
+      result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[medoids, ]
+      result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[medoids, ]
+      #do this also for the unordered _Original data structures
+      result$combinedDFP_Val_Labels$dfP_Val_Original <- result$combinedDFP_Val_Labels$dfP_Val_Original[medoids, ]
+      result$combinedDFP_Val_Labels$dfDM_Original <- result$combinedDFP_Val_Labels$dfDM_Original[medoids, ]
+      result$combinedDFP_Val_Labels$dfN_Original <- result$combinedDFP_Val_Labels$dfN_Original[medoids, ]
+      result$combinedDFP_Val_Labels$dfLogFC_Original <- result$combinedDFP_Val_Labels$dfLogFC_Original[medoids, ]
+
+      if (length(result$probeClusterMedoids) < nrow(mat)) { #do this only if we have less medoids than before
+        #clustering again
+        if (id == "PVal") {
+          mat <- as.matrix(result$combinedDFP_Val_Labels$dfP_Val)
+        }
+        else if (id == "LogFC") {
+          mat <- as.matrix(result$combinedDFP_Val_Labels$dfLogFC)
+        }
+        mat <- na.omit(mat)
+        # clustering for probes
+        base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) before distance matrix for medoids w/o gaps n(probes) = ", base::nrow(mat), " (takes some time). Using n(cores) = ", numberCores, "."))
+        gc()
+        result$distMatProbes <- getDistMat(numberCores = numberCores, matrix = mat)
+
+        base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start clustResProbes for medoids w/o gaps."))
+        distMat <- result$distMatProbes
+        if (is.valid(distMat)) {
+          result$clustResProbes <- getClustResFast(distMat)
+        }
+        else {
+          result$clustResProbes <- NULL
+          browser() # should not happen
+        }
+      }
+    }
+    else {
+      result$clustResProbes <- NULL
+      browser() # should not happen
+    }
+    base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) start generating probeDendrogram w/o gaps."))
+    if (is.valid(result$clustResProbes)) {
+      #reorder columns; order comes from result$clustResProbes
+      result$combinedDFP_Val_Labels$dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+      result$combinedDFP_Val_Labels$dfDM <- result$combinedDFP_Val_Labels$dfP_Val[result$clustResProbes$order, ]
+      result$combinedDFP_Val_Labels$dfN <- result$combinedDFP_Val_Labels$dfN[result$clustResProbes$order, ]
+      result$combinedDFP_Val_Labels$dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC[result$clustResProbes$order, ]
+
+      result$probeDendrogram <- getDend(clustRes = result$clustResProbes, nClusters = numClusters)
+      #check labels: labels(result$probeDendrogram)
+      base::print(base::paste0(sysTimePID(), " (probeReducedDataStructure) after making probeDendrogram w/o gaps."))
+    }
+    else {
+      result$probeDendrogram <- NULL
+    }
+
+    result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val
+    nprobes <- nrow(result$combinedDFP_Val_Labels$dfP_Val_w_number)
+    result$combinedDFP_Val_Labels$dfP_Val_w_number$number <- seq(1:nprobes)
+    col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number))
+    result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[, col_order]
+    result$combinedDFP_Val_Labels$dfP_Val_w_number <- result$combinedDFP_Val_Labels$dfP_Val_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfP_Val_w_number) %in% "number.1")]
+
+    result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM
+    nprobes <- nrow(result$combinedDFP_Val_Labels$dfDM_w_number)
+    result$combinedDFP_Val_Labels$dfDM_w_number$number <- seq(1:nprobes)
+    col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfDM_w_number))
+    result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[, col_order]
+    result$combinedDFP_Val_Labels$dfDM_w_number <- result$combinedDFP_Val_Labels$dfDM_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfDM_w_number) %in% "number.1")]
+
+    result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN
+    nprobes <- nrow(result$combinedDFP_Val_Labels$dfN_w_number)
+    result$combinedDFP_Val_Labels$dfN_w_number$number <- seq(1:nprobes)
+    col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfN_w_number))
+    result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[, col_order]
+    result$combinedDFP_Val_Labels$dfN_w_number <- result$combinedDFP_Val_Labels$dfN_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfN_w_number) %in% "number.1")]
+
+    result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC
+    nprobes <- nrow(result$combinedDFP_Val_Labels$dfLogFC_w_number)
+    result$combinedDFP_Val_Labels$dfLogFC_w_number$number <- seq(1:nprobes)
+    col_order <- c("number", colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number))
+    result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[, col_order]
+    result$combinedDFP_Val_Labels$dfLogFC_w_number <- result$combinedDFP_Val_Labels$dfLogFC_w_number[ , -which(colnames(result$combinedDFP_Val_Labels$dfLogFC_w_number) %in% "number.1")]
+
+    Distance <- session$userData$sessionVariables$numNeighbours()
+    DNAdistances <- calculateDistanceNeigboursProbes(wd = session$userData$packageWd, clustResProbes = result$clustResProbes, annotation = session$userData$annotation, distanceToLook = Distance, numCores = numberCores)
+    result$DNAdistances <- DNAdistances
+    dfLogFC <- result$combinedDFP_Val_Labels$dfLogFC
+
+    if (is.valid(dfLogFC)) {
+      dfP_Val <- result$combinedDFP_Val_Labels$dfP_Val
+      if (is.valid(dfP_Val)) {
+        #take everything into one table with columns p-val and logFC ...
+        dfLogFC$probe <- row.names(dfLogFC)
+        dfLogFC <- tidyr::pivot_longer(dfLogFC, cols  = -probe, names_to = c("trait"))
+        colnames(dfLogFC)[3] <- "LogFC"
+        dfP_Val$probe <- row.names(dfP_Val) #feed in traitLabels here
+        dfP_Val <- tidyr::pivot_longer(dfP_Val, cols  = -probe, names_to = c("trait"))
+        colnames(dfP_Val)[3] <- "P_Val"
+        dfVolcano <- base::merge(dfP_Val, dfLogFC, by.x = c("probe","trait"), by.y = c("probe","trait"), all.x = TRUE, all.y = FALSE)
+        #merge chr and position
+        annotation <- base::subset(session$userData$annotation, select = c("name", "chromosome", "position", "gene.symbol"))
+        dfVolcano <- base::merge(dfVolcano, annotation, by.x = "probe", by.y = "name", all.x = FALSE, all.y = FALSE)
+        #add distances to dfVolcano
+        DNAdistances <- result$DNAdistances
+        row.names(DNAdistances) <- DNAdistances$ID
+        DNAdistances$cg <- DNAdistances$ID #row.names(DNAdistances)
+        DNAdistancesNumber <- DNAdistances[,c("cg", "number")]
+        DNAdistancesNumber <- tidyr::pivot_longer(DNAdistancesNumber, cols  = -cg, names_to = c("number"))
+        DNAdistancesNumber <- DNAdistancesNumber[,c("cg", "value")]
+        colnames(DNAdistancesNumber)[2] <- "DistanceNumber"
+        DNAdistancesMin <- DNAdistances[,c("cg", "minDistance")]
+        DNAdistancesMin <- tidyr::pivot_longer(DNAdistancesMin, cols  = -cg, names_to = c("min"))
+        DNAdistancesMin <- DNAdistancesMin[,c("cg", "value")]
+        colnames(DNAdistancesMin)[2] <- "DistanceMin"
+
+        DNAdistancesMean <- DNAdistances[,c("cg", "meanDistance")]
+        DNAdistancesMean <- tidyr::pivot_longer(DNAdistancesMean, cols  = -cg, names_to = c("mean"))
+        DNAdistancesMean <- DNAdistancesMean[,c("cg", "value")]
+        colnames(DNAdistancesMean)[2] <- "DistanceMean"
+
+        DNAdistancesMax <- DNAdistances[,c("cg", "maxDistance")]
+        DNAdistancesMax <- tidyr::pivot_longer(DNAdistancesMax, cols  = -cg, names_to = c("max"))
+        DNAdistancesMax <- DNAdistancesMax[,c("cg", "value")]
+        colnames(DNAdistancesMax)[2] <- "DistanceMax"
+
+        dfVolcano <- base::merge(dfVolcano, DNAdistancesNumber, by.x = c("probe"), by.y = c("cg"), all.x = TRUE, all.y = FALSE)
+        dfVolcano <- base::merge(dfVolcano, DNAdistancesMin, by.x = c("probe"), by.y = c("cg"), all.x = TRUE, all.y = FALSE)
+        dfVolcano <- base::merge(dfVolcano, DNAdistancesMean, by.x = c("probe"), by.y = c("cg"), all.x = TRUE, all.y = FALSE)
+        dfVolcano <- base::merge(dfVolcano, DNAdistancesMax, by.x = c("probe"), by.y = c("cg"), all.x = TRUE, all.y = FALSE)
+        #create shadow table for key assignment
+        #add probe trait and traitsource to key
+        originTrait <- result$combinedDFP_Val_Labels$mergedOriginTrait
+        originTrait <- rep(originTrait, nprobes)
+        keys <- seq(1:nrow(dfVolcano))
+        dfKeyShadow <- base::data.frame(key = keys)
+        dfKeyShadow$probe <- dfVolcano$probe
+        traitLabels <- result$combinedDFP_Val_Labels$mergedOriginalColnames
+        traitLabels <- rep(traitLabels, nprobes)
+        dfKeyShadow$trait <- traitLabels #dfVolcano$traitLabel
+        traitID <- result$combinedDFP_Val_Labels$traitID
+        traitID <- rep(traitID, nprobes)
+        dfKeyShadow$traitID <- traitID
+        dfKeyShadow$traitSource <- originTrait
+        dfVolcano$key <- dfKeyShadow$key
+        rownames(dfVolcano) <- dfVolcano$key
+        rownames(dfKeyShadow) <- dfKeyShadow$key
+        #sort by p-val and logFC
+        dfVolcano <- dfVolcano[base::order(dfVolcano$P_Val, dfVolcano$LogFC, decreasing = c(FALSE, TRUE), na.last = c(TRUE,TRUE)),]
+        #take only first 2^16 entities to be able to plot volcano plot using plotly
+        if(nrow(dfVolcano)>2^16) {
+          dfVolcano <- dfVolcano[1:2^16-1,]
+          dfKeyShadow <- dfKeyShadow[1:2^16-1,]
+        }
+        result$dfVolcano <- dfVolcano
+        result$dfKeyShadow <- dfKeyShadow
+      }
+      else {
+        result$dfVolcano <- NULL
+        browser() # should not happen
+      }
+    }
+    else {
+      result$dfVolcano <- NULL
+      browser() # should not happen
+    }
+  },
+  error = function(e) {
+    if (attributes(e)$class[1] != "shiny.silent.error") {
+      base::message("An error occurred in getProbeReducedDataStructureWOGap():\n", e)
+      browser() #should not happen
+    }
+  },
+  warning = function(w) {
+    base::message("A warning occurred in getProbeReducedDataStructureWOGap():\n", w)
+    browser() #should not happen
+  },
+  finally = {
+    base::print(base::paste0(sysTimePID(), " finished getProbeReducedDataStructureWOGap()."))
+    return(result)
   })
 }
 

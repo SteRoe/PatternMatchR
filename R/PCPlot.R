@@ -2,7 +2,7 @@ PCPlot_UI <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shiny::sliderInput(ns("DMRWindow"), "", #"DMR window size",
-                       1, 50, 5, 1, width = "100%"),
+                       1, 150, 5, 1, width = "100%"),# 1, 50, 5, 1, width = "100%"),
     shiny::selectizeInput(ns("selSelectedProbe"),
                           label = "select probe for DMR window (if no probe occurs here for selection, then there was no probe selected)",
                           choices = NULL,
@@ -78,6 +78,7 @@ PCPlot_SERVER <- function(id, session) {
             traitID <- selectedTrait()
             if(is.valid(traitID)) {
               probeIDs <- EpiVisR::getDMPNearRangeprobeID(annotation, probeID, DMRWindow)
+              #probeIDs <- getDMPNearRangeprobeID(annotation, probeID, DMRWindow)
               probeIDs <- probeIDs[which(probeIDs %in% colnames(session$userData$Beta_tDF))] #probeIDs <- session$userData$Beta_tDF[, which(probeIDs %in% colnames(session$userData$Beta_tDF))]
               DMPNearRangeData <- as.data.frame(session$userData$Beta_tDF[, probeIDs])
               DMPNearRangeData$ID <- rownames(DMPNearRangeData)
@@ -90,7 +91,6 @@ PCPlot_SERVER <- function(id, session) {
               selectedOriginalDataTraits <- session$userData$sessionVariables$selectedOriginalDataTraits()
               #get the right variable out of selectedOriginalDataTraits
               trait <- removeAdjFromColname(traitLocation$trait)
-  #browser() ###tbc() check
               if (traitLocation$traitSource == "1") {
                 traitSource <- "red_"
               }
@@ -150,7 +150,7 @@ PCPlot_SERVER <- function(id, session) {
       on.exit(shiny::removeNotification(shinyId), add = TRUE)
       base::tryCatch({
         result <- NULL
-        DMRWindow <- input$DMRWindow
+#        DMRWindow <- input$DMRWindow
         probeID <- selectedProbe() #DMP #the probeID in focus
         if(is.valid(probeID)){
           annotation <- session$userData$annotation
@@ -166,7 +166,8 @@ PCPlot_SERVER <- function(id, session) {
               resultDataSingleTrait$P_Val <- NULL
               resultDataSingleTrait$DeltaMeth <- resultDataSingleTrait$DM
               resultDataSingleTrait$DM <- NULL
-              result <- EpiVisR::plotlyPcPForDMP(DMPNearRange = DMPNearRangeData, probe = probeID, resultDataSingleTrait = resultDataSingleTrait, annotation = annotation)
+              #result <- plotlyPcPForDMP(DMPNearRange = DMPNearRangeData, probe = probeID, resultDataSingleTrait = resultDataSingleTrait, annotation = annotation, selection = session$userData$sessionVariables$selectedProbe(), shortlabel = TRUE)
+              result <- EpiVisR::plotlyPcPForDMP(DMPNearRange = DMPNearRangeData, probe = probeID, resultDataSingleTrait = resultDataSingleTrait, annotation = annotation, selection = session$userData$sessionVariables$selectedProbe(), shortlabel = TRUE)
             }
           }
         }
